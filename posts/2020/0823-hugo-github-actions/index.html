@@ -34,7 +34,7 @@ jobs:
           publish_dir: ./public
 </code></pre><p>その後コミット＆プッシュする。</p><p>プッシュ後GitHubを見に行くと、Actionsが動いたことが分かる。<br><img src=2020-08-23-15-46-08.png alt></p><p>また、<code>gh-pages</code>という名前のブランチが出来ていて、ここにビルド後のファイルが置かれているのが分かる。<br><img src=2020-08-23-15-46-22.png alt></p><p>※ サンプルのスクリプトに<code>publish_dir: ./public</code>の記述があるが、ビルド後のファイルはブランチ直下に置かれている。</p><h1 id=公開元ブランチの変更>公開元ブランチの変更</h1><p>既定ではmasterブランチがGitHub Pagesへ公開されるが、これを<code>gh-pages</code>へ変更する。</p><p>リポジトリの設定画面へ行き、GutHub Pagesの欄を探す。
 Sourceのブランチを<code>gh-pages</code>、フォルダはルートにしてSaveを押す。<br><img src=2020-08-23-15-46-42.png alt></p><p>少し待つとGitHub Pagesの内容が置き換わっている。
-表示が変わらない場合はキャッシュが残っている可能性があるので、ブラウザの更新ボタンを押してみるとよい。</p></section><footer><nav class="p-pagination c-pagination"><div class=c-pagination__ctrl><div class=c-pagination__newer></div><div class=c-pagination__older></div></div></nav></footer></article></main><footer class=l-footer><p class=p-copyright>&nbsp;&bull;&nbsp;
+表示が変わらない場合はキャッシュが残っている可能性があるので、ブラウザの更新ボタンを押してみるとよい。</p></section><footer><nav class="p-pagination c-pagination"><div class=c-pagination__ctrl><div class=c-pagination__newer><a href=https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/>Newer</a></div><div class=c-pagination__older></div></div></nav></footer></article></main><footer class=l-footer><p class=p-copyright>&nbsp;&bull;&nbsp;
 2020
 &nbsp;&bull;&nbsp;
 <a href=https://vicugna-pacos.github.io/>アルパカのメモ</a></p></footer></body></html>
