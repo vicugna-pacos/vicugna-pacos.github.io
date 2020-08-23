@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on アルパカのメモ</title><link>https://vicugna-pacos.github.io/posts/</link><description>Recent content in Posts on アルパカのメモ</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 23 Aug 2020 15:25:53 +0900</lastBuildDate><atom:link href="https://vicugna-pacos.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ</title><link>https://vicugna-pacos.github.io/posts/2020/0823-hugo-github-actions/</link><pubDate>Sun, 23 Aug 2020 15:25:53 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0823-hugo-github-actions/</guid><description>前提条件 Windows 10 Hugo v0.74.3(Windows版)がPCにインストール済み はじめに GitHub Pagesは所定のリポジトリをJekyllで変換して公開してくれるが、これをHugoを使って公開するようにしたい。 ローカルでHugoのパブリッシュを実行してコミット…という風に手動でやるのは面倒くさいので、mdファイルをコミット＆プッシュしたら、自動的にGitHub Pagesで公開されてほしい。
+GitHub Pagesの公開先は&amp;lt;user&amp;gt;.github.ioとする。
+Hugoの使い方については、下記参照。
+【Hugo】静的Webサイトを作る - Qiita
+GitHubにリポジトリを作成する &amp;lt;user&amp;gt;.github.ioという名前のpublicリポジトリを作成する。自動的にGitHub Pagesのユーザーページ元リポジトリとなる。
+リポジトリをクローン PCにて、作成したリポジトリをクローンする。
+Hugoで新しいサイトを作る クローンしたフォルダの親フォルダで下記コマンドを実行。
+hugo new site [リポジトリのフォルダ名] --force 既存フォルダに対してのnew siteなので、フラグの--forceが必要。 Hugoのフォルダやファイルが作成される。
+その後、テーマを設定しておく。
+GitHub Actionsを設定 GitHub Actions による GitHub Pages への自動デプロイ - Qiita
+上記記事を参考に、ローカルリポジトリで.github/workflows/gh-pages.ymlを作成し、サンプルをコピペする。
+name: github pages on: push: branches: - master jobs: deploy: runs-on: ubuntu-18.04 steps: - uses: actions/checkout@v2 with: submodules: true # Fetch Hugo themes fetch-depth: 0 # Fetch all history for .</description></item></channel></rss>
