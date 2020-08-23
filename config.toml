@@ -2,3 +2,9 @@ baseURL = "https://vicugna-pacos.github.io/"
 languageCode = "en-us"
 title = "アルパカのメモ"
 theme = "pickles"
+
+[params]
+  github = "vicugna-pacos"
+  author = "alpaca"
+  avatar = "/images/avatar.jpg"
+  bio = "おおむねSIerにいますが、他業種の社内SEだったこともあります。"
