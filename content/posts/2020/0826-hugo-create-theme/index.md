@@ -6,7 +6,8 @@ draft: true
 ---
 
 # はじめに
-Hugoには様々なThemesが作られているが、あんまりコレダというものが見つけられなかったので、自作にチャレンジ。
+Hugoテーマ自作にチャレンジ。  
+Hugo バージョン：v0.74.3
 
 # 準備
 ## 空のサイトを作る
@@ -62,13 +63,13 @@ https://gohugo.io/variables/page/
 ```html
 <!DOCTYPE html>
 <html>
-    {{/*- partial "head.html" . -*/}}
+    {{- partial "head.html" . -}}
     <body>
-        {{/*- partial "header.html" . -*/}}
+        {{- partial "header.html" . -}}
         <div id="content">
-        {{/*- block "main" . */}}{{/*- end */}}
+        {{- block "main" . }}{{- end }}
         </div>
-        {{/*- partial "footer.html" . -*/}}
+        {{- partial "footer.html" . -}}
     </body>
 </html>
 ```
@@ -79,14 +80,14 @@ https://gohugo.io/variables/page/
 トップページには、メインセクションの記事一覧を表示すると良いと思う。以下はそのサンプル。
 
 ```html
-{{/* define "main" */}}
+{{ define "main" }}
 <h1>Posts</h1>
-{{/* range (where site.RegularPages "Type" "in" site.Params.mainSections) */}}
+{{ range (where site.RegularPages "Type" "in" site.Params.mainSections) }}
   <article>
-    <h2>{{/* .Title */}}</h2>
-    {{/* .Content */}}
+    <h2>{{ .Title }}</h2>
+    {{ .Content }}
   </article>
-{{/* end */}}
-{{/* end */}}
+{{ end }}
+{{ end }}
 ```
 
