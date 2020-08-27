@@ -29,13 +29,31 @@ hugo new theme [テーマ名]
 
 ![](2020-08-26-10-46-24.png)
 
-# それぞれのファイルの説明
+# 使用できる変数
+https://gohugo.io/variables/page/
+
+各テンプレートでは、`Page`変数というものが使用できる。
+`{{ .Title }}`など、ドットで始まる。
+
+よく使いそうな変数：
+
+* `.Title` - ページのタイトル(front matterに書いたもの)
+* `.Content` - ページの内容(front matterの後に書かれたもの)
+* `.Date`, `.LastMod`, `.ExpiryDate`, `PublishDate` - front matterに書いた日付。
+* `.Draft` - 下書きかどうか(front matter)
+* `.Next` - 次のページ。`{{with .Next}}{{.Permalink}}{{end}}`と書けば次ページへのリンクを貼れる。
+* `.NextInSection` - 同一セクション内での次ページ。
+* `.Pages` - Collection of regular pages and only first-level section pages under the current list page.
+
+# 生成されるファイルについて
 空のテーマを作成したときに生成されるファイルについての説明。
 
-`layouts\index.html` ホームページ(トップページ)
-`layouts\_default\baseof.html` 全てのページのベーステンプレート。このファイルにはテーマ作成時から内容が書かれている。
-`layouts\_default\list.html`    セクションページ。
-`layouts\_default\single.html`  単体ページ
+|ファイル名|説明|
+|---|---|
+|`layouts\index.html`|ホームページ(トップページ)|
+|`layouts\_default\baseof.html`|全てのページのベースになるファイル。このファイルにはテーマ作成時から内容が書かれている。|
+|`layouts\_default\list.html`|セクションページ。|
+|`layouts\_default\single.html`|単体ページ|
 
 # baseof.htmlを作る
 このファイルが全てのページのベースとなる。
@@ -44,13 +62,13 @@ hugo new theme [テーマ名]
 ```html
 <!DOCTYPE html>
 <html>
-    {{- partial "head.html" . -}}
+    {{/*- partial "head.html" . -*/}}
     <body>
-        {{- partial "header.html" . -}}
+        {{/*- partial "header.html" . -*/}}
         <div id="content">
-        {{- block "main" . }}{{- end }}
+        {{/*- block "main" . */}}{{/*- end */}}
         </div>
-        {{- partial "footer.html" . -}}
+        {{/*- partial "footer.html" . -*/}}
     </body>
 </html>
 ```
@@ -58,24 +76,17 @@ hugo new theme [テーマ名]
 トップページとなる `layouts\index.html` を開く。内容は空。
 
 ## 記事の一覧を表示する
-↓シンプルな例：
+トップページには、メインセクションの記事一覧を表示すると良いと思う。以下はそのサンプル。
 
 ```html
-{{ define "main" }}
+{{/* define "main" */}}
 <h1>Posts</h1>
-{{ range .Pages }}
+{{/* range (where site.RegularPages "Type" "in" site.Params.mainSections) */}}
   <article>
-    <h2>{{ .Title }}</h2>
-    {{ .Content }}
+    <h2>{{/* .Title */}}</h2>
+    {{/* .Content */}}
   </article>
-{{ end }}
-{{ end }}
+{{/* end */}}
+{{/* end */}}
 ```
-
-`range .Pages` でページの一覧が取れるが、取得されるのは以下の2つ：
-
-* contents直下にあるmdファイル
-* contentsに作成したフォルダにある`_index.md`
-
-![](2020-08-26-15-35-21.png)
 
