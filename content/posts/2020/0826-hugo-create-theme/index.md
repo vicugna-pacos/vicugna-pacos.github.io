@@ -11,18 +11,43 @@ Hugo バージョン：v0.74.3
 
 # 準備
 ## 空のサイトを作る
+まずテーマを表示するためのサイトを作成する。公式で用意されているサンプル用のサイトを使うのが手っ取り早い。
+
+gohugoio/hugoBasicExample: Example site to use with Hugo & Hugo Themes  
+https://github.com/gohugoio/hugoBasicExample
+
+ただ初めてテーマを触ってみる場合は、サイトの内容を把握できていないとテーマの動きも把握しづらいので、自分で空サイトを作成し、mdファイルをいくつか作ってから取り掛かるのも良いかもしれない。
 
 ## 空のテーマを作る
-hugoBasicExampleをクローンしたフォルダで、下記コマンドを実行する。
+サイト用フォルダで、下記コマンドを実行する。
 
 ```
 hugo new theme [テーマ名]
 ```
 
-`hugoBasicExample\themes`フォルダに、テーマ名のフォルダが作成される。
-また、テーマに必要な基本的なファイルも作成されている。しかしHTMLファイル達は0kbで空っぽである。
+`themes`フォルダにテーマ名のフォルダが作成され、基本的なファイル達も作成されている。
 
-![](2020-08-26-10-07-59.png)
+以下、作成されるファイルの一覧：
+
+    テーマ名フォルダ
+    ├ archetypes
+    │   └ default.md
+    ├ layouts
+    │   ├ _default
+    │   │   ├ baseof.html  <- 全てのページのベースになるファイル
+    │   │   ├ list.html  <- セクションページ
+    │   │   └ single.html  <- 単体ページ
+    │   ├ partials
+    │   │   ├ footer.html
+    │   │   ├ head.html
+    │   │   └ header.html
+    │   ├ 404.html
+    │   └ index.html     <- トップページ
+    ├ static
+    │   ├ css
+    │   └ js
+    ├ LICENSE
+    └ theme.toml
 
 ## テーマをGitリポジトリにする
 テーマ名のフォルダをGitリポジトリにする。
@@ -46,19 +71,9 @@ https://gohugo.io/variables/page/
 * `.NextInSection` - 同一セクション内での次ページ。
 * `.Pages` - Collection of regular pages and only first-level section pages under the current list page.
 
-# 生成されるファイルについて
-空のテーマを作成したときに生成されるファイルについての説明。
-
-|ファイル名|説明|
-|---|---|
-|`layouts\index.html`|ホームページ(トップページ)|
-|`layouts\_default\baseof.html`|全てのページのベースになるファイル。このファイルにはテーマ作成時から内容が書かれている。|
-|`layouts\_default\list.html`|セクションページ。|
-|`layouts\_default\single.html`|単体ページ|
-
 # baseof.htmlを作る
 このファイルが全てのページのベースとなる。
-`layouts\_default\baseof.html`を開くと、htmlタグなどが書かれているのが分かる。
+`layouts\_default\baseof.html`を開くと、すでに内容が書かれているので、必要に応じて編集していく。
 
 ```html
 <!DOCTYPE html>
@@ -90,4 +105,23 @@ https://gohugo.io/variables/page/
 {{ end }}
 {{ end }}
 ```
+## ページネーションを入れる
+https://gohugo.io/templates/pagination/
+
+```html
+{{ define "main" }}
+<h1>Posts</h1>
+{{ range ( .Paginate (where site.RegularPages "Type" "in" site.Params.mainSections)).Pages }}
+  <article>
+    <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+    {{ .Content }}
+  </article>
+{{ end }}
+{{ template "_internal/pagination.html" . }}
+{{ end }}
+```
+
+`_internal/pagination.html`を使うと、お手軽にページのナビゲーションを作れる。
+このファイルの実体は、Hugo のソースコードを漁ると見られる。
+[hugo/tpl/tplimpl/embedded/templates at master · gohugoio/hugo](https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates)
 
