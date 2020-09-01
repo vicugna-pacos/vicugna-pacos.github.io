@@ -125,3 +125,38 @@ https://gohugo.io/templates/pagination/
 このファイルの実体は、Hugo のソースコードを漁ると見られる。
 [hugo/tpl/tplimpl/embedded/templates at master · gohugoio/hugo](https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates)
 
+生成されるページネーションのHTMLは以下のような感じ。Bootstrap互換があるらしい。
+
+```html
+<ul class="pagination">
+  <li class="page-item">
+    <a href="/" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+  </li>
+  <li class="page-item disabled">
+    <a  class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+  </li>
+  <li class="page-item active">
+    <a class="page-link" href="/">1</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/page/2/">2</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/page/3/">3</a>
+  </li>
+  <li class="page-item disabled">
+    <span aria-hidden="true">&nbsp;&hellip;&nbsp;</span>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/page/5/">5</a>
+  </li>
+  <li class="page-item">
+    <a href="/page/2/" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/page/5/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+  </li>
+</ul>
+```
+
+# 単体ページを作る
