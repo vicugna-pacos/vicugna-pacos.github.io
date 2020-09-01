@@ -88,6 +88,17 @@ https://gohugo.io/variables/page/
     </body>
 </html>
 ```
+
+# head.htmlを作る
+`layouts/partials/head.html`を開く。内容は空なので、`head`タグとその中身を書く。
+
+## cssなどを追加する
+例えば、cssファイルを読み込ませたい場合は、`テーマフォルダ/static/css/main.css`にファイルを置き、htmlでは以下のように参照する。
+
+```html
+<link rel="stylesheet" href="{{ .Site.BaseURL }}css/skeleton.css">
+```
+
 # index.htmlを作る
 トップページとなる `layouts\index.html` を開く。内容は空。
 
