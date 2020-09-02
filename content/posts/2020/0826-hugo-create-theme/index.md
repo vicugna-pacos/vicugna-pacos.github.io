@@ -110,12 +110,21 @@ https://gohugo.io/variables/page/
 <h1>Posts</h1>
 {{ range (where site.RegularPages "Type" "in" site.Params.mainSections) }}
   <article>
-    <h2>{{ .Title }}</h2>
-    {{ .Content }}
+    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+    {{ .Summary }}
+    {{ if .Truncated }}
+    <div>
+      <a href="{{ .RelPermalink }}">続きを読む</a>
+    </div>
+    {{ end }}
   </article>
 {{ end }}
 {{ end }}
 ```
+
+記事の順番は、既定では `Weight > Date > LinkTitle > FilePath` となっている。
+Weightとは、front matterで指定できるプロパティ値。そして、Dateは降順が既定。
+
 ## ページネーションを入れる
 https://gohugo.io/templates/pagination/
 
@@ -170,4 +179,56 @@ https://gohugo.io/templates/pagination/
 </ul>
 ```
 
+## 記事一覧の件数を絞る
+`range`の後に`first 10`などを指定する。
+
+```html
+<div>
+    <p>Recent Posts</p>
+    <ul>
+        {{ $p1 := where site.RegularPages "Type" "in" site.Params.mainSections }}
+        {{ range first 5 $p1 }}
+        <li>
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </li>
+        {{ end }}
+    </ul>
+</div>
+```
+
+## タグ一覧を作る
+
+```html
+<ul>
+    {{ range $termName, $entries := .Site.Taxonomies.tags }}
+    <li><a href="{{ "/tags/" | relLangURL }}{{ $termName | urlize }}">{{ $termName }}</a>
+    {{ end }}
+</ul>
+```
+
 # 単体ページを作る
+
+# 日付のフォーマット
+Go独特の書き方をする。  
+例えば、年は`yyyy`とかではなく、`2006`と書く。フィールドごとに固定値があるらしい。
+
+以下、Goのページから引っ張ってきた表記のサンプル：
+
+    ANSIC       = "Mon Jan _2 15:04:05 2006"
+    UnixDate    = "Mon Jan _2 15:04:05 MST 2006"
+    RubyDate    = "Mon Jan 02 15:04:05 -0700 2006"
+    RFC822      = "02 Jan 06 15:04 MST"
+    RFC822Z     = "02 Jan 06 15:04 -0700" // RFC822 with numeric zone
+    RFC850      = "Monday, 02-Jan-06 15:04:05 MST"
+    RFC1123     = "Mon, 02 Jan 2006 15:04:05 MST"
+    RFC1123Z    = "Mon, 02 Jan 2006 15:04:05 -0700" // RFC1123 with numeric zone
+    RFC3339     = "2006-01-02T15:04:05Z07:00"
+    RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
+    Kitchen     = "3:04PM"
+    // Handy time stamps.
+    Stamp      = "Jan _2 15:04:05"
+    StampMilli = "Jan _2 15:04:05.000"
+    StampMicro = "Jan _2 15:04:05.000000"
+    StampNano  = "Jan _2 15:04:05.000000000"
+
+参照元：https://golang.org/pkg/time/
