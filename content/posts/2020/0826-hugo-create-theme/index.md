@@ -92,6 +92,17 @@ https://gohugo.io/variables/page/
 # head.htmlを作る
 `layouts/partials/head.html`を開く。内容は空なので、`head`タグとその中身を書く。
 
+## generator情報を追加する
+`head`タグ内に以下を記述しておく。
+
+```html
+{{ .Hugo.Generator }}
+```
+
+これを入れると `<meta name="generator" content="Hugo 0.18" />`といった感じのタグになる。
+このサイトはHugoで作りました、というのを教える情報で、Hugoのサイトで配布されているテーマはほぼすべてこのタグが入っているらしい。
+`generator`を教えるのは本来はセキュリティ上好ましくないとされているが、Hugoは静的ジェネレーターだし、入れてあげると良いのではと思う。
+
 ## cssなどを追加する
 例えば、cssファイルを読み込ませたい場合は、`テーマフォルダ/static/css/main.css`にファイルを置き、htmlでは以下のように参照する。
 
