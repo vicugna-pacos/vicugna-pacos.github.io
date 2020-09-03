@@ -1,6 +1,7 @@
 ﻿---
 title: "Hugoのテーマを作る"
 date: 2020-08-26T00:00:00+09:00
+lastMod: 2020-09-03T00:00:00+09:00
 tags: ["Hugo"]
 draft: true
 ---
@@ -243,3 +244,13 @@ Go独特の書き方をする。
     StampNano  = "Jan _2 15:04:05.000000000"
 
 参照元：https://golang.org/pkg/time/
+
+# 画像などを参照する
+https://gohugo.io/functions/relurl/
+
+```html
+<img src="{{ "images/icon.png" | relURL }}">
+```
+
+`static`フォルダ配下に置いた画像などを使用する場合、`static`フォルダ内からのファイルパスを、`relURL`という関数へ渡す。
+`relURL`は、相対パスを作ってくれる関数。絶対パスが必要な場合は、`absURL`を使用する。
