@@ -16,9 +16,14 @@ git.exe submodule add -- &amp;#34;https://github.com/dim0627/hugo_theme_beg.git&
 theme = &amp;#34;beg&amp;#34; 新しい記事を書く 以下を実行。
 hugo new &amp;lt;セクション名&amp;gt;/my-first-post.md セクションが無い場合は、指定なしでも良い。 ブログサイトの記事を書くなら、セクション名はblogやpostsがよさそう。 mdファイルは、contentフォルダ配下に作成される。
 セクション https://gohugo.io/content-management/sections/</description></item><item><title>Visual Studio Code の色々</title><link>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</link><pubDate>Sun, 23 Aug 2020 19:20:57 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</guid><description>はじめに VSCodeの使い方Tips色々
+設定画面を開く Ctrl + , を押す。 または、メニューの「ファイル」→「ユーザー設定」→「設定」。
 シングルクリックでファイルが開かないようにする 既定だと、ファイルをシングルクリックするとプレビューモードでファイルが開く(タブのファイル名がイタリックになっている)。 ダブルクリックで普通に開くが、操作しづらいのでプレビューをオフにする。
-プレビューをオフにしただけだと、シングルクリックでファイルが開くのはそのまま。ダブルクリックでファイルを開くように変更する。 設定を「openMode」で検索すると出てくる項目を「doubleClick」にする。
-エクスプローラーのインデントを変更する 既定のままだと、エクスプローラーのファイルツリーのインデントが浅いが、このインデントの深さは設定で変更できる。 設定を「Tree Indent」で検索して出てくる項目を変更する。 既定値は「8」なので、個人的には「16」などに変更すると良い感じ。
+Workbench &amp;gt; Editor &amp;gt; Enable Preview のチェックを外す。
+プレビューをオフにしただけだと、シングルクリックでファイルが開くのはそのまま。ダブルクリックでファイルを開くように変更する。
+Workbench &amp;gt; List &amp;gt; OpenMode を doubleClickにする。
+エクスプローラーのインデントを変更する 既定のままだと、エクスプローラーのファイルツリーのインデントが浅いが、このインデントの深さは設定で変更できる。
+Workbench &amp;gt; Tree &amp;gt; Indent を変更する。
+既定値は「8」なので、個人的には「16」などに変更すると良い感じ。
 ↓設定値変更前後の様子
 参考：vs codeでExplorer（ファイルツリー）の階層構造を見やすくする - Qiita
 Markdownのプレビューを横に表示する エディタを開いた状態で、Ctrl + K → V を押す(Vを押すときはCtrlキーから手を放す)。</description></item><item><title>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ</title><link>https://vicugna-pacos.github.io/posts/2020/0823-hugo-github-actions/</link><pubDate>Sun, 23 Aug 2020 15:25:53 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0823-hugo-github-actions/</guid><description>前提条件 Windows 10 Hugo v0.74.3(Windows版)がPCにインストール済み はじめに GitHub Pagesは所定のリポジトリをJekyllで変換して公開してくれるが、これをHugoを使って公開するようにしたい。 ローカルでHugoのパブリッシュを実行してコミット…という風に手動でやるのは面倒くさいので、mdファイルをコミット＆プッシュしたら、自動的にGitHub Pagesで公開されてほしい。

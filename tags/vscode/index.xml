@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>VSCode on アルパカのメモ</title><link>https://vicugna-pacos.github.io/tags/vscode/</link><description>Recent content in VSCode on アルパカのメモ</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 23 Aug 2020 19:20:57 +0900</lastBuildDate><atom:link href="https://vicugna-pacos.github.io/tags/vscode/index.xml" rel="self" type="application/rss+xml"/><item><title>Visual Studio Code の色々</title><link>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</link><pubDate>Sun, 23 Aug 2020 19:20:57 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</guid><description>はじめに VSCodeの使い方Tips色々
+設定画面を開く Ctrl + , を押す。 または、メニューの「ファイル」→「ユーザー設定」→「設定」。
 シングルクリックでファイルが開かないようにする 既定だと、ファイルをシングルクリックするとプレビューモードでファイルが開く(タブのファイル名がイタリックになっている)。 ダブルクリックで普通に開くが、操作しづらいのでプレビューをオフにする。
-プレビューをオフにしただけだと、シングルクリックでファイルが開くのはそのまま。ダブルクリックでファイルを開くように変更する。 設定を「openMode」で検索すると出てくる項目を「doubleClick」にする。
-エクスプローラーのインデントを変更する 既定のままだと、エクスプローラーのファイルツリーのインデントが浅いが、このインデントの深さは設定で変更できる。 設定を「Tree Indent」で検索して出てくる項目を変更する。 既定値は「8」なので、個人的には「16」などに変更すると良い感じ。
+Workbench &amp;gt; Editor &amp;gt; Enable Preview のチェックを外す。
+プレビューをオフにしただけだと、シングルクリックでファイルが開くのはそのまま。ダブルクリックでファイルを開くように変更する。
+Workbench &amp;gt; List &amp;gt; OpenMode を doubleClickにする。
+エクスプローラーのインデントを変更する 既定のままだと、エクスプローラーのファイルツリーのインデントが浅いが、このインデントの深さは設定で変更できる。
+Workbench &amp;gt; Tree &amp;gt; Indent を変更する。
+既定値は「8」なので、個人的には「16」などに変更すると良い感じ。
 ↓設定値変更前後の様子
 参考：vs codeでExplorer（ファイルツリー）の階層構造を見やすくする - Qiita
 Markdownのプレビューを横に表示する エディタを開いた状態で、Ctrl + K → V を押す(Vを押すときはCtrlキーから手を放す)。</description></item></channel></rss>
