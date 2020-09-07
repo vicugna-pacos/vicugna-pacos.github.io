@@ -1,12 +1,15 @@
 ---
 title: "Hugoで静的Webサイトを作る"
 date: 2020-08-27T15:54:58+09:00
+lastMod: 2020-09-07T15:54:58+09:00
 tags: ["Hugo"]
 ---
 
 # Hugoとは
 静的サイトジェネレータ。MarkdownファイルをHTMLファイルへ変換し、Webサイトにできるツール。  
 [公式サイト](https://gohugo.io/)
+
+バージョン：v0.74.3
 
 # 説明の前提条件
 Hugoアプリケーションの置場所：`C:\Hugo\bin`  
@@ -25,8 +28,23 @@ zipファイルを解凍したら、`C:\Hugo\bin`をPATHに追加する。
 もしexeファイルが`hugo.exe`ではない場合、ファイル名を変更しておく。
 
 ## 稼働確認
-コマンドプロンプトを起動し、`hugo help`と入力する。以下のようなヘルプが出ればOK。  
-![](2020-08-27-15-56-22.png)
+コマンドプロンプトを起動し、`hugo help`と入力する。以下のようなヘルプが出ればOK。 
+
+    hugo is the main command, used to build your Hugo site.
+
+    Hugo is a Fast and Flexible Static Site Generator
+    built with love by spf13 and friends in Go.
+
+    Complete documentation is available at http://gohugo.io/.
+
+    Usage:
+      hugo [flags]
+      hugo [command]
+
+    Available Commands:
+      config      Print the site configuration
+      convert     Convert your content to different formats
+    ※以下略
 
 コマンドプロンプトは、「管理者として実行」しないとhugoコマンドが動作しない場合がある。
 (おそらくログオンアカウントの権限による)
@@ -44,7 +62,7 @@ sitesフォルダ配下に`example.com`というフォルダが作られ、他�
 ## 設定ファイルを編集する
 サイトフォルダ直下にある`config.toml`をテキストエディタで開くと、以下が既に書かれているので、適切な値へ直す。
 
-```
+```toml
 baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "My New Hugo Site"
@@ -64,14 +82,14 @@ git.exe submodule add   -- "https://github.com/dim0627/hugo_theme_beg.git" "them
 
 テーマを追加した後、`config.toml`を編集し、themesフォルダ配下に作ったフォルダ名をテーマ名として指定する。
 
-```:config.toml
+```toml
 theme = "beg"
 ```
 
 # 新しい記事を書く
 以下を実行。
 
-```
+```Batchfile
 hugo new <セクション名>/my-first-post.md
 ```
 
@@ -106,10 +124,19 @@ https://gohugo.io/content-management/sections/
 
 
 ## moreタグを入れる
+[Content Summaries | Hugo](https://gohugo.io/content-management/summaries/)
+
 記事中にmoreタグを入れると、一覧画面での記事を途中で分割できる。
 これをいれないと、サマリーでHTMLが有効にならない。タグを入れない場合、サマリーがテキストのみになる。
 
-[Content Summaries | Hugo](https://gohugo.io/content-management/summaries/)
+## シンタックスハイライトを使う
+[Syntax Highlighting | Hugo](https://gohugo.io/content-management/syntax-highlighting/)
+
+マークダウンで使う` ``` `のほかに、`<highlight>`というHugoのShortcodeも使える。
+ハイライトの技術は「Chroma」というGoのライブラリを使っているらしい。
+また、「Pygments」というライブラリにも互換性がある。
+
+対応している言語は公式ドキュメントを参照。
 
 # テストする
 サイトフォルダ直下で以下を実行。
