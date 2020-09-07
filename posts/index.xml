@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on アルパカのメモ</title><link>https://vicugna-pacos.github.io/posts/</link><description>Recent content in Posts on アルパカのメモ</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 27 Aug 2020 15:54:58 +0900</lastBuildDate><atom:link href="https://vicugna-pacos.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Hugoで静的Webサイトを作る</title><link>https://vicugna-pacos.github.io/posts/2020/0827-hugo/</link><pubDate>Thu, 27 Aug 2020 15:54:58 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0827-hugo/</guid><description>Hugoとは 静的サイトジェネレータ。MarkdownファイルをHTMLファイルへ変換し、Webサイトにできるツール。
 公式サイト
+バージョン：v0.74.3
 説明の前提条件 Hugoアプリケーションの置場所：C:\Hugo\bin
 上記フォルダにPATHを通すので、置場所は違っていても大した問題ではない。
 Webサイトのソースの置場所：C:\Hugo\Sites
 これも実際はどこでも構わない。
 インストール Hugoのバイナリを https://github.com/gohugoio/hugo/releases からダウンロードする。 Windows用のバイナリを探してダウンロード。 zipファイルを解凍したら、C:\Hugo\binをPATHに追加する。 もしexeファイルがhugo.exeではない場合、ファイル名を変更しておく。
 稼働確認 コマンドプロンプトを起動し、hugo helpと入力する。以下のようなヘルプが出ればOK。
-コマンドプロンプトは、「管理者として実行」しないとhugoコマンドが動作しない場合がある。 (おそらくログオンアカウントの権限による)
-新しいサイトを作る コマンドプロンプトで以下を実行。
-cd C:\Hugo\Sites hugo new site example.com sitesフォルダ配下にexample.comというフォルダが作られ、他にも色々フォルダが出来ている。
-設定ファイルを編集する サイトフォルダ直下にあるconfig.tomlをテキストエディタで開くと、以下が既に書かれているので、適切な値へ直す。
-baseURL = &amp;quot;http://example.org/&amp;quot; languageCode = &amp;quot;en-us&amp;quot; title = &amp;quot;My New Hugo Site&amp;quot; ソースをGitに登録する example.comフォルダをGitリポジトリとする。
-テーマを適用する https://themes.gohugo.io/ へ行って、好きなテーマを探す。 テーマはすべてGitリポジトリにあって、使う場合はsubmoduleとして追加するか、cloneするか、頑張ってダウンロードするかのいずれかで取得する。 テーマを決めたら、themesフォルダ内に追加する。
-git.exe submodule add -- &amp;#34;https://github.com/dim0627/hugo_theme_beg.git&amp;#34; &amp;#34;themes/beg&amp;#34; テーマを追加した後、config.tomlを編集し、themesフォルダ配下に作ったフォルダ名をテーマ名として指定する。
-theme = &amp;#34;beg&amp;#34; 新しい記事を書く 以下を実行。
-hugo new &amp;lt;セクション名&amp;gt;/my-first-post.md セクションが無い場合は、指定なしでも良い。 ブログサイトの記事を書くなら、セクション名はblogやpostsがよさそう。 mdファイルは、contentフォルダ配下に作成される。
-セクション https://gohugo.io/content-management/sections/</description></item><item><title>Visual Studio Code の色々</title><link>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</link><pubDate>Sun, 23 Aug 2020 19:20:57 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</guid><description>はじめに VSCodeの使い方Tips色々
+hugo is the main command, used to build your Hugo site. Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go. Complete documentation is available at http://gohugo.io/. Usage: hugo [flags] hugo [command] Available Commands: config Print the site configuration convert Convert your content to different formats ※以下略 コマンドプロンプトは、「管理者として実行」しないとhugoコマンドが動作しない場合がある。 (おそらくログオンアカウントの権限による)</description></item><item><title>Visual Studio Code の色々</title><link>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</link><pubDate>Sun, 23 Aug 2020 19:20:57 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/</guid><description>はじめに VSCodeの使い方Tips色々
 設定画面を開く Ctrl + , を押す。 または、メニューの「ファイル」→「ユーザー設定」→「設定」。
 シングルクリックでファイルが開かないようにする 既定だと、ファイルをシングルクリックするとプレビューモードでファイルが開く(タブのファイル名がイタリックになっている)。 ダブルクリックで普通に開くが、操作しづらいのでプレビューをオフにする。
 Workbench &amp;gt; Editor &amp;gt; Enable Preview のチェックを外す。
