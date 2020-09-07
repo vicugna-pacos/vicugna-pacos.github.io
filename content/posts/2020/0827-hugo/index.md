@@ -138,6 +138,28 @@ https://gohugo.io/content-management/sections/
 
 対応している言語は公式ドキュメントを参照。
 
+### スタイルを変更する
+使用するテーマ次第かもしれないが、コード部分のスタイルは既定では「monokai」という名前で、以下のようになっている。
+
+<pre style="color: #f8f8f2; background-color: #272822" class="chroma"><span style="color: #f92672">package</span> <span style="color: #a6e22e">main</span>
+<span style="color: #f92672">import</span> <span class="p">(</span>
+    <span style="color: #e6db74">"fmt"</span>
+    <span style="color: #e6db74">"math/rand"</span>
+    <span style="color: #e6db74">"time"</span>
+<span class="p">)</span>
+</pre>
+
+スタイルはconfig.tomlで指定可能。
+
+```toml
+[markup]
+  [markup.highlight]
+    style = "monokai"
+```
+
+スタイル一覧は、Chroma参照。  
+https://xyproto.github.io/splash/docs/all.html
+
 # テストする
 サイトフォルダ直下で以下を実行。
 
