@@ -1,0 +1,51 @@
+﻿
+/* articleの日付やタグの情報 */
+.article-info {
+    color:#757575;
+    margin-bottom: 1.5rem;
+}
+.article-info img {
+    width: 1.4rem;
+    height: 1.4rem;
+    display:inline-block;
+    vertical-align: middle;
+}
+.article-info span {
+    padding-right:2rem;
+}
+
+/* 一覧で見るときのarticle */
+.article-summary {
+    margin-bottom : 1rem;
+}
+
+/* タグ一覧 */
+
+.taglist li {
+    display: inline-block;
+    padding-right: 1rem;
+}
+
+/* フッター */
+.f-author-container {
+    display: flex;
+}
+.f-avatar {
+    width: 100px;
+    height: 100px;
+}
+.f-avatar img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 50%;
+}
+.f-author {
+    flex: 1;
+    padding-left :1rem;
+}
+.f-author p {
+    margin : 0;
+}
+.f-author-name {
+    font-size: 3rem;
+}
