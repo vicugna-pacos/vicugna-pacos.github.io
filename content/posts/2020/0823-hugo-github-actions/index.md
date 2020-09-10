@@ -15,7 +15,9 @@ GitHub Pagesは所定のリポジトリをJekyllで変換して公開してく�
 GitHub Pagesの公開先は`<user>.github.io`とする。
 
 Hugoの使い方については、下記参照。  
-[【Hugo】静的Webサイトを作る - Qiita](https://qiita.com/vicugna-pacos/items/d6b5f5cdbc960324a3dc)
+[【Hugo】静的Webサイトを作る](posts/2020/0827-hugo/)
+
+<!--more-->
 
 # GitHubにリポジトリを作成する
 `<user>.github.io`という名前のpublicリポジトリを作成する。自動的にGitHub Pagesのユーザーページ元リポジトリとなる。
