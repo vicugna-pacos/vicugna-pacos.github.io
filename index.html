@@ -1,46 +1,14 @@
-<!doctype html><html><head><meta name=generator content="Hugo 0.74.1"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/skeleton.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>アルパカのメモ</title></head><body><div class=container><div><h1>アルパカのメモ</h1></div><div class=row><div class="nine columns"><article class=article-summary><h2><a href=/posts/2020/0827-hugo/>Hugoで静的Webサイトを作る</a></h2><div class=article-info><span><img src=/images/icon-calendar_today-24px.svg>
+<!doctype html><html><head><meta name=generator content="Hugo 0.74.1"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/skeleton.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>アルパカのメモ</title></head><body><div class=container><div class=header-area><span class=main-text>アルパカのメモ</span></div><div class="row main-area"><div class="nine columns"><article class=article-summary><h2><a href=/posts/2020/0827-hugo/>Hugoで静的Webサイトを作る</a></h2><div class=article-info><span><img src=/images/icon-calendar_today-24px.svg>
 2020-08-27
 (最終更新：2020-09-07)</span>
 <span><img src=/images/icon-label-24px.svg>
-Hugo</span></div>Hugoとは 静的サイトジェネレータ。MarkdownファイルをHTMLファイルへ変換し、Webサイトにできるツール。
-公式サイト
-バージョン：v0.74.3
-説明の前提条件 Hugoアプリケーションの置場所：C:\Hugo\bin
-上記フォルダにPATHを通すので、置場所は違っていても大した問題ではない。
-Webサイトのソースの置場所：C:\Hugo\Sites
-これも実際はどこでも構わない。
-インストール Hugoのバイナリを https://github.com/gohugoio/hugo/releases からダウンロードする。 Windows用のバイナリを探してダウンロード。 zipファイルを解凍したら、C:\Hugo\binをPATHに追加する。 もしexeファイルがhugo.exeではない場合、ファイル名を変更しておく。
-稼働確認 コマンドプロンプトを起動し、hugo helpと入力する。以下のようなヘルプが出ればOK。
-hugo is the main command, used to build your Hugo site. Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go. Complete documentation is available at http://gohugo.io/. Usage: hugo [flags] hugo [command] Available Commands: config Print the site configuration convert Convert your content to different formats ※以下略 コマンドプロンプトは、「管理者として実行」しないとhugoコマンドが動作しない場合がある。 (おそらくログオンアカウントの権限による)<div><a href=/posts/2020/0827-hugo/>続きを読む</a></div></article><article class=article-summary><h2><a href=/posts/2020/0823-vscode-tips/>Visual Studio Code の色々</a></h2><div class=article-info><span><img src=/images/icon-calendar_today-24px.svg>
+Hugo</span></div><h1 id=hugoとは>Hugoとは</h1><p>静的サイトジェネレータ。MarkdownファイルをHTMLファイルへ変換し、Webサイトにできるツール。<br><a href=https://gohugo.io/>公式サイト</a></p><p>バージョン：v0.74.3</p><div><a href=/posts/2020/0827-hugo/>続きを読む</a></div></article><article class=article-summary><h2><a href=/posts/2020/0823-vscode-tips/>Visual Studio Code の色々</a></h2><div class=article-info><span><img src=/images/icon-calendar_today-24px.svg>
 2020-08-23</span>
 <span><img src=/images/icon-label-24px.svg>
-VSCode</span></div>はじめに VSCodeの使い方Tips色々
-設定画面を開く Ctrl + , を押す。 または、メニューの「ファイル」→「ユーザー設定」→「設定」。
-シングルクリックでファイルが開かないようにする 既定だと、ファイルをシングルクリックするとプレビューモードでファイルが開く(タブのファイル名がイタリックになっている)。 ダブルクリックで普通に開くが、操作しづらいのでプレビューをオフにする。
-Workbench > Editor > Enable Preview のチェックを外す。
-プレビューをオフにしただけだと、シングルクリックでファイルが開くのはそのまま。ダブルクリックでファイルを開くように変更する。
-Workbench > List > OpenMode を doubleClickにする。
-エクスプローラーのインデントを変更する 既定のままだと、エクスプローラーのファイルツリーのインデントが浅いが、このインデントの深さは設定で変更できる。
-Workbench > Tree > Indent を変更する。
-既定値は「8」なので、個人的には「16」などに変更すると良い感じ。
-↓設定値変更前後の様子
-参考：vs codeでExplorer（ファイルツリー）の階層構造を見やすくする - Qiita
-Markdownのプレビューを横に表示する エディタを開いた状態で、Ctrl + K → V を押す(Vを押すときはCtrlキーから手を放す)。</article><article class=article-summary><h2><a href=/posts/2020/0823-hugo-github-actions/>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ</a></h2><div class=article-info><span><img src=/images/icon-calendar_today-24px.svg>
+VSCode</span></div><h1 id=はじめに>はじめに</h1><p>VSCodeの使い方Tips色々</p><h1 id=設定画面を開く>設定画面を開く</h1><p><code>Ctrl</code> + <code>,</code> を押す。
+または、メニューの「ファイル」→「ユーザー設定」→「設定」。</p><div><a href=/posts/2020/0823-vscode-tips/>続きを読む</a></div></article><article class=article-summary><h2><a href=/posts/2020/0823-hugo-github-actions/>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ</a></h2><div class=article-info><span><img src=/images/icon-calendar_today-24px.svg>
 2020-08-23</span>
 <span><img src=/images/icon-label-24px.svg>
 Hugo
-GitHub Actions</span></div>前提条件 Windows 10 Hugo v0.74.3(Windows版)がPCにインストール済み はじめに GitHub Pagesは所定のリポジトリをJekyllで変換して公開してくれるが、これをHugoを使って公開するようにしたい。 ローカルでHugoのパブリッシュを実行してコミット…という風に手動でやるのは面倒くさいので、mdファイルをコミット＆プッシュしたら、自動的にGitHub Pagesで公開されてほしい。
-GitHub Pagesの公開先は&lt;user>.github.ioとする。
-Hugoの使い方については、下記参照。
-【Hugo】静的Webサイトを作る - Qiita
-GitHubにリポジトリを作成する &lt;user>.github.ioという名前のpublicリポジトリを作成する。自動的にGitHub Pagesのユーザーページ元リポジトリとなる。
-リポジトリをクローン PCにて、作成したリポジトリをクローンする。
-Hugoで新しいサイトを作る クローンしたフォルダの親フォルダで下記コマンドを実行。
-hugo new site [リポジトリのフォルダ名] --force 既存フォルダに対してのnew siteなので、フラグの--forceが必要。 Hugoのフォルダやファイルが作成される。
-その後、テーマを設定しておく。
-GitHub Actionsを設定 GitHub Actions による GitHub Pages への自動デプロイ - Qiita
-上記記事を参考に、ローカルリポジトリで.github/workflows/gh-pages.ymlを作成し、サンプルをコピペする。
-name: github pages on: push: branches: - master jobs: deploy: runs-on: ubuntu-18.04 steps: - uses: actions/checkout@v2 with: submodules: true # Fetch Hugo themes fetch-depth: 0 # Fetch all history for .<div><a href=/posts/2020/0823-hugo-github-actions/>続きを読む</a></div></article></div><div class="three columns"><div><span>最近の投稿</span><ul><li><a href=https://vicugna-pacos.github.io/posts/2020/0827-hugo/>Hugoで静的Webサイトを作る</a>
-<time>2020-08-27</time></li><li><a href=https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/>Visual Studio Code の色々</a>
-<time>2020-08-23</time></li><li><a href=https://vicugna-pacos.github.io/posts/2020/0823-hugo-github-actions/>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ</a>
-<time>2020-08-23</time></li></ul></div><div><span>タグ</span><ul class=taglist><li><a href=/tags/github-actions>github-actions</a><li><a href=/tags/hugo>hugo</a><li><a href=/tags/vscode>vscode</a></ul></div></div></div><footer><hr><aside class=f-author-container><div class=f-avatar><img src=/images/avatar.jpg></div><div class=f-author><p class=f-author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos>GitHub</a></p></div></aside><p></p></footer></div></body></html>
+GitHub Actions</span></div><h1 id=前提条件>前提条件</h1><ul><li>Windows 10</li><li>Hugo v0.74.3(Windows版)がPCにインストール済み</li></ul><h1 id=はじめに>はじめに</h1><p>GitHub Pagesは所定のリポジトリをJekyllで変換して公開してくれるが、これをHugoを使って公開するようにしたい。
+ローカルでHugoのパブリッシュを実行してコミット…という風に手動でやるのは面倒くさいので、mdファイルをコミット＆プッシュしたら、自動的にGitHub Pagesで公開されてほしい。</p><p>GitHub Pagesの公開先は<code>&lt;user>.github.io</code>とする。</p><p>Hugoの使い方については、下記参照。<br><a href=posts/2020/0827-hugo/>【Hugo】静的Webサイトを作る</a></p><div><a href=/posts/2020/0823-hugo-github-actions/>続きを読む</a></div></article></div><div class="three columns"><div><span>最近の投稿</span><ul><li><a href=https://vicugna-pacos.github.io/posts/2020/0827-hugo/>Hugoで静的Webサイトを作る</a></li><li><a href=https://vicugna-pacos.github.io/posts/2020/0823-vscode-tips/>Visual Studio Code の色々</a></li><li><a href=https://vicugna-pacos.github.io/posts/2020/0823-hugo-github-actions/>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ</a></li></ul></div><div><span>タグ</span><ul class=taglist><li><a href=/tags/github-actions>github-actions</a><li><a href=/tags/hugo>hugo</a><li><a href=/tags/vscode>vscode</a></ul></div></div></div><footer><hr><aside class=f-author-container><div class=f-avatar><img src=/images/avatar.jpg></div><div class=f-author><p class=f-author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos>GitHub</a></p></div></aside><p></p></footer></div></body></html>

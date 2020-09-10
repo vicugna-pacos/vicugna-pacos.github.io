@@ -1,4 +1,33 @@
-﻿
+﻿/*
+色：
+Primary : #1b5e20
+Light : #4c8c4a
+Dark : #003300
+*/
+
+a {
+    color:#4c8c4a;
+}
+a:hover {
+    color:#1b5e20;
+}
+
+/* ヘッダー */
+.header-area {
+    background-color:#1b5e20;
+    color:#ffffff;
+}
+.header-area .main-text {
+    display: inline-block;
+    padding:1rem;
+    font-weight: bold;
+}
+
+/* 主エリア */
+.main-area {
+    margin-top:2rem;
+}
+
 /* articleの日付やタグの情報 */
 .article-info {
     color:#757575;
