@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>pdf on アルパカのメモ</title><link>https://vicugna-pacos.github.io/tags/pdf/</link><description>Recent content in pdf on アルパカのメモ</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 11 Sep 2020 11:03:37 +0900</lastBuildDate><atom:link href="https://vicugna-pacos.github.io/tags/pdf/index.xml" rel="self" type="application/rss+xml"/><item><title>pdfファイルを画像にする</title><link>https://vicugna-pacos.github.io/posts/2020/0911-pdf-to-image/</link><pubDate>Fri, 11 Sep 2020 11:03:37 +0900</pubDate><guid>https://vicugna-pacos.github.io/posts/2020/0911-pdf-to-image/</guid><description>概要 PDFファイルをpngなどの画像へ変換する方法。
+フリーの画像編集ソフト「Inkscape」を使う。 (使用したバージョン：1.0.1)
+仕事でOCRサービスを使っているが、スキャンした書類から文字を消して白紙を作ったり、2ページ目を取り出したりしたいとき、pdfを画像にしたくなる。 Acrobat Readerでは変換できず、製品を買わなきゃいけないし、Webサイトのサービスは機密情報があると使いづらい。
+ちなみに、同じことが「GIMP」でも可能。両方試してみた結果、扱いやすそうなInkscapeを使うことにした。
+手順 Inkscapeをダウンロードする。
+Draw Freely | Inkscape
+ダウンロード後、インストールする。
+インストール後、起動する。
+pdfファイルを開く メニューの「ファイル」→「開く」でpdfファイルを選ぶ。
+PDFインポート設定の画面が出てくるので、「Puppler/Cairo import」か「Internal import」のどちらかを選ぶ。
+特に加工する必要がない場合、選んだほうで不満があればもう一つの選択肢を選ぶ、くらいで良いと思う。
+PNGとして保存する メニューの「ファイル」→「PNG画像にエクスポート」を選ぶ。
+画面右側にエクスポートの画面が出てくる。
+基本的には「ページ」を対象として、dpiをいじりつつエクスポートするのが良いと思う。</description></item></channel></rss>
