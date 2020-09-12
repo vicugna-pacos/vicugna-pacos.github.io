@@ -6,12 +6,12 @@ tags: ["Hugo"]
 draft: true
 ---
 
-# はじめに
+## はじめに
 Hugoテーマ自作にチャレンジ。  
 Hugo バージョン：v0.74.3
 
-# 準備
-## 空のサイトを作る
+## 準備
+### 空のサイトを作る
 まずテーマを表示するためのサイトを作成する。公式で用意されているサンプル用のサイトを使うのが手っ取り早い。
 
 gohugoio/hugoBasicExample: Example site to use with Hugo & Hugo Themes  
@@ -19,9 +19,7 @@ https://github.com/gohugoio/hugoBasicExample
 
 ただ初めてテーマを触ってみる場合は、サイトの内容を把握できていないとテーマの動きも把握しづらいので、自分で空サイトを作成し、mdファイルをいくつか作ってから取り掛かるのも良いかもしれない。
 
-<!--more-->
-
-## 空のテーマを作る
+### 空のテーマを作る
 サイト用フォルダで、下記コマンドを実行する。
 
 ```
@@ -52,13 +50,13 @@ hugo new theme [テーマ名]
     ├ LICENSE
     └ theme.toml
 
-## テーマをGitリポジトリにする
+### テーマをGitリポジトリにする
 テーマ名のフォルダをGitリポジトリにする。
 そうすることで、バージョン管理はもとより、他のサイトにもテーマを使えるようになる。
 
 ![](2020-08-26-10-46-24.png)
 
-# 使用できる変数
+## 使用できる変数
 https://gohugo.io/variables/page/
 
 各テンプレートでは、`Page`変数というものが使用できる。
@@ -74,7 +72,7 @@ https://gohugo.io/variables/page/
 * `.NextInSection` - 同一セクション内での次ページ。
 * `.Pages` - Collection of regular pages and only first-level section pages under the current list page.
 
-# baseof.htmlを作る
+## baseof.htmlを作る
 このファイルが全てのページのベースとなる。
 `layouts\_default\baseof.html`を開くと、すでに内容が書かれているので、必要に応じて編集していく。
 
@@ -92,10 +90,10 @@ https://gohugo.io/variables/page/
 </html>
 ```
 
-# head.htmlを作る
+## head.htmlを作る
 `layouts/partials/head.html`を開く。内容は空なので、`head`タグとその中身を書く。
 
-## generator情報を追加する
+### generator情報を追加する
 `head`タグ内に以下を記述しておく。
 
 ```html
@@ -106,17 +104,17 @@ https://gohugo.io/variables/page/
 このサイトはHugoで作りました、というのを教える情報で、Hugoのサイトで配布されているテーマはほぼすべてこのタグが入っているらしい。
 `generator`を教えるのは本来はセキュリティ上好ましくないとされているが、Hugoは静的ジェネレーターだし、入れてあげると良いのではと思う。
 
-## cssなどを追加する
+### cssなどを追加する
 例えば、cssファイルを読み込ませたい場合は、`テーマフォルダ/static/css/main.css`にファイルを置き、htmlでは以下のように参照する。
 
 ```html
 <link rel="stylesheet" href="{{ .Site.BaseURL }}css/skeleton.css">
 ```
 
-# index.htmlを作る
+## index.htmlを作る
 トップページとなる `layouts\index.html` を開く。内容は空。
 
-## 記事の一覧を表示する
+### 記事の一覧を表示する
 トップページには、メインセクションの記事一覧を表示すると良いと思う。以下はそのサンプル。
 
 ```html
@@ -139,7 +137,7 @@ https://gohugo.io/variables/page/
 記事の順番は、既定では `Weight > Date > LinkTitle > FilePath` となっている。
 Weightとは、front matterで指定できるプロパティ値。そして、Dateは降順が既定。
 
-## ページネーションを入れる
+### ページネーションを入れる
 https://gohugo.io/templates/pagination/
 
 ```html
@@ -193,7 +191,7 @@ https://gohugo.io/templates/pagination/
 </ul>
 ```
 
-## 記事一覧の件数を絞る
+### 記事一覧の件数を絞る
 `range`の後に`first 10`などを指定する。
 
 ```html
@@ -210,7 +208,7 @@ https://gohugo.io/templates/pagination/
 </div>
 ```
 
-## タグ一覧を作る
+### タグ一覧を作る
 
 ```html
 <ul>
@@ -220,9 +218,9 @@ https://gohugo.io/templates/pagination/
 </ul>
 ```
 
-# 単体ページを作る
+## 単体ページを作る
 
-# 日付のフォーマット
+## 日付のフォーマット
 Go独特の書き方をする。  
 例えば、年は`yyyy`とかではなく、`2006`と書く。フィールドごとに固定値があるらしい。
 
@@ -247,7 +245,7 @@ Go独特の書き方をする。
 
 参照元：https://golang.org/pkg/time/
 
-# 画像などを参照する
+## 画像などを参照する
 https://gohugo.io/functions/relurl/
 
 ```html

@@ -4,11 +4,11 @@ date: 2020-08-23T15:25:53+09:00
 tags: ["Hugo", "GitHub Actions"]
 ---
 
-# 前提条件
+## 前提条件
 * Windows 10
 * Hugo v0.74.3(Windows版)がPCにインストール済み
 
-# はじめに
+## はじめに
 GitHub Pagesは所定のリポジトリをJekyllで変換して公開してくれるが、これをHugoを使って公開するようにしたい。
 ローカルでHugoのパブリッシュを実行してコミット…という風に手動でやるのは面倒くさいので、mdファイルをコミット＆プッシュしたら、自動的にGitHub Pagesで公開されてほしい。
 
@@ -17,15 +17,13 @@ GitHub Pagesの公開先は`<user>.github.io`とする。
 Hugoの使い方については、下記参照。  
 [【Hugo】静的Webサイトを作る](posts/2020/0827-hugo/)
 
-<!--more-->
-
-# GitHubにリポジトリを作成する
+## GitHubにリポジトリを作成する
 `<user>.github.io`という名前のpublicリポジトリを作成する。自動的にGitHub Pagesのユーザーページ元リポジトリとなる。
 
-# リポジトリをクローン
+## リポジトリをクローン
 PCにて、作成したリポジトリをクローンする。
 
-# Hugoで新しいサイトを作る
+## Hugoで新しいサイトを作る
 クローンしたフォルダの親フォルダで下記コマンドを実行。
 
 ```
@@ -38,7 +36,7 @@ Hugoのフォルダやファイルが作成される。
 
 その後、テーマを設定しておく。
 
-# GitHub Actionsを設定
+## GitHub Actionsを設定
 [GitHub Actions による GitHub Pages への自動デプロイ - Qiita](https://qiita.com/peaceiris/items/d401f2e5724fdcb0759d)  
 上記記事を参考に、ローカルリポジトリで`.github/workflows/gh-pages.yml`を作成し、サンプルをコピペする。
 
@@ -84,7 +82,7 @@ jobs:
 
 ※ サンプルのスクリプトに`publish_dir: ./public`の記述があるが、ビルド後のファイルはブランチ直下に置かれている。
 
-# 公開元ブランチの変更
+## 公開元ブランチの変更
 既定ではmasterブランチがGitHub Pagesへ公開されるが、これを`gh-pages`へ変更する。
 
 リポジトリの設定画面へ行き、GutHub Pagesの欄を探す。

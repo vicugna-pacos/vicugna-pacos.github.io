@@ -5,22 +5,20 @@ lastMod: 2020-09-07T15:54:58+09:00
 tags: ["Hugo"]
 ---
 
-# Hugoとは
+## Hugoとは
 静的サイトジェネレータ。MarkdownファイルをHTMLファイルへ変換し、Webサイトにできるツール。  
 [公式サイト](https://gohugo.io/)
 
 バージョン：v0.74.3
 
-<!--more-->
-
-# 説明の前提条件
+## 説明の前提条件
 Hugoアプリケーションの置場所：`C:\Hugo\bin`  
 上記フォルダにPATHを通すので、置場所は違っていても大した問題ではない。
 
 Webサイトのソースの置場所：`C:\Hugo\Sites`  
 これも実際はどこでも構わない。
 
-# インストール
+## インストール
 
 Hugoのバイナリを https://github.com/gohugoio/hugo/releases からダウンロードする。
 Windows用のバイナリを探してダウンロード。
@@ -29,7 +27,7 @@ Windows用のバイナリを探してダウンロード。
 zipファイルを解凍したら、`C:\Hugo\bin`をPATHに追加する。
 もしexeファイルが`hugo.exe`ではない場合、ファイル名を変更しておく。
 
-## 稼働確認
+### 稼働確認
 コマンドプロンプトを起動し、`hugo help`と入力する。以下のようなヘルプが出ればOK。 
 
     hugo is the main command, used to build your Hugo site.
@@ -51,7 +49,7 @@ zipファイルを解凍したら、`C:\Hugo\bin`をPATHに追加する。
 コマンドプロンプトは、「管理者として実行」しないとhugoコマンドが動作しない場合がある。
 (おそらくログオンアカウントの権限による)
 
-# 新しいサイトを作る
+## 新しいサイトを作る
 コマンドプロンプトで以下を実行。
 
 ```
@@ -61,7 +59,7 @@ hugo new site example.com
 
 sitesフォルダ配下に`example.com`というフォルダが作られ、他にも色々フォルダが出来ている。
 
-## 設定ファイルを編集する
+### 設定ファイルを編集する
 サイトフォルダ直下にある`config.toml`をテキストエディタで開くと、以下が既に書かれているので、適切な値へ直す。
 
 ```toml
@@ -70,10 +68,10 @@ languageCode = "en-us"
 title = "My New Hugo Site"
 ```
 
-## ソースをGitに登録する
+### ソースをGitに登録する
 `example.com`フォルダをGitリポジトリとする。
 
-# テーマを適用する
+## テーマを適用する
 https://themes.gohugo.io/ へ行って、好きなテーマを探す。
 テーマはすべてGitリポジトリにあって、使う場合はsubmoduleとして追加するか、cloneするか、頑張ってダウンロードするかのいずれかで取得する。
 テーマを決めたら、`themes`フォルダ内に追加する。
@@ -88,7 +86,7 @@ git.exe submodule add   -- "https://github.com/dim0627/hugo_theme_beg.git" "them
 theme = "beg"
 ```
 
-# 新しい記事を書く
+## 新しい記事を書く
 以下を実行。
 
 ```Batchfile
@@ -99,7 +97,7 @@ hugo new <セクション名>/my-first-post.md
 ブログサイトの記事を書くなら、セクション名は`blog`や`posts`がよさそう。
 mdファイルは、`content`フォルダ配下に作成される。
 
-## セクション
+### セクション
 https://gohugo.io/content-management/sections/
 
 セクションは、`content`フォルダ配下のフォルダ構成で作られる。
@@ -125,13 +123,13 @@ https://gohugo.io/content-management/sections/
 ```
 
 
-## moreタグを入れる
+### moreタグを入れる
 [Content Summaries | Hugo](https://gohugo.io/content-management/summaries/)
 
 記事中にmoreタグを入れると、一覧画面での記事を途中で分割できる。
 これをいれないと、サマリーでHTMLが有効にならない。タグを入れない場合、サマリーがテキストのみになる。
 
-## シンタックスハイライトを使う
+### シンタックスハイライトを使う
 [Syntax Highlighting | Hugo](https://gohugo.io/content-management/syntax-highlighting/)
 
 マークダウンで使う` ``` `のほかに、`<highlight>`というHugoのShortcodeも使える。
@@ -140,7 +138,7 @@ https://gohugo.io/content-management/sections/
 
 対応している言語は公式ドキュメントを参照。
 
-### スタイルを変更する
+#### スタイルを変更する
 使用するテーマ次第かもしれないが、コード部分のスタイルは既定では「monokai」という名前で、以下のようになっている。
 
 <pre style="color: #f8f8f2; background-color: #272822" class="chroma"><span style="color: #f92672">package</span> <span style="color: #a6e22e">main</span>
@@ -162,7 +160,7 @@ https://gohugo.io/content-management/sections/
 スタイル一覧は、Chroma参照。  
 https://xyproto.github.io/splash/docs/all.html
 
-## 見出しはh2から始めるべきか？
+### 見出しはh2から始めるべきか？
 通常、何も考えずにMarkdownを書く場合、見出しは`#`(h1)から始めると思う。
 しかし、Hugoで記事の目次作成をさせると、`##`(h2)からの見出しを元に目次を作る。
 なぜかというと、セマンティック的には`<h1>`はページのタイトルのような最上位のタイトルにつけるものであって、
@@ -178,7 +176,7 @@ https://xyproto.github.io/splash/docs/all.html
 ちなみに、Qiitaの記事を確認したところ、記事タイトルも、レベル1見出しも、両方`<h1>`だった。
 あまり深く考えない方がいいのかもしれない…。
 
-# テストする
+## テストする
 サイトフォルダ直下で以下を実行。
 
 ```
@@ -189,7 +187,7 @@ hugo server -D
 
 ブラウザで http://localhost:1313/ にアクセスすると結果が見られる。
 
-# 静的ページを生成する
+## 静的ページを生成する
 サイトフォルダ直下で以下を実行。
 
 ```
