@@ -166,7 +166,7 @@ https://xyproto.github.io/splash/docs/all.html
 なぜかというと、セマンティック的には`<h1>`はページのタイトルのような最上位のタイトルにつけるものであって、
 ページにそう何個も作るものではないから、らしい。
 
-参考：(https://developer.mozilla.org/ja/docs/Glossary/Semantics)[Semantics (セマンティクス) - MDN Web Docs 用語集: ウェブ関連用語の定義 | MDN]
+参考：[Semantics (セマンティクス) - MDN Web Docs 用語集: ウェブ関連用語の定義 | MDN](https://developer.mozilla.org/ja/docs/Glossary/Semantics)
 
 ではHugoが`#`から書かれたMarkdownを`<h2>`から始めてくれるかというと、そうなっていない。`<h1>`から始める。設定でカスタマイズする機能もない。
 そうすると、Markdownで記事を書くときは、意識して`##`から始めるしかない。ちょっと不便。
