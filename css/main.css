@@ -15,12 +15,19 @@ a:hover {
 /* ヘッダー */
 .header-area {
     background-color:#1b5e20;
-    color:#ffffff;
 }
-.header-area .main-text {
+.header-area .logo-text {
     display: inline-block;
     padding:1rem;
     font-weight: bold;
+}
+.header-area .logo-text a {
+    color:#ffffff;
+    text-decoration: none;
+}
+.header-area .logo-text a:hover {
+    color:#ffffff;
+    text-decoration: none;
 }
 
 /* 主エリア */
@@ -43,13 +50,17 @@ a:hover {
     padding-right:2rem;
 }
 
+/* articleの中 */
+article img {
+    max-width: 100%;
+}
+
 /* 一覧で見るときのarticle */
 .article-summary {
     margin-bottom : 1rem;
 }
 
 /* タグ一覧 */
-
 .taglist li {
     display: inline-block;
     padding-right: 1rem;
