@@ -219,6 +219,16 @@ https://gohugo.io/templates/pagination/
 ```
 
 ## 単体ページを作る
+`layouts/_default/single.html`が、記事単体を表示するときのテンプレートとなる。
+
+```html
+{{ define "main" }}
+<article>
+	<h1>{{ .Title }}</h1>
+	{{ .Content }}
+</article>
+{{ end }}
+```
 
 ## 日付のフォーマット
 Go独特の書き方をする。  
