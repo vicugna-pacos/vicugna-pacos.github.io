@@ -60,6 +60,14 @@ article img {
     margin-bottom : 1rem;
 }
 
+/* 右側 */
+.side-bar-title {
+    font-weight: bold;
+}
+.postlist li {
+    list-style: none;
+}
+
 /* タグ一覧 */
 .taglist li {
     display: inline-block;
