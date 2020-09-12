@@ -97,7 +97,7 @@ https://gohugo.io/variables/page/
 `head`タグ内に以下を記述しておく。
 
 ```html
-{{ .Hugo.Generator }}
+{{ hugo.Generator }}
 ```
 
 これを入れると `<meta name="generator" content="Hugo 0.18" />`といった感じのタグになる。
