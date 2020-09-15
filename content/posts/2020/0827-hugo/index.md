@@ -21,7 +21,7 @@ Webサイトのソースの置場所：`C:\Hugo\Sites`
 ## インストール
 
 Hugoのバイナリを https://github.com/gohugoio/hugo/releases からダウンロードする。
-Windows用のバイナリを探してダウンロード。
+Windows用のバイナリを探してダウンロード。  
 ![](2020-08-27-15-56-01.png)
 
 zipファイルを解凍したら、`C:\Hugo\bin`をPATHに追加する。
