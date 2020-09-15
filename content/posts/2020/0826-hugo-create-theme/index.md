@@ -264,3 +264,16 @@ https://gohugo.io/functions/relurl/
 
 `static`フォルダ配下に置いた画像などを使用する場合、`static`フォルダ内からのファイルパスを、`relURL`という関数へ渡す。
 `relURL`は、相対パスを作ってくれる関数。絶対パスが必要な場合は、`absURL`を使用する。
+
+## リンクを新しいタブで開くようにする
+参考：[Configure Markup | Hugo](https://gohugo.io/getting-started/configuration-markup#markdown-render-hooks)
+
+`layouts/_default/_markup/render-link.html` を作成する。
+
+内容は以下の通り。
+
+```html
+<a href="{{ .Destination | safeURL }}"{{ if strings.HasPrefix .Destination "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>
+```
+
+注意点：これで内容が置き換わるのは、`[]()`で記述したリンクのみである。単純にURLを書いて自動的にリンクが貼られた場合には対応していない。
