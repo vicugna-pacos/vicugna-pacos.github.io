@@ -84,7 +84,49 @@ Bot Framework v4 SDK Templates をインストールすると、Echo Bot の他�
 ユーザーがボットへメッセージを送り、ボットが応答を返す流れを「ターン」という。
 「ターン コンテキスト」オブジェクトは、アクティビティに関する情報を提供する。
 
-アクティビティは、ActivityHandlerに渡される。ボットを作る場合、このActivityHandlerを拡張して会話を実装していく。
+## Activity Handler
+アクティビティは、ActivityHandlerで処理する。ボットを作る場合、このActivityHandlerを拡張して会話を実装していく。
 ActivityHandlerには各イベントごとにメソッドがあるので、それぞれをオーバーライドして拡張していく感じ。
 C#でテンプレートを使って新しいプロジェクトを作った場合、ActivityHandlerを継承したクラスが既に作られている。`EmptyBot` とか、`EchoBot`がそれにあたる。
 
+### 基本形
+Echo Bot のActivityHandlerが参考になる。
+
+```csharp
+namespace EchoBot1.Bots
+{
+    public class EchoBot : ActivityHandler
+    {
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var replyText = $"Echo: {turnContext.Activity.Text}";
+            await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
+        }
+
+        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var welcomeText = "Hello and welcome!";
+            foreach (var member in membersAdded)
+            {
+                if (member.Id != turnContext.Activity.Recipient.Id)
+                {
+                    await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
+                }
+            }
+        }
+    }
+}
+```
+
+### イベントハンドラ
+主に使うのは、おそらく以下の2つ。
+
+|メソッド名|説明|
+|---|---|
+|`OnMembersAddedAsync`|ユーザーが新しくボットに接続した(会話をはじめた)|
+|`OnMessageActivityAsync`|メッセージアクティビティを受信した。メッセージのやり取りはここで処理する。|
+
+## ボット側からメッセージを送る
+参考：[ユーザーへのプロアクティブな通知の送信 - Bot Service | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/bot-service/bot-builder-howto-proactive-message?view=azure-bot-service-4.0&tabs=csharp)
+チャットボットは、基本的にユーザーから会話が始まりボットは返信するだけだが、ボット側からメッセージを送ることもできる。
+「プロアクティブな通知」というらしい。
