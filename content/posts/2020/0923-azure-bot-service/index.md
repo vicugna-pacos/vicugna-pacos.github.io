@@ -27,6 +27,11 @@ Microsoftからすでにいくつかのskillが提供されているが、日本
 
 参考：[Bot Framework SDK for .NET を使用したボットの作成 - Bot Service | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/bot-service/dotnet/bot-builder-dotnet-sdk-quickstart?view=azure-bot-service-4.0&tabs=vs)
 
+## Bot Service Emulator をインストール
+[Bot Service Emulator](https://github.com/microsoft/BotFramework-Emulator/tree/master)
+
+上記サイトの「Download」にある「Github Releases」のページへ移動し、最新版のインストーラを取得し、インストールする。
+
 ## Bot Framework v4 SDK Templates をインストール
 
 1. Visual Studioを起動し、メニューの「拡張機能」→「拡張機能の管理」をクリック。
@@ -37,8 +42,23 @@ Microsoftからすでにいくつかのskillが提供されているが、日本
 ## 新しいプロジェクトの作成
 Visual Studioのメニューの「ファイル」→「新規作成」→「プロジェクト」をクリック。
 テンプレートとして、「Echo Bot (Bot Framework v4 - .NET Core 3.1)」を選ぶ。※.NET Core 2.1を選ばないように注意。
+
 ![](2020-09-23-20-59-33.png)
 
+## プロジェクトを実行
+ソリューションエクスプローラーで、プロジェクト名を選択して `F5` を押す。
+するとプロジェクトがビルド＆実行される。実行されるとブラウザが起動し、`http://localhost:3978/` として以下のページが表示される。
 
+![](2020-09-25-10-33-03.png)
 
-![](2020-09-23-21-02-10.png)
+実行時に起動したブラウザは、開いたままにしておく。不要なので閉じてしまいたいが、そうすると実行が終了してしまう。
+
+## Bot Service Emulator でテストする
+
+1. Bot Service Emulator を起動する。
+1. 「Open Bot」のボタンを押す。
+1. 「Bot URL」に `http://localhost:3978/api/messages` と入力する。他の項目は空白。
+1. 「Connect」ボタンを押す。
+1. チャットのテストができる。
+
+Echo Bot は、こちらが送ったメッセージをそのまま返すだけのボット。
