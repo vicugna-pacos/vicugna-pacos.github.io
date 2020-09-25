@@ -61,4 +61,30 @@ Visual Studioのメニューの「ファイル」→「新規作成」→「プ�
 1. 「Connect」ボタンを押す。
 1. チャットのテストができる。
 
-Echo Bot は、こちらが送ったメッセージをそのまま返すだけのボット。
+Echo Bot は、こちらが送ったメッセージをそのまま返すだけのボットなので、送ったメッセージがそのまま返ってくればOK。
+
+## そのほかのテンプレート
+参考：[microsoft/BotBuilder-Samples](https://github.com/microsoft/BotBuilder-Samples/tree/main/generators/dotnet-templates)
+
+Bot Framework v4 SDK Templates をインストールすると、Echo Bot の他にもテンプレートが追加される。
+それぞれの名前と概要は以下の通り：
+
+* Echo Bot
+  * チャットに応答するだけのシンプルなテンプレート。まず初めにチャットボットを触る人向け。
+* Core Bot
+  * Bot Serviceにまつわる6つの機能が含まれたテンプレート。LUISとかDialogとか色々。
+* Empty Bot
+  * 最低限のソースが含まれているテンプレート。接続時に「Hello World!」と返す以外は何もしない。一からボットを構築したい人向け。
+
+## ボットの仕組み
+参考：[ボットのしくみ - Bot Service | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0&tabs=csharp)
+
+ユーザーとボットとの間で行われるすべての対話では、「アクティビティ」 が発生する。
+
+ユーザーがボットへメッセージを送り、ボットが応答を返す流れを「ターン」という。
+「ターン コンテキスト」オブジェクトは、アクティビティに関する情報を提供する。
+
+アクティビティは、ActivityHandlerに渡される。ボットを作る場合、このActivityHandlerを拡張して会話を実装していく。
+ActivityHandlerには各イベントごとにメソッドがあるので、それぞれをオーバーライドして拡張していく感じ。
+C#でテンプレートを使って新しいプロジェクトを作った場合、ActivityHandlerを継承したクラスが既に作られている。`EmptyBot` とか、`EchoBot`がそれにあたる。
+
