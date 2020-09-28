@@ -160,6 +160,32 @@ https://gohugo.io/content-management/sections/
 スタイル一覧は、Chroma参照。  
 https://xyproto.github.io/splash/docs/all.html
 
+### 他ページへリンクを貼る
+参考：[Links and Cross References | Hugo](https://gohugo.io/content-management/cross-references/)
+
+Shortcodeの `ref` または `relref` を使う。
+`ref` は絶対パス、`relref` は相対パスが出力される。
+
+```go
+{{< ref "document" >}}
+{{< ref "document#anchor" >}}
+{{< ref "document.md" >}}
+{{< ref "document.md#anchor" >}}
+{{< ref "#anchor" >}}
+{{< ref "/blog/my-post" >}}
+{{< ref "/blog/my-post.md" >}}
+{{< relref "document" >}}
+{{< relref "document.md" >}}
+{{< relref "#anchor" >}}
+{{< relref "/blog/my-post.md" >}}
+```
+
+Markdownで記述する際は、以下のようにする：
+
+```markdown
+[About]({{< ref "/page/about" >}} "About Us")
+```
+
 ### 見出しはh2から始めるべきか？
 通常、何も考えずにMarkdownを書く場合、見出しは`#`(h1)から始めると思う。
 しかし、Hugoで記事の目次作成をさせると、`##`(h2)からの見出しを元に目次を作る。
