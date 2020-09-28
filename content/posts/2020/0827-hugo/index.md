@@ -166,24 +166,24 @@ https://xyproto.github.io/splash/docs/all.html
 Shortcodeの `ref` または `relref` を使う。
 `ref` は絶対パス、`relref` は相対パスが出力される。
 
-```go
-{{< ref "document" >}}
-{{< ref "document#anchor" >}}
-{{< ref "document.md" >}}
-{{< ref "document.md#anchor" >}}
-{{< ref "#anchor" >}}
-{{< ref "/blog/my-post" >}}
-{{< ref "/blog/my-post.md" >}}
-{{< relref "document" >}}
-{{< relref "document.md" >}}
-{{< relref "#anchor" >}}
-{{< relref "/blog/my-post.md" >}}
+```go-html-template
+{{</* ref "document" */>}}
+{{</* ref "document#anchor" */>}}
+{{</* ref "document.md" */>}}
+{{</* ref "document.md#anchor" */>}}
+{{</* ref "#anchor" */>}}
+{{</* ref "/blog/my-post" */>}}
+{{</* ref "/blog/my-post.md" */>}}
+{{</* relref "document" */>}}
+{{</* relref "document.md" */>}}
+{{</* relref "#anchor" */>}}
+{{</* relref "/blog/my-post.md" */>}}
 ```
 
 Markdownで記述する際は、以下のようにする：
 
 ```markdown
-[About]({{< ref "/page/about" >}} "About Us")
+[About]({{</* ref "/page/about" */>}} "About Us")
 ```
 
 ### 見出しはh2から始めるべきか？
