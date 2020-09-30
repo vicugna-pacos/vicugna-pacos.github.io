@@ -1,19 +1,29 @@
 
 {{ define "main" }}
 <div class="content-container">
-  {{ range ( .Paginate (where site.RegularPages "Type" "in" site.Params.mainSections)).Pages }}
-    <article class="article-summary">
-      <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-      {{- partial "article-header.html" . -}}
-      <p>{{ .Summary }}</p>
-      {{ if .Truncated }}
-      <p>
-        <a href="{{ .RelPermalink }}">続きを読む</a>
-      </p>
+  <div class="page-list">
+    <ul>
+      {{ range site.Sections }}
+      <li>{{ .Title }}</li>
+      <ul>
+        {{ range .Pages }}
+        {{/* 2階層目もセクションの場合 */}}
+        {{ if .IsSection }}
+        <li>{{ .Title }}</li>
+        <ul>
+          {{ range .Pages }}
+          <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+          {{ end }}
+        </ul>
+        {{ end }}
+        {{/* 普通のページの場合 */}}
+        {{ if not .IsSection }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+        {{ end }}
+        {{ end }}
+      </ul>
       {{ end }}
-    </article>
-    <hr>
-  {{ end }}
-  {{ template "_internal/pagination.html" . }}
+    </ul>
+    </div>
 </div>
 {{ end }}

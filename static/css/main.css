@@ -62,6 +62,11 @@ pre > code {
     padding:0rem 1rem 0rem 1rem;
 }
 
+/* index.htmlのレイアウト */
+.page-list li {
+    line-height: 1.6rem;
+}
+
 /* single.htmlのレイアウト */
 .content-container.single {
     display: flex;
