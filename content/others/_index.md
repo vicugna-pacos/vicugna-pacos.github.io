@@ -1,6 +1,6 @@
 ---
-title: "Others"
+title: "その他"
 date: 2020-09-30T17:24:49+09:00
-draft: true
+weight: 99
 ---
 
