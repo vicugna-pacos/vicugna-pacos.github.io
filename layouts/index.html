@@ -3,7 +3,7 @@
 <div class="content-container">
   <div class="page-list">
     <ul>
-      {{ range site.Sections }}
+      {{ range site.Sections.ByTitle }}
       <li>{{ .Title }}</li>
       <ul>
         {{ range .Pages }}
