@@ -1,7 +1,6 @@
 baseURL = "https://vicugna-pacos.github.io/"
 languageCode = "ja-jp"
 title = "アルパカのメモ"
-theme = "suri"
 hasCJKLanguage = true
 summaryLength = 100
 

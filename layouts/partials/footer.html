@@ -1,0 +1,21 @@
+<footer class="footer-area">
+    <div class="content-container">
+        <hr>
+        <div class="author-container">
+            <div class="avatar">
+                {{ if .Site.Params.avatar }}
+                <img src="{{ .Site.Params.avatar }}">
+                {{ end }}
+            </div>
+            <div class="author">
+                <p class="author-name">{{ .Site.Params.author }}</p>
+                <p>{{ .Site.Params.bio }}</p>
+                <p>
+                    {{ if .Site.Params.github }}
+                    <a href="https://github.com/{{ .Site.Params.github }}"><img src="{{ "images/GitHub-Mark-32px.png" | relURL }}" style="width:2rem;"></a>
+                    {{ end }}
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>

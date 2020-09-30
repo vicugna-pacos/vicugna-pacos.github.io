@@ -1,0 +1,9 @@
+
+<head>
+	{{ hugo.Generator }}
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="{{ .Site.BaseURL }}css/normalize.css">
+	<link rel="stylesheet" href="{{ .Site.BaseURL }}css/main.css">
+	<link rel="stylesheet" href="{{ .Site.BaseURL }}css/pagination.css">
+	<title>{{ block "title" . }}{{ if not .IsHome }}{{ .Title }} - {{ end }}{{ .Site.Title }}{{ end }}</title>
+</head>

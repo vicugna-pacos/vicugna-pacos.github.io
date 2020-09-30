@@ -1,0 +1,21 @@
+
+{{ define "main" }}
+<div class="content-container single">
+	<!-- 目次 -->
+	<div class="side">
+		<aside class="toc">
+			<p>目次</p>
+			{{ .TableOfContents }}
+		</aside>
+	</div>
+	<!-- 記事の内容 -->
+	<div class="main">
+		<article>
+			<h1>{{ .Title }}</h1>
+			{{- partial "article-header.html" . -}}
+			{{ .Content }}
+		</article>
+	</div>
+</div>
+
+{{ end }}

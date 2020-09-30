@@ -1,0 +1,19 @@
+
+{{ define "main" }}
+<div class="content-container">
+  {{ range .Paginator.Pages }}
+    <article class="article-summary">
+      <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      {{- partial "article-header.html" . -}}
+      {{ .Summary }}
+      {{ if .Truncated }}
+      <div>
+        <a href="{{ .RelPermalink }}">続きを読む</a>
+      </div>
+      {{ end }}
+    </article>
+    <hr>
+  {{ end }}
+  {{ template "_internal/pagination.html" . }}
+</div>
+{{ end }}
