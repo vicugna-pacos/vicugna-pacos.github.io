@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta name=generator content="Hugo 0.74.1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#前提条件>前提条件</a></li><li><a href=#はじめに>はじめに</a></li><li><a href=#githubにリポジトリを作成する>GitHubにリポジトリを作成する</a></li><li><a href=#リポジトリをクローン>リポジトリをクローン</a></li><li><a href=#hugoで新しいサイトを作る>Hugoで新しいサイトを作る</a></li><li><a href=#github-actionsを設定>GitHub Actionsを設定</a></li><li><a href=#公開元ブランチの変更>公開元ブランチの変更</a></li></ul></nav></aside></div><div class=main><article><h1>HugoとGitHub ActionsでGitHub Pagesを自動デプロイ</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-08-23 15:25:53 +0900 +0900" itemprop=datePublished>2020-08-23</time></div><div><i class=material-icons>label</i>
+Hugo
+GitHub Actions</div></div><h2 id=前提条件>前提条件</h2><ul><li>Windows 10</li><li>Hugo v0.74.3(Windows版)がPCにインストール済み</li></ul><h2 id=はじめに>はじめに</h2><p>GitHub Pagesは所定のリポジトリをJekyllで変換して公開してくれるが、これをHugoを使って公開するようにしたい。
+ローカルでHugoのパブリッシュを実行してコミット…という風に手動でやるのは面倒くさいので、mdファイルをコミット＆プッシュしたら、自動的にGitHub Pagesで公開されてほしい。</p><p>GitHub Pagesの公開先は<code>&lt;user>.github.io</code>とする。</p><p>Hugoの使い方については、下記参照。<br><a href=posts/2020/0827-hugo/>【Hugo】静的Webサイトを作る</a></p><h2 id=githubにリポジトリを作成する>GitHubにリポジトリを作成する</h2><p><code>&lt;user>.github.io</code>という名前のpublicリポジトリを作成する。自動的にGitHub Pagesのユーザーページ元リポジトリとなる。</p><h2 id=リポジトリをクローン>リポジトリをクローン</h2><p>PCにて、作成したリポジトリをクローンする。</p><h2 id=hugoで新しいサイトを作る>Hugoで新しいサイトを作る</h2><p>クローンしたフォルダの親フォルダで下記コマンドを実行。</p><pre><code>hugo new site [リポジトリのフォルダ名] --force
+</code></pre><p>既存フォルダに対しての<code>new site</code>なので、フラグの<code>--force</code>が必要。
+Hugoのフォルダやファイルが作成される。<br><img src=2020-08-23-15-45-47.png alt></p><p>その後、テーマを設定しておく。</p><h2 id=github-actionsを設定>GitHub Actionsを設定</h2><p><a href=https://qiita.com/peaceiris/items/d401f2e5724fdcb0759d target=_blank rel=noopener>GitHub Actions による GitHub Pages への自動デプロイ - Qiita</a><br>上記記事を参考に、ローカルリポジトリで<code>.github/workflows/gh-pages.yml</code>を作成し、サンプルをコピペする。</p><pre><code class=language-yml:記事に掲載されているサンプル data-lang=yml:記事に掲載されているサンプル>name: github pages
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch Hugo themes
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.74.1'
+
+      - name: Build
+        run: hugo --minify
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+</code></pre><p>その後コミット＆プッシュする。</p><p>プッシュ後GitHubを見に行くと、Actionsが動いたことが分かる。<br><img src=2020-08-23-15-46-08.png alt></p><p>また、<code>gh-pages</code>という名前のブランチが出来ていて、ここにビルド後のファイルが置かれているのが分かる。<br><img src=2020-08-23-15-46-22.png alt></p><p>※ サンプルのスクリプトに<code>publish_dir: ./public</code>の記述があるが、ビルド後のファイルはブランチ直下に置かれている。</p><h2 id=公開元ブランチの変更>公開元ブランチの変更</h2><p>既定ではmasterブランチがGitHub Pagesへ公開されるが、これを<code>gh-pages</code>へ変更する。</p><p>リポジトリの設定画面へ行き、GutHub Pagesの欄を探す。
+Sourceのブランチを<code>gh-pages</code>、フォルダはルートにしてSaveを押す。<br><img src=2020-08-23-15-46-42.png alt></p><p>少し待つとGitHub Pagesの内容が置き換わっている。
+表示が変わらない場合はキャッシュが残っている可能性があるので、ブラウザの更新ボタンを押してみるとよい。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
