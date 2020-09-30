@@ -1,75 +1,14 @@
 ﻿---
-title: "Hugoのテーマを作る"
+title: "各テンプレートファイルについて"
 date: 2020-08-26T00:00:00+09:00
 lastMod: 2020-09-03T00:00:00+09:00
 tags: ["Hugo"]
+weight: 3
 ---
 
 ## はじめに
-Hugoテーマ自作にチャレンジ。  
+Hugoのテーマの作り方。  
 Hugo バージョン：v0.74.3
-
-## 準備
-### 空のサイトを作る
-まずテーマを表示するためのサイトを作成する。公式で用意されているサンプル用のサイトを使うのが手っ取り早い。
-
-gohugoio/hugoBasicExample: Example site to use with Hugo & Hugo Themes  
-https://github.com/gohugoio/hugoBasicExample
-
-ただ初めてテーマを触ってみる場合は、サイトの内容を把握できていないとテーマの動きも把握しづらいので、自分で空サイトを作成し、mdファイルをいくつか作ってから取り掛かるのも良いかもしれない。
-
-### 空のテーマを作る
-サイト用フォルダで、下記コマンドを実行する。
-
-```
-hugo new theme [テーマ名]
-```
-
-`themes`フォルダにテーマ名のフォルダが作成され、基本的なファイル達も作成されている。
-
-以下、作成されるファイルの一覧：
-
-    テーマ名フォルダ
-    ├ archetypes
-    │   └ default.md
-    ├ layouts
-    │   ├ _default
-    │   │   ├ baseof.html  <- 全てのページのベースになるファイル
-    │   │   ├ list.html  <- セクションページ
-    │   │   └ single.html  <- 単体ページ
-    │   ├ partials
-    │   │   ├ footer.html
-    │   │   ├ head.html
-    │   │   └ header.html
-    │   ├ 404.html
-    │   └ index.html     <- トップページ
-    ├ static
-    │   ├ css
-    │   └ js
-    ├ LICENSE
-    └ theme.toml
-
-### テーマをGitリポジトリにする
-テーマ名のフォルダをGitリポジトリにする。
-そうすることで、バージョン管理はもとより、他のサイトにもテーマを使えるようになる。
-
-![](2020-08-26-10-46-24.png)
-
-## 使用できる変数
-https://gohugo.io/variables/page/
-
-各テンプレートでは、`Page`変数というものが使用できる。
-`{{ .Title }}`など、ドットで始まる。
-
-よく使いそうな変数：
-
-* `.Title` - ページのタイトル(front matterに書いたもの)
-* `.Content` - ページの内容(front matterの後に書かれたもの)
-* `.Date`, `.LastMod`, `.ExpiryDate`, `PublishDate` - front matterに書いた日付。
-* `.Draft` - 下書きかどうか(front matter)
-* `.Next` - 次のページ。`{{with .Next}}{{.Permalink}}{{end}}`と書けば次ページへのリンクを貼れる。
-* `.NextInSection` - 同一セクション内での次ページ。
-* `.Pages` - Collection of regular pages and only first-level section pages under the current list page.
 
 ## baseof.htmlを作る
 このファイルが全てのページのベースとなる。
@@ -229,50 +168,3 @@ https://gohugo.io/templates/pagination/
 {{ end }}
 ```
 
-## 日付のフォーマット
-Go独特の書き方をする。  
-例えば、年は`yyyy`とかではなく、`2006`と書く。フィールドごとに固定値があるらしい。
-
-以下、Goのページから引っ張ってきた表記のサンプル：
-
-    ANSIC       = "Mon Jan _2 15:04:05 2006"
-    UnixDate    = "Mon Jan _2 15:04:05 MST 2006"
-    RubyDate    = "Mon Jan 02 15:04:05 -0700 2006"
-    RFC822      = "02 Jan 06 15:04 MST"
-    RFC822Z     = "02 Jan 06 15:04 -0700" // RFC822 with numeric zone
-    RFC850      = "Monday, 02-Jan-06 15:04:05 MST"
-    RFC1123     = "Mon, 02 Jan 2006 15:04:05 MST"
-    RFC1123Z    = "Mon, 02 Jan 2006 15:04:05 -0700" // RFC1123 with numeric zone
-    RFC3339     = "2006-01-02T15:04:05Z07:00"
-    RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
-    Kitchen     = "3:04PM"
-    // Handy time stamps.
-    Stamp      = "Jan _2 15:04:05"
-    StampMilli = "Jan _2 15:04:05.000"
-    StampMicro = "Jan _2 15:04:05.000000"
-    StampNano  = "Jan _2 15:04:05.000000000"
-
-参照元：https://golang.org/pkg/time/
-
-## 画像などを参照する
-https://gohugo.io/functions/relurl/
-
-```html
-<img src="{{ "images/icon.png" | relURL }}">
-```
-
-`static`フォルダ配下に置いた画像などを使用する場合、`static`フォルダ内からのファイルパスを、`relURL`という関数へ渡す。
-`relURL`は、相対パスを作ってくれる関数。絶対パスが必要な場合は、`absURL`を使用する。
-
-## リンクを新しいタブで開くようにする
-参考：[Configure Markup | Hugo](https://gohugo.io/getting-started/configuration-markup#markdown-render-hooks)
-
-`layouts/_default/_markup/render-link.html` を作成する。
-
-内容は以下の通り。
-
-```html
-<a href="{{ .Destination | safeURL }}"{{ if strings.HasPrefix .Destination "http" }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>
-```
-
-注意点：これで内容が置き換わるのは、`[]()`で記述したリンクのみである。単純にURLを書いて自動的にリンクが貼られた場合には対応していない。

@@ -2,6 +2,7 @@
 title: "HugoとGitHub ActionsでGitHub Pagesを自動デプロイ"
 date: 2020-08-23T15:25:53+09:00
 tags: ["Hugo", "GitHub Actions"]
+weight: 2
 ---
 
 ## 前提条件

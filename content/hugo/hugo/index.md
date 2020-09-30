@@ -3,6 +3,7 @@ title: "Hugoで静的Webサイトを作る"
 date: 2020-08-27T15:54:58+09:00
 lastMod: 2020-09-07T15:54:58+09:00
 tags: ["Hugo"]
+weight: 1
 ---
 
 ## Hugoとは
