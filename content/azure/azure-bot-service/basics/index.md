@@ -61,8 +61,10 @@ turn contextは、ボットがアウトバウンド(ボット→ユーザー)ア
 アクティビティ関連のメソッドを実行する際は、awaitを付けてメソッドの処理が終わるのを確実に待たないといけない。
 
 ## Activity Handler
-アクティビティは、ActivityHandlerで処理する。ボットを作る場合、このActivityHandlerを拡張して会話を実装していく。
+アクティビティは、ActivityHandlerに渡される。ボットを作るときは、このActivityHandlerを拡張してロジックを実装していく。
 ActivityHandlerには各イベントごとにメソッドがあるので、それぞれをオーバーライドして拡張していく感じ。
+それぞれのメソッドに既存のロジックはないので、シンプルにメソッドをオーバーライドすれば良い。
+
 C#でテンプレートを使って新しいプロジェクトを作った場合、ActivityHandlerを継承したクラスが既に作られている。`EmptyBot` とか、`EchoBot`がそれにあたる。
 
 ### 基本形
@@ -82,6 +84,8 @@ namespace EchoBot1.Bots
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             var welcomeText = "Hello and welcome!";
+            // ユーザーとボットが会話に参加した場合、ボットについても当メソッドが呼び出されるので、
+            // メンバーidがボットと同一でない場合だけ、挨拶を送信するようになっている。
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
