@@ -15,9 +15,9 @@ Webサーバーというのは、C#ではASP.NETのプロジェクトで、Node.
 JSONはデシリアライズされ、アクティビティオブジェクトになる。そしてアダプターがアクティビティのメソッドを呼び出したりする。
 アダプターはturn contextを生成し、ミドルウェアを呼び出したりする。</p><p>turn contextは、ボットがアウトバウンド(ボット→ユーザー)アクティビティを送るための機能を提供する。
 他にもアクティビティを更新・削除するためのメソッドも提供していて、それぞれのメソッドは非同期で実行される。</p><p>ただ、ボットの処理の終わりにはcontextオブジェクトが破棄されるため、
-アクティビティ関連のメソッドを実行する際は、awaitを付けてメソッドの処理が終わるのを確実に待たないといけない。</p><h2 id=activity-handler>Activity Handler</h2><p>アクティビティは、ActivityHandlerで処理する。ボットを作る場合、このActivityHandlerを拡張して会話を実装していく。
+アクティビティ関連のメソッドを実行する際は、awaitを付けてメソッドの処理が終わるのを確実に待たないといけない。</p><h2 id=activity-handler>Activity Handler</h2><p>アクティビティは、ActivityHandlerに渡される。ボットを作るときは、このActivityHandlerを拡張してロジックを実装していく。
 ActivityHandlerには各イベントごとにメソッドがあるので、それぞれをオーバーライドして拡張していく感じ。
-C#でテンプレートを使って新しいプロジェクトを作った場合、ActivityHandlerを継承したクラスが既に作られている。<code>EmptyBot</code> とか、<code>EchoBot</code>がそれにあたる。</p><h3 id=基本形>基本形</h3><p>Echo Bot のActivityHandlerが参考になる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>namespace</span> <span style=color:#111>EchoBot1.Bots</span>
+それぞれのメソッドに既存のロジックはないので、シンプルにメソッドをオーバーライドすれば良い。</p><p>C#でテンプレートを使って新しいプロジェクトを作った場合、ActivityHandlerを継承したクラスが既に作られている。<code>EmptyBot</code> とか、<code>EchoBot</code>がそれにあたる。</p><h3 id=基本形>基本形</h3><p>Echo Bot のActivityHandlerが参考になる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>namespace</span> <span style=color:#111>EchoBot1.Bots</span>
 <span style=color:#111>{</span>
     <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>EchoBot</span> <span style=color:#111>:</span> <span style=color:#111>ActivityHandler</span>
     <span style=color:#111>{</span>
@@ -30,7 +30,9 @@ C#でテンプレートを使って新しいプロジェクトを作った場合
         <span style=color:#00a8c8>protected</span> <span style=color:#00a8c8>override</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>OnMembersAddedAsync</span><span style=color:#111>(</span><span style=color:#111>IList</span><span style=color:#111>&lt;</span><span style=color:#111>ChannelAccount</span><span style=color:#111>&gt;</span> <span style=color:#111>membersAdded</span><span style=color:#111>,</span> <span style=color:#111>ITurnContext</span><span style=color:#111>&lt;</span><span style=color:#111>IConversationUpdateActivity</span><span style=color:#111>&gt;</span> <span style=color:#111>turnContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
         <span style=color:#111>{</span>
             <span style=color:#00a8c8>var</span> <span style=color:#111>welcomeText</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;Hello and welcome!&#34;</span><span style=color:#111>;</span>
-            <span style=color:#00a8c8>foreach</span> <span style=color:#111>(</span><span style=color:#00a8c8>var</span> <span style=color:#111>member</span> <span style=color:#00a8c8>in</span> <span style=color:#111>membersAdded</span><span style=color:#111>)</span>
+            <span style=color:#75715e>// ユーザーとボットが会話に参加した場合、ボットについても当メソッドが呼び出されるので、
+</span><span style=color:#75715e></span>            <span style=color:#75715e>// メンバーidがボットと同一でない場合だけ、挨拶を送信するようになっている。
+</span><span style=color:#75715e></span>            <span style=color:#00a8c8>foreach</span> <span style=color:#111>(</span><span style=color:#00a8c8>var</span> <span style=color:#111>member</span> <span style=color:#00a8c8>in</span> <span style=color:#111>membersAdded</span><span style=color:#111>)</span>
             <span style=color:#111>{</span>
                 <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>member</span><span style=color:#111>.</span><span style=color:#111>Id</span> <span style=color:#111>!=</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>Recipient</span><span style=color:#111>.</span><span style=color:#111>Id</span><span style=color:#111>)</span>
                 <span style=color:#111>{</span>
