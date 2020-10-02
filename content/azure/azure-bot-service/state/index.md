@@ -29,3 +29,5 @@ Bot Framework SDKには以下のストレージに対する実装がある:
 
 ユーザーと会話は1つのチャンネル内でのみ認識できる。同じユーザーが異なるチャネルからボットにアクセスした場合、異なるユーザーとなる。
 
+## サンプル
+参考：[Save user and conversation data - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-v4-state?view=azure-bot-service-4.0&tabs=csharp)
