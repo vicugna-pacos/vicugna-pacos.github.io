@@ -17,7 +17,7 @@ JSONはデシリアライズされ、アクティビティオブジェクトに�
 他にもアクティビティを更新・削除するためのメソッドも提供していて、それぞれのメソッドは非同期で実行される。</p><p>ただ、ボットの処理の終わりにはcontextオブジェクトが破棄されるため、
 アクティビティ関連のメソッドを実行する際は、awaitを付けてメソッドの処理が終わるのを確実に待たないといけない。</p><h2 id=activity-handler>Activity Handler</h2><p>アクティビティは、ActivityHandlerに渡される。ボットを作るときは、このActivityHandlerを拡張してロジックを実装していく。
 ActivityHandlerには各イベントごとにメソッドがあるので、それぞれをオーバーライドして拡張していく感じ。
-それぞれのメソッドに既存のロジックはないので、シンプルにメソッドをオーバーライドすれば良い。</p><p>C#でテンプレートを使って新しいプロジェクトを作った場合、ActivityHandlerを継承したクラスが既に作られている。<code>EmptyBot</code> とか、<code>EchoBot</code>がそれにあたる。</p><h3 id=基本形>基本形</h3><p>Echo Bot のActivityHandlerが参考になる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>namespace</span> <span style=color:#111>EchoBot1.Bots</span>
+それぞれのメソッドに既存のロジックはないので、シンプルにメソッドをオーバーライドすれば良い(一部例外あり)。</p><p>C#でテンプレートを使って新しいプロジェクトを作った場合、ActivityHandlerを継承したクラスが既に作られている。<code>EmptyBot</code> とか、<code>EchoBot</code>がそれにあたる。</p><h3 id=基本形>基本形</h3><p>Echo Bot のActivityHandlerが参考になる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>namespace</span> <span style=color:#111>EchoBot1.Bots</span>
 <span style=color:#111>{</span>
     <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>EchoBot</span> <span style=color:#111>:</span> <span style=color:#111>ActivityHandler</span>
     <span style=color:#111>{</span>
