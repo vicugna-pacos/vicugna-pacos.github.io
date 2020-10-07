@@ -1,6 +1,7 @@
 ---
 title: "Dialog"
 date: 2020-10-02T13:55:11+09:00
+draft: true
 weight: 5
 ---
 
@@ -32,3 +33,23 @@ Dialogの開始、管理には以下の主となる2つのパターンがある�
 
 ## Dialog stack
 ダイアログはスタック状に積みあがる。
+
+## Container Dialog
+container dialogは、大きなダイアログの一部になりえる。
+それぞれのcontainer dialogは、内部にdialogを持つ。
+
+* それぞれのdialog setはdialog IDを解決するためのスコープを持つ。
+* SDKは以下の2つのcontainer dialogを実装している。component dialog と adaptive dialog。それぞれの構造は異なるが、共に使うこともできる。
+
+## Dialog ID
+dialogをdialog setに追加するとき、ともに一意のIDをセットする。set内に含まれるdialogは、お互いをidで参照する。
+dialog context がIDを元にdialogを引っ張ってきてくれる。もし見つからなかった場合は、エラーが投げられる。
+
+## Component dialog
+component dialogは、決まった順序で展開される会話で使用する。
+
+## Adaptive dialog
+adaptive dialogは、フレキシブルな会話の流れを作りたいときに使う。
+adaptive dialogは、いくつかのビルトインの機能がある。中断のハンドリング、言語解析、言語生成など。
+
+
