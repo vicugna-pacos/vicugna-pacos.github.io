@@ -1,7 +1,7 @@
 ---
 title: "QnA Maker を作成する"
 date: 2020-10-08T09:35:53+09:00
-draft: true
+weight: 2
 ---
 
 ## 前提条件
