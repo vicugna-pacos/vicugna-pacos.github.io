@@ -2,7 +2,7 @@
 title: "Dialog"
 date: 2020-10-02T13:55:11+09:00
 draft: true
-weight: 5
+weight: 6
 ---
 
 `Dialog`はユーザーとの複数回にわたる会話のやり取りを管理するものである。
