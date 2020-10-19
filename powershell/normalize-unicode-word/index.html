@@ -1,0 +1,73 @@
+<!doctype html><html><head><meta name=generator content="Hugo 0.74.1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Wordの文書の文字をUnicode正規化する - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a><ul><li><a href=#何があったか>何があったか</a></li></ul></li><li><a href=#サンプル>サンプル</a></li></ul></nav></aside></div><div class=main><article><h1>Wordの文書の文字をUnicode正規化する</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-10-19 19:07:37 +0900 +0900" itemprop=datePublished>2020-10-19</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>Wordファイルに対して、Unicode正規化を実施するスクリプトのサンプル。</p><ul><li>Windows 10</li><li>PowerShell v5.1</li><li>Word のバージョンは Office 365</li></ul><h3 id=何があったか>何があったか</h3><p>あるとき、契約書の類いの文書に更新があり、差分をチェックする必要が出た。
+提供された形式はpdfだったので、Wordへ変換し、タブ「校閲」→「比較」から比較を実施した。</p><p><img src=2020-10-19-19-11-01.png alt></p><p>すると、ぱっと見同じ文字なのに、変更ありとマークされている字がちらほら見つかった。</p><p><img src=2020-10-19-19-11-15.png alt></p><p>サクラエディタに該当箇所をコピペしてみると、文字コードが違うことが分かった。こっちだと、見た目が違うので分かりやすい。</p><p><img src=2020-10-19-19-11-27.png alt></p><p>原因としては、MacOSで文書を作成した場合、使用するアプリケーションによってUTF-8でも使うコードが違うことがある、というのが考えられるらしい。
+対応方法としては、文書作成元へ問い合わせるのが一番だが、せっかくなので(？)コードでなんとかしてみた。</p><h2 id=サンプル>サンプル</h2><p>パラメータで指定されたdocxファイルを正規化する。
+docxファイルはZip形式なので、それを解凍し、中にある<code>word\document.xml</code>ファイルを正規化して上書きする。
+その後、圧縮しなおして新しいdocxファイルとする。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell>
+<span style=color:#00a8c8>Param</span><span style=color:#111>(</span><span style=color:#111>$filePathDocx</span><span style=color:#111>)</span>
+
+<span style=color:#111>Add-Type</span> <span style=color:#111>-AssemblyName</span> <span style=color:#111>System</span><span style=color:#111>.</span><span style=color:#111>IO</span><span style=color:#111>.</span><span style=color:#111>Compression</span><span style=color:#111>.</span><span style=color:#111>FileSystem</span>
+
+<span style=color:#75715e># パラメータで指定されたファイルを正規化</span>
+
+<span style=color:#75715e># 拡張子チェック</span>
+<span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>$filePathDocx</span> <span style=color:#f92672>-eq</span> <span style=color:#111>$null</span> <span style=color:#f92672>-or</span> <span style=color:#f92672>-not</span> <span style=color:#111>$filePathDocx</span><span style=color:#111>.</span><span style=color:#111>EndsWith</span><span style=color:#111>(</span><span style=color:#d88200>&#34;.docx&#34;</span><span style=color:#111>))</span> <span style=color:#111>{</span>
+    <span style=color:#111>Write-Host</span> <span style=color:#d88200>&#34;[エラー] docxファイルではありません&#34;</span>
+    <span style=color:#00a8c8>return</span>
+<span style=color:#111>}</span>
+
+<span style=color:#75715e># 正規化後ファイルパス</span>
+<span style=color:#111>$filePathDocxOut</span> <span style=color:#111>=</span> <span style=color:#111>$filePathDocx</span><span style=color:#111>.</span><span style=color:#111>Replace</span><span style=color:#111>(</span><span style=color:#d88200>&#34;.docx&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;_正規化.docx&#34;</span><span style=color:#111>)</span>
+
+<span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>Test-Path</span> <span style=color:#111>$filePathDocxOut</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+    <span style=color:#111>Remove-Item</span> <span style=color:#111>$filePathDocxOut</span>
+<span style=color:#111>}</span>
+
+<span style=color:#75715e># docx解凍</span>
+<span style=color:#111>$extractDir</span> <span style=color:#111>=</span> <span style=color:#00a8c8>[System.IO.Path]</span><span style=color:#111>::</span><span style=color:#111>GetTempPath</span><span style=color:#111>()</span> <span style=color:#111>+</span> <span style=color:#d88200>&#34;\word_extract_&#34;</span> <span style=color:#111>+</span> <span style=color:#111>(</span><span style=color:#111>Get-Date</span> <span style=color:#111>-Format</span> <span style=color:#111>yyyyMMddHHmmss</span><span style=color:#111>)</span>
+
+<span style=color:#00a8c8>[System.IO.Compression.ZipFile]</span><span style=color:#111>::</span><span style=color:#111>ExtractToDirectory</span><span style=color:#111>(</span><span style=color:#111>$filePathDocx</span><span style=color:#111>,</span> <span style=color:#111>$extractDir</span><span style=color:#111>)</span>
+
+<span style=color:#75715e># document.xmlの正規化</span>
+<span style=color:#111>$docFilePath</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;${extractDir}\word\document.xml&#34;</span>
+<span style=color:#111>$tmpFilePath</span> <span style=color:#111>=</span> <span style=color:#00a8c8>[System.IO.Path]</span><span style=color:#111>::</span><span style=color:#111>GetTempFileName</span><span style=color:#111>()</span>
+
+<span style=color:#00a8c8>[System.IO.File]</span><span style=color:#111>::</span><span style=color:#111>Copy</span><span style=color:#111>(</span><span style=color:#111>$docFilePath</span><span style=color:#111>,</span> <span style=color:#111>$tmpFilePath</span><span style=color:#111>,</span> <span style=color:#111>$true</span><span style=color:#111>)</span>
+
+<span style=color:#111>$reader</span> <span style=color:#111>=</span> <span style=color:#111>$null</span>
+<span style=color:#00a8c8>try</span> <span style=color:#111>{</span>
+    <span style=color:#111>$reader</span> <span style=color:#111>=</span> <span style=color:#111>New-Object</span> <span style=color:#111>System</span><span style=color:#111>.</span><span style=color:#111>IO</span><span style=color:#111>.</span><span style=color:#111>StreamReader</span><span style=color:#111>(</span><span style=color:#111>$tmpFilePath</span><span style=color:#111>)</span>
+    
+    <span style=color:#111>$writer</span> <span style=color:#111>=</span> <span style=color:#111>$null</span>
+    <span style=color:#00a8c8>try</span> <span style=color:#111>{</span>
+        <span style=color:#111>$writer</span> <span style=color:#111>=</span> <span style=color:#111>New-Object</span> <span style=color:#111>System</span><span style=color:#111>.</span><span style=color:#111>IO</span><span style=color:#111>.</span><span style=color:#111>StreamWriter</span><span style=color:#111>(</span><span style=color:#111>$docFilePath</span><span style=color:#111>,</span> <span style=color:#111>$false</span><span style=color:#111>,</span> <span style=color:#00a8c8>[System.Text.Encoding]</span><span style=color:#111>::</span><span style=color:#111>UTF8</span><span style=color:#111>)</span>
+        <span style=color:#111>$line</span> <span style=color:#111>=</span> <span style=color:#111>$reader</span><span style=color:#111>.</span><span style=color:#111>ReadLine</span><span style=color:#111>()</span>
+
+        <span style=color:#00a8c8>while</span> <span style=color:#111>(</span><span style=color:#111>$line</span> <span style=color:#f92672>-ne</span> <span style=color:#111>$null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+            <span style=color:#111>$line</span> <span style=color:#111>=</span> <span style=color:#111>$line</span><span style=color:#111>.</span><span style=color:#111>Normalize</span><span style=color:#111>(</span><span style=color:#00a8c8>[System.Text.NormalizationForm]</span><span style=color:#111>::</span><span style=color:#111>FormKC</span><span style=color:#111>)</span>
+            <span style=color:#111>$writer</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>$line</span><span style=color:#111>)</span>
+
+            <span style=color:#111>$line</span> <span style=color:#111>=</span> <span style=color:#111>$reader</span><span style=color:#111>.</span><span style=color:#111>ReadLine</span><span style=color:#111>()</span>
+        <span style=color:#111>}</span>
+        
+    <span style=color:#111>}</span> <span style=color:#00a8c8>finally</span> <span style=color:#111>{</span>
+        <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>$writer</span> <span style=color:#f92672>-ne</span> <span style=color:#111>$null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+            <span style=color:#111>$writer</span><span style=color:#111>.</span><span style=color:#111>Close</span><span style=color:#111>()</span>
+        <span style=color:#111>}</span>        
+    <span style=color:#111>}</span>
+
+<span style=color:#111>}</span> <span style=color:#00a8c8>finally</span> <span style=color:#111>{</span>
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>$reader</span> <span style=color:#f92672>-ne</span> <span style=color:#111>$null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+        <span style=color:#111>$reader</span><span style=color:#111>.</span><span style=color:#111>Close</span><span style=color:#111>()</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+
+<span style=color:#75715e># 圧縮</span>
+<span style=color:#00a8c8>[System.IO.Compression.ZipFile]</span><span style=color:#111>::</span><span style=color:#111>CreateFromDirectory</span><span style=color:#111>(</span><span style=color:#111>$extractDir</span><span style=color:#111>,</span> <span style=color:#111>$filePathDocxOut</span><span style=color:#111>)</span>
+
+<span style=color:#75715e># 後片付け</span>
+<span style=color:#00a8c8>[System.IO.Directory]</span><span style=color:#111>::</span><span style=color:#111>Delete</span><span style=color:#111>(</span><span style=color:#111>$extractDir</span><span style=color:#111>,</span> <span style=color:#111>$true</span><span style=color:#111>)</span>
+<span style=color:#00a8c8>[System.IO.File]</span><span style=color:#111>::</span><span style=color:#111>Delete</span><span style=color:#111>(</span><span style=color:#111>$tmpFilePath</span><span style=color:#111>)</span>
+
+<span style=color:#111>Write-Host</span> <span style=color:#d88200>&#34;done&#34;</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
