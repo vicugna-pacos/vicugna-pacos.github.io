@@ -116,6 +116,7 @@ foreach ($item in $folder.Items) {
 ```
 
 ### フィルターを使う
+フィルターを使うと、例えば「件名が●●のアイテム」を抽出したりできる。
 
 ```powershell
 $items = $folder.Items.Find()    # 条件に一致するItemを1件だけ返す
@@ -126,20 +127,30 @@ $items = $folder.Items.Restrict()    # 条件に一致するItemを全件返す
 [【Outlook VBA】メールや予定をフィルターで検索する - Qiita](https://qiita.com/vicugna-pacos/items/977fd4c32ebe0486869b)
 
 ## 終日の予定を作る
-https://docs.microsoft.com/ja-jp/office/client-developer/outlook/pia/how-to-create-an-appointment-that-is-an-all-day-event
+「終日」の予定とは、時間指定がない予定のこと。
+
+![](2020-10-21-17-34-43.png)
+
+参考：[終日イベントの予定を作成する | Microsoft Docs](https://docs.microsoft.com/ja-jp/office/client-developer/outlook/pia/how-to-create-an-appointment-that-is-an-all-day-event)
+
+終日の予定を作るための要件は、下記の通り：
 
 * `AllDayEvent`を`true`にする
 * `Start`は開始日の0時を指定
 * `End`は終了日の次の日の0時を指定する
 
+下記のサンプルでは、2020年1月1日に終日の予定を作成している。
+
 ```powershell
+# アセンブリのロード
 [void][Reflection.Assembly]::LoadWithPartialName("Microsoft.Office.Interop.Outlook")
 
+# 列挙型を変数に入れておく
 $OlDefaultFolders = [Microsoft.Office.Interop.Outlook.OlDefaultFolders]
 $OlItemType = [Microsoft.Office.Interop.Outlook.OlItemType]
 $OlBusyStatus = [Microsoft.Office.Interop.Outlook.OlBusyStatus]
 
-# 中略
+# --- 中略 ---
 
 $folder = $namespace.GetDefaultFolder($OlDefaultFolders::olFolderCalendar)
 
