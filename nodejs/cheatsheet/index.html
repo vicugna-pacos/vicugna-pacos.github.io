@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta name=generator content="Hugo 0.74.1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>逆引き - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#nodejs-のインストールおよびアップデート>Node.js のインストールおよびアップデート</a></li><li><a href=#nodejs-のバージョン確認>Node.js のバージョン確認</a></li><li><a href=#npm-install-したパッケージの確認>npm install したパッケージの確認</a></li><li><a href=#パッケージの更新>パッケージの更新</a></li></ul></nav></aside></div><div class=main><article><h1>逆引き</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-10-26 20:16:37 +0900 +0900" itemprop=datePublished>2020-10-26</time></div><div></div></div><h2 id=はじめに>はじめに</h2><ul><li>Windows 10</li></ul><h2 id=nodejs-のインストールおよびアップデート>Node.js のインストールおよびアップデート</h2><p><a href=https://nodejs.org/ja/download/ target=_blank rel=noopener>Node.js ダウンロードページ</a> で最新のダウンロードしてインストールする。
+npmも一緒にインストールまたはアップデートされる。</p><h2 id=nodejs-のバージョン確認>Node.js のバージョン確認</h2><pre><code>node -v
+</code></pre><h2 id=npm-install-したパッケージの確認>npm install したパッケージの確認</h2><p>インストールしたパッケージの名前とバージョンが分かる。</p><pre><code>npm list --depth=0
+</code></pre><pre><code>xxxx@1.0.0 C:\xxxx
++-- config@3.3.1
++-- date-utils@1.2.21
++-- googleapis@49.0.0
+`-- puppeteer-core@3.3.0
+</code></pre><p>バージョンが古くなっているパッケージのみが表示される。</p><pre><code>npm outdated
+</code></pre><pre><code>Package         Current  Wanted  Latest  Location
+config            3.3.1   3.3.2   3.3.2  xxx
+googleapis       49.0.0  49.0.0  61.0.0  xxx
+puppeteer-core    3.3.0   3.3.0   5.4.0  xxx
+</code></pre><h2 id=パッケージの更新>パッケージの更新</h2><pre><code>npm update
+</code></pre><p>必ず最新バージョンになるわけではなく、<code>npm outdated</code> で <strong>Wanted</strong> の列に示されたバージョンまでしかアップデートしない。
+インストールしたパッケージは package.json に <code>"config": "^3.3.2"</code> などと書かれているが、<code>^</code>がついていると、メジャーバージョンを超えるアップデートはしないようになっている。</p><p>とにかく最新バージョンにしたい場合は、一度パッケージをアンインストールしてからインストールしなおす。</p><pre><code>npm uninstall googleapis
+npm install googleapis
+</code></pre></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
