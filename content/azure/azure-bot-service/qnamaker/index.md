@@ -25,6 +25,8 @@ QnA Maker ポータルサイトから「Create Bot」のボタンを使ってボ
 * Empty Bot のテンプレートからプロジェクトを作成済み
 
 ## ボットに QnA Maker を追加する
+EmptyBot に QnA Maker を追加する手順。
+全体のサンプルは [GitHub](https://github.com/vicugna-pacos/azure-bot-samples/tree/main/qnamaker-bot) 参照。
 
 ### ナレッジベースへの接続情報を取得
 QnA Maker ポータルへログインし、使用したい QnA Maker の「SETTINGS」のページを開く。
@@ -129,3 +131,20 @@ public class QnABot : ActivityHandler
     }
 }
 ```
+
+## ボットをカスタマイズする
+`QnAMakerDialog`のコンストラクタの引数に、挙動をカスタマイズできるものがある。
+
+引数のリスト：
+
+* `noAnswer` (Activity) - QnA Maker が回答を見つけられなかったときに返すアクティビティを指定する。
+* `threshold` (float) - 質問のスコア(一致率)の閾値。
+* `activeLearningCardTitle` (string) - アクティブラーニングが有効な場合にユーザーへ表示する、アクティブラーニングのオプションのカードのタイトル。
+* `cardNoMatchText` (string) - アクティブラーニングが有効な場合に表示される。ボットが示したいずれの回答も適切でない場合に押すボタンのテキスト。
+* `top` (int) - ナレッジベースから返す回答の最大数。
+* `cardNoMatchResponse` (Activity) - アクティブラーニングが有効な際、ユーザーが「いずれにも該当しない」を押したときに返すメッセージ。
+* `strictFilters` (Metadata[]) - QnA Maker のメタデータを指定して、ナレッジベースへのクエリのフィルタにする。
+* `httpClient` (HttpClient) - QnA Maker サービスへリクエストを送るときに使う HTTP クライアント。nullの場合は既定のクライアントが使用される。
+* `sourceFilePath` (string) - デバッグで使用する。ソースファイルパスを指定。既定でフルパスがセットされる。
+* `sourceLineNumber` (int) - デバッグで使用する。ソースファイルの行番号。既定で呼び出し元のソースファイルの行番号がセットされる。
+
