@@ -24,44 +24,29 @@ Outlookの予定、タスクに設定できる「繰り返し」について。
 * 繰り返しのパターン - 毎日
 * 間隔 - 1日ごと
 
-これに対して、10/1～10/31の条件で予定を検索しても、`AppointmentItem` は1つしか取れない。
+これに対して、10/01～10/31すべての予定を取りたい場合は、以下のサンプルのように検索する。
 
 ```powershell
+$OlDefaultFolders = [Microsoft.Office.Interop.Outlook.OlDefaultFolders]
+
+$namespace = $outlook.GetNamespace("MAPI")
+$folder = $namespace.GetDefaultFolder($OlDefaultFolders::olFolderCalendar)
+
+$allItems = $folder.Items
+$allItems.Sort("[Start]")
+$allItems.IncludeRecurrences = $true
+
 $filter = "[Start] >= '2020/10/01 00:00'"
-$filter = $filter + " AND [End] <= '2020/10/31 00:00'"
+$filter = $filter + " AND [Start] <= '2020/11/01 00:00'"
 $filter = $filter + " AND [Subject] = 'test昼休み'"
 
-$items = $folder.Items.Restrict($filter)
-
-foreach ($item in $items) {
-    Write-Host ("■" + $item.Subject) # $itemsには1件しかない
-    Write-Host ("Start:" + $item.Start.toString("yyyy/MM/dd") + "  End:" + $item.End.toString("yyyy/MM/dd"))
-}
+$items = $allItems.Restrict($filter)
 ```
 
-    ■test昼休み
-    Start:2020/10/01  End:2020/10/01
+Filter や Restrict を使う前に、Items を Start の昇順で並べ替えてから IncludeRecurrences プロパティを true にする。
+もし Items に終了日のない繰り返しの予定があるときに IncludeRecurrences をtrueにすると、Items.Count の値がundefinedになるので注意。
 
-次に、10/10を検索条件にして検索してみる。
-
-```powershell
-$filter = "[Start] >= '2020/10/10 00:00'"
-$filter = $filter + " AND [End] <= '2020/10/11 00:00'"
-$filter = $filter + " AND [Subject] = 'test昼休み'"
-
-$items = $folder.Items.Restrict($filter)
-
-foreach ($item in $items) {
-    Write-Host ("■" + $item.Subject)
-    Write-Host ("Start:" + $item.Start.toString("yyyy/MM/dd") + "  End:" + $item.End.toString("yyyy/MM/dd"))
-}
-```
-
-    ■test昼休み
-    Start:2020/10/01  End:2020/10/01
-
-「test昼休み」は毎日繰り返すので、10/10の予定として検索できる。しかしStartとEndは10/01になっている。
-
+参考：[Items.IncludeRecurrences property (Outlook) | Microsoft Docs](https://docs.microsoft.com/en-us/office/vba/api/outlook.items.includerecurrences)
 
 ### GetOccurrence メソッド
 `AppointmentItem.RecurrencePattern().GetOccurrence(DateTime)` メソッドを使うと、
@@ -93,11 +78,4 @@ $item2 = $item.GetRecurrencePattern().GetOccurrence($dt)
 
 参考：[vb.net - GetOccurrence always throws exception - Stack Overflow](https://stackoverflow.com/questions/12167921/getoccurrence-always-throws-exception)
 
-### 繰り返しの予定をすべて取得する
-「test昼休み」が繰り返される日付をすべて取得したいとき、以下の実装方法が考えられる：
-
-* 全ての日付に Filter または Restrict を実行して総当たり。
-* 全ての日付に GetOccurrence を実行して総当たり。
-
-その他、繰り返しパターンなどから自力で計算する方法もあるが、例外パターンもあるため大変になるので推奨しない。
-GetOccurrence メソッドを使う方は予定がない場合にエラーが発生するため、個人的には好きではない。
+検索したい全ての日付について GetOccurrence メソッドで総当たりすれば、繰り返しの予定が全て取得できる。
