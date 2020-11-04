@@ -1,5 +1,5 @@
 ---
-title: "State (記憶)の管理"
+title: "State (記憶) の管理"
 date: 2020-10-02T12:04:50+09:00
 lastMod: 2020-10-15T14:49:00+09:00
 weight: 5
@@ -62,19 +62,18 @@ public class ConversationData
 ```
 
 ### storageクラスなどの準備
-次に、`Startup.cs`のコンストラクタに、下記の処理を追加する。今回はローカルでのテスト用の `MemoryStorage` を使用する。
+次に、`Startup.cs` の `ConfigureServices` メソッドに、下記の処理を追加する。今回はローカルでのテスト用の `MemoryStorage` を使用する。
 Azure Blob Storage などは別のクラスを使う。
 
 ```csharp
-var storage = new MemoryStorage();
+public void ConfigureServices(IServiceCollection services)
+{
+    // Bot States
+    var storage = new MemoryStorage();
 
-// User stateのデータを取得
-var userState = new UserState(storage);
-services.AddSingleton(userState);
-
-// Conversation state のデータを取得
-var conversationState = new ConversationState(storage);
-services.AddSingleton(conversationState);
+    services.AddSingleton(new UserState(storage));
+    services.AddSingleton(new ConversationState(storage));
+}
 ```
 
 ### ボットクラスでデータを扱う
