@@ -110,7 +110,10 @@ APIがユーザーの認証を得る方法は2つある。
 サンプルは下記の通り。
 
 ```powershell
-function Get-Token() {
+$APP_DATA_DIR = $env:LOCALAPPDATA + "\TestApp"
+$TOKEN_FILE = $APP_DATA_DIR + "\token.txt"
+
+function Get-NewToken() {
     # トークンを得る
 
     $queryString = "?"
@@ -127,18 +130,26 @@ function Get-Token() {
     $token = Read-Host "ブラウザに表示されたトークンを入力してください"
 
     # トークンをファイルに書き込み
-    $dirPath = $env:LOCALAPPDATA + "\TestApp"
-    if (-not (Test-Path $dirPath)) {
-        New-Item $dirPath -ItemType "directory"
+    if (-not (Test-Path $APP_DATA_DIR)) {
+        New-Item $APP_DATA_DIR -ItemType "directory"
     }
 
-    $filePath = $dirPath + "\token.txt"
-    if (Test-Path $filePath) {
-        Remove-Item $filePath
+    if (Test-Path $TOKEN_FILE) {
+        Remove-Item $TOKEN_FILE
     }
     
-    Out-File -FilePath $filePath -InputObject $token
+    Out-File -FilePath $TOKEN_FILE -InputObject $token
 }
 ```
 
+ファイルに保存したトークンは、APIを実行するときに読み込む。
+
+```powershell
+function Read-Token() {
+    if (-not (Test-Path $TOKEN_FILE)) {
+        Get-NewToken
+    }
+    $script:API_TOKEN = Get-Content $TOKEN_FILE
+}
+```
 
