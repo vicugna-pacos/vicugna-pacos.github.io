@@ -1,6 +1,7 @@
 ---
 title: "Trello APIを実行する"
 date: 2020-11-02T16:26:39+09:00
+lastMod: 2020-11-06T10:16:22+09:00
 ---
 
 ## はじめに
@@ -26,8 +27,7 @@ PowerShellで、Trelloのカード作成などを自動化したい。
 
 ![](2020-11-02-18-54-04.png)
 
-この手順で取得するトークンはあくまでも自分用なので、APIキーを使ったアプリを公開する際は、トークンはユーザーに取得してもらうことになる。
-APIキーは公開しても構わない情報だが、トークンは秘匿しておく必要がある。
+この手順で取得するトークンはあくまでも自分用なので、APIキーを使ったスクリプトを共有する際は、トークンはユーザーに取得してもらうことになる。
 
 ## 自分が所属するボードの一覧を取得
 
@@ -95,4 +95,51 @@ $response = Invoke-WebRequest -Uri $uri -Body $params -Method "POST"
 
 ## 認証
 参考：[Authorization](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/)
+
+APIがユーザーの認証を得る方法は2つある。
+1つは `1/authorize` 経由、もう1つはOAuthを使う方法があるが、今回は `1/authorize` を利用してトークンを得ることにする。
+
+処理の流れとしては、大まかに下記の通り：
+
+1. スクリプトはブラウザで `https://api.trello.com/1/authorize` を開く。
+1. スクリプトはトークンの入力を待つ。
+1. ユーザーはアプリを許可する。
+1. 許可するとブラウザにトークンが表示されるので、ユーザーはそれをコピペしてスクリプトへ入力する。
+1. スクリプトは受け取ったトークンをファイルに保存する。
+
+サンプルは下記の通り。
+
+```powershell
+function Get-Token() {
+    # トークンを得る
+
+    $queryString = "?"
+    $queryString = ($queryString + "key=" + $API_KEY) # APIキーに置き換える
+    $queryString = ($queryString + "&callback_method=postMessage")
+    $queryString = ($queryString + "&scope=read,write")
+    $queryString = ($queryString + "&expiration=never")
+    $queryString = ($queryString + "&name=TestApp")
+    $queryString = ($queryString + "&response_type=token")
+
+    $uri = ("https://api.trello.com/1/authorize" + $queryString)
+
+    Start-Process $uri
+
+    $token = Read-Host "ブラウザに表示されたトークンを入力してください"
+
+    # トークンをファイルに書き込み
+    $dirPath = $env:LOCALAPPDATA + "\TestApp"
+    if (-not (Test-Path $dirPath)) {
+        New-Item $dirPath -ItemType "directory"
+    }
+
+    $filePath = $dirPath + "\token.txt"
+    if (Test-Path $filePath) {
+        Remove-Item $filePath
+    }
+    
+    Out-File -FilePath $filePath -InputObject $token
+}
+```
+
 
