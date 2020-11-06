@@ -115,7 +115,6 @@ function Get-Token() {
 
     $queryString = "?"
     $queryString = ($queryString + "key=" + $API_KEY) # APIキーに置き換える
-    $queryString = ($queryString + "&callback_method=postMessage")
     $queryString = ($queryString + "&scope=read,write")
     $queryString = ($queryString + "&expiration=never")
     $queryString = ($queryString + "&name=TestApp")
