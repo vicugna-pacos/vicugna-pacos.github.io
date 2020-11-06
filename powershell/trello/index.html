@@ -46,7 +46,10 @@ APIでカード作成などを行う場合、どのリストに作成するか�
 <span style=color:#111>$response</span> <span style=color:#111>=</span> <span style=color:#111>Invoke-WebRequest</span> <span style=color:#111>-Uri</span> <span style=color:#111>$uri</span> <span style=color:#111>-Body</span> <span style=color:#111>$params</span> <span style=color:#111>-Method</span> <span style=color:#d88200>&#34;POST&#34;</span>
 </code></pre></div><p>既存のカードを元ネタにして、新しいカードを作成する。
 <code>idCardSource</code> を指定しなければ、元ネタ無しで新しいカードを作成する。</p><h2 id=認証>認証</h2><p>参考：<a href=https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/ target=_blank rel=noopener>Authorization</a></p><p>APIがユーザーの認証を得る方法は2つある。
-1つは <code>1/authorize</code> 経由、もう1つはOAuthを使う方法があるが、今回は <code>1/authorize</code> を利用してトークンを得ることにする。</p><p>処理の流れとしては、大まかに下記の通り：</p><ol><li>スクリプトはブラウザで <code>https://api.trello.com/1/authorize</code> を開く。</li><li>スクリプトはトークンの入力を待つ。</li><li>ユーザーはアプリを許可する。</li><li>許可するとブラウザにトークンが表示されるので、ユーザーはそれをコピペしてスクリプトへ入力する。</li><li>スクリプトは受け取ったトークンをファイルに保存する。</li></ol><p>サンプルは下記の通り。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#00a8c8>function</span> <span style=color:#111>Get-Token</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+1つは <code>1/authorize</code> 経由、もう1つはOAuthを使う方法があるが、今回は <code>1/authorize</code> を利用してトークンを得ることにする。</p><p>処理の流れとしては、大まかに下記の通り：</p><ol><li>スクリプトはブラウザで <code>https://api.trello.com/1/authorize</code> を開く。</li><li>スクリプトはトークンの入力を待つ。</li><li>ユーザーはアプリを許可する。</li><li>許可するとブラウザにトークンが表示されるので、ユーザーはそれをコピペしてスクリプトへ入力する。</li><li>スクリプトは受け取ったトークンをファイルに保存する。</li></ol><p>サンプルは下記の通り。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#111>$APP_DATA_DIR</span> <span style=color:#111>=</span> <span style=color:#111>$env:LOCALAPPDATA</span> <span style=color:#111>+</span> <span style=color:#d88200>&#34;\TestApp&#34;</span>
+<span style=color:#111>$TOKEN_FILE</span> <span style=color:#111>=</span> <span style=color:#111>$APP_DATA_DIR</span> <span style=color:#111>+</span> <span style=color:#d88200>&#34;\token.txt&#34;</span>
+
+<span style=color:#00a8c8>function</span> <span style=color:#111>Get-NewToken</span><span style=color:#111>()</span> <span style=color:#111>{</span>
     <span style=color:#75715e># トークンを得る</span>
 
     <span style=color:#111>$queryString</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;?&#34;</span>
@@ -63,16 +66,20 @@ APIでカード作成などを行う場合、どのリストに作成するか�
     <span style=color:#111>$token</span> <span style=color:#111>=</span> <span style=color:#111>Read-Host</span> <span style=color:#d88200>&#34;ブラウザに表示されたトークンを入力してください&#34;</span>
 
     <span style=color:#75715e># トークンをファイルに書き込み</span>
-    <span style=color:#111>$dirPath</span> <span style=color:#111>=</span> <span style=color:#111>$env:LOCALAPPDATA</span> <span style=color:#111>+</span> <span style=color:#d88200>&#34;\TestApp&#34;</span>
-    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#f92672>-not</span> <span style=color:#111>(</span><span style=color:#111>Test-Path</span> <span style=color:#111>$dirPath</span><span style=color:#111>))</span> <span style=color:#111>{</span>
-        <span style=color:#111>New-Item</span> <span style=color:#111>$dirPath</span> <span style=color:#111>-ItemType</span> <span style=color:#d88200>&#34;directory&#34;</span>
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#f92672>-not</span> <span style=color:#111>(</span><span style=color:#111>Test-Path</span> <span style=color:#111>$APP_DATA_DIR</span><span style=color:#111>))</span> <span style=color:#111>{</span>
+        <span style=color:#111>New-Item</span> <span style=color:#111>$APP_DATA_DIR</span> <span style=color:#111>-ItemType</span> <span style=color:#d88200>&#34;directory&#34;</span>
     <span style=color:#111>}</span>
 
-    <span style=color:#111>$filePath</span> <span style=color:#111>=</span> <span style=color:#111>$dirPath</span> <span style=color:#111>+</span> <span style=color:#d88200>&#34;\token.txt&#34;</span>
-    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>Test-Path</span> <span style=color:#111>$filePath</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-        <span style=color:#111>Remove-Item</span> <span style=color:#111>$filePath</span>
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>Test-Path</span> <span style=color:#111>$TOKEN_FILE</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+        <span style=color:#111>Remove-Item</span> <span style=color:#111>$TOKEN_FILE</span>
     <span style=color:#111>}</span>
     
-    <span style=color:#111>Out-File</span> <span style=color:#111>-FilePath</span> <span style=color:#111>$filePath</span> <span style=color:#111>-InputObject</span> <span style=color:#111>$token</span>
+    <span style=color:#111>Out-File</span> <span style=color:#111>-FilePath</span> <span style=color:#111>$TOKEN_FILE</span> <span style=color:#111>-InputObject</span> <span style=color:#111>$token</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>ファイルに保存したトークンは、APIを実行するときに読み込む。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#00a8c8>function</span> <span style=color:#111>Read-Token</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#f92672>-not</span> <span style=color:#111>(</span><span style=color:#111>Test-Path</span> <span style=color:#111>$TOKEN_FILE</span><span style=color:#111>))</span> <span style=color:#111>{</span>
+        <span style=color:#111>Get-NewToken</span>
+    <span style=color:#111>}</span>
+    <span style=color:#111>$script:API_TOKEN</span> <span style=color:#111>=</span> <span style=color:#111>Get-Content</span> <span style=color:#111>$TOKEN_FILE</span>
 <span style=color:#111>}</span>
 </code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
