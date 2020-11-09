@@ -28,4 +28,31 @@ Azureの学習をしてみようと思うと、言語はやはりC#かなと思�
 .NET Core SDKをインストールすると、既定で利用情報の送信が有効になっている。
 これをオプトアウトしたい場合は、Windowsの環境変数に`DOTNET_CLI_TELEMETRY_OPTOUT`を追加し、値を`1`または`true`にする。
 
+## インストールの確認
 
+```
+dotnet --version
+```
+
+## テンプレートのインストール
+
+```
+dotnet new -i Microsoft.Bot.Framework.CSharp.EchoBot
+```
+
+インストール後の確認は `dotnet new --list` で行える。
+
+## 新しいプロジェクトの作成
+
+```
+dotnet new [テンプレートのShort Name] -n [プロジェクト名]
+```
+
+## プロジェクトへパッケージを追加
+
+```
+dotnet add [<PROJECT>] package <PACKAGE_NAME>
+```
+```
+dotnet --version
+```
