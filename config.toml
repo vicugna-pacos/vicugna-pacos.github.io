@@ -5,6 +5,8 @@ hasCJKLanguage = true
 summaryLength = 100
 theme = "suri"
 
+GoogleAnalytics = "UA-143399608-2"
+
 [params]
   github = "vicugna-pacos"
   author = "alpaca"
