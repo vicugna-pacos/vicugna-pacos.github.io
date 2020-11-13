@@ -1,7 +1,7 @@
 ---
 title: "QnA Maker を使用する"
 date: 2020-10-22T17:10:47+09:00
-weight: 7
+weight: 8
 ---
 
 ## はじめに
