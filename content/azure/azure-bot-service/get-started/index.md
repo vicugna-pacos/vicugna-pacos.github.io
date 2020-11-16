@@ -1,11 +1,12 @@
 ---
-title: "まず始めてみる"
+title: "まず始めてみる (VS2019)"
 date: 2020-09-23T19:11:50+09:00
 weight: 1
 ---
 
 ## 前提条件
 
+* Windows 10
 * Visual Studio 2019 Community 版で開発
 * 言語はC#を選択
 
