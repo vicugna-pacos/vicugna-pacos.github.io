@@ -81,25 +81,6 @@ private async Task<DialogTurnResult> XXXStepAsync(WaterfallStepContext stepConte
 
 参考：[WaterfallStep Delegate (Microsoft.Bot.Builder.Dialogs) | Microsoft Docs](https://docs.microsoft.com/ja-jp/dotnet/api/microsoft.bot.builder.dialogs.waterfallstep?view=botbuilder-dotnet-stable)
 
-ステップのメソッドは、必ず `DialogTurnResult` を返す。
-`DialogTurnResult` に持たせるパラメータによって、次のステップへ進むか、Dialogの流れを終わらせるか、などを指定できる。
-
-以下に戻り値のパターンのサンプルを示す：
-
-```csharp
-// ユーザーにPromptを送りつつ、次のステップへ進む(ユーザーの回答が正しくない場合、Promptによって当ステップが繰り返される)
-return await stepContext.PromptAsync("TextPrompt", promptOptions, cancellationToken);
-
-// 当ステップを飛ばす
-return await stepContext.NextAsync(null, cancellationToken);
-
-// 次のステップを飛ばす
-return await stepContext.NextAsync(-1, cancellationToken);
-
-// Dialogを終わらせる。最後のステップの戻り値はこれでないといけない
-return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
-```
-
 今回のサンプルの場合、最初のステップでユーザーの名前を聞く。テキストの回答を受け付ける場合は、`TextPrompt` を使用する。
 
 ```csharp
@@ -159,6 +140,36 @@ private async Task<DialogTurnResult> Step3Async(WaterfallStepContext stepContext
     return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
 }
 ```
+
+#### ステップの戻り値
+ステップのメソッドは、必ず `DialogTurnResult` を返す。
+`DialogTurnResult` に持たせるパラメータによって、次のステップへ進むか、Dialogの流れを終わらせるか、などを制御できる。
+
+大体の戻り値は、引数の `stepContext` のメソッドを呼び出せばよい。
+
+以下に戻り値のパターンのサンプルを示す：
+
+```csharp
+// ユーザーにPromptを送り、入力を待つ。
+// ユーザーの入力が正しい場合、次のステップへ進む。正しくない場合はPromptによって当ステップが繰り返される。
+return await stepContext.PromptAsync("TextPrompt", promptOptions, cancellationToken);
+
+// ユーザーの入力を待つ
+return new DialogTurnResult(DialogTurnStatus.Waiting);
+
+// 当ステップを飛ばす
+return await stepContext.NextAsync(null, cancellationToken);
+
+// 次のステップを飛ばす
+return await stepContext.NextAsync(-1, cancellationToken);
+
+// Dialogを終わらせる。最後のステップの戻り値はこれでないといけない
+return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+```
+
+参考：
+[DialogTurnStatus Enum (Microsoft.Bot.Builder.Dialogs) | Microsoft Docs](https://docs.microsoft.com/en-us/dotnet/api/microsoft.bot.builder.dialogs.dialogturnstatus?view=botbuilder-dotnet-stable)
+
 
 ### Dialogを定義する
 ComponentDialog のコンストラクタで、今まで定義したステップをつかってWaterfallDialogを作成する。作成した Dialog はComponentDialogへ登録し、ステップ中で使用する Prompt も同じように ComponentDialog へ登録する。
