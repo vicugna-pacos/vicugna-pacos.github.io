@@ -55,3 +55,32 @@ private async Task SendTypingAsync(ITurnContext<IMessageActivity> turnContext, C
     }
 }
 ```
+
+## いろいろなメッセージ
+
+### 候補を提示する
+
+![](2020-11-17-17-04-06.png)
+
+`MessageFactory` で作成したメッセージに `SuggestedActions` を追加すると、ボットのメッセージの下にユーザーが押せるボタンが出てくる。
+ユーザーがボタンを押すと、ボタンに設定した値がそのままユーザーの発言として返ってくる。
+
+```csharp
+var reply = MessageFactory.Text("実行したい処理を選んでください。");
+
+reply.SuggestedActions = new SuggestedActions()
+{
+    Actions = new List<CardAction>()
+    {
+        new CardAction() { Title = "処理1", Type = ActionTypes.ImBack, Value = "処理1" },
+        new CardAction() { Title = "処理2", Type = ActionTypes.ImBack, Value = "処理2" },
+        new CardAction() { Title = "処理3", Type = ActionTypes.ImBack, Value = "処理3" },
+    }
+};
+
+await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+```
+
+厳密にいうと、`CardAction` のプロパティ `Type` によりボタンが押された時の動作が変わる。
+
+参考：[Add media to messages - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-add-media-attachments?view=azure-bot-service-4.0&tabs=csharp#process-events-within-rich-cards)
