@@ -1,0 +1,57 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Azure Service Bus - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#前提条件>前提条件</a></li><li><a href=#価格のメモ>価格のメモ</a></li><li><a href=#準備>準備</a></li><li><a href=#キュー>キュー</a><ul><li><a href=#キューの送信>キューの送信</a></li><li><a href=#キューの受信>キューの受信</a></li></ul></li><li><a href=#トピック>トピック</a></li></ul></nav></aside></div><div class=main><article><h1>Azure Service Bus</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-11-18 09:07:09 +0900 +0900" itemprop=datePublished>2020-11-18</time></div><div></div></div><h2 id=前提条件>前提条件</h2><ul><li>アプリはC#で実装</li></ul><h2 id=価格のメモ>価格のメモ</h2><p>無料プランはない。
+価格レベルによって利用できる機能が違う。
+Basic → Standard → Premium</p><p>キューはいずれのプランでも利用可能だが、トピックは Standard 以上の場合利用可能。</p><h2 id=準備>準備</h2><p>Azure ポータルで、Service Bus のリソースを作成する。
+作成後は、リソースのメニューの「キュー」へ移動し、キュー(メッセージの入れ物)を作成する。</p><h2 id=キュー>キュー</h2><p>FIFO。メッセージ受信側は、メッセージが登録された順番でメッセージを取り出す。
+受信側は基本的に1つ。同じことをするクライアントを複数作ってもよいが、どんなメッセージを取り出すかは選べないので、負荷分散的な使い方になる。</p><h3 id=キューの送信>キューの送信</h3><p>参考：<a href=https://docs.microsoft.com/ja-jp/azure/service-bus-messaging/service-bus-quickstart-portal target=_blank rel=noopener>Azure portal を使用して Service Bus キューを作成する - Azure Service Bus | Microsoft Docs</a></p><p>参考：<a href=https://docs.microsoft.com/ja-jp/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues target=_blank rel=noopener>Azure Service Bus キューの使用 - Azure Service Bus | Microsoft Docs</a></p><p>Azureポータルを開き、作成した Service Bus のリソースを選択する。
+「共有アクセスポリシー」を選び、ポリシーのプライマリ接続文字列を取得する。さらに、送信用と受信用の複数のポリシーを作っておくと良い。
+また、準備の手順で作成したキューの名前も取得しておく。</p><p>送信側アプリにNugetパッケージの <code>Microsoft.Azure.ServiceBus</code> を追加する。</p><pre><code>dotnet add package Microsoft.Azure.ServiceBus
+</code></pre><p>メッセージ送信のサンプルは以下の通り。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Azure.ServiceBus</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Text</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>
+<span style=color:#00a8c8>const</span> <span style=color:#00a8c8>string</span> <span style=color:#111>ServiceBusConnectionString</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;接続文字列&#34;</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>const</span> <span style=color:#00a8c8>string</span> <span style=color:#111>QueueName</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;キューの名前&#34;</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>SendQueueAsync</span><span style=color:#111>()</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>var</span> <span style=color:#111>queueClient</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>QueueClient</span><span style=color:#111>(</span><span style=color:#111>ServiceBusConnectionString</span><span style=color:#111>,</span> <span style=color:#111>QueueName</span><span style=color:#111>);</span>
+
+    <span style=color:#00a8c8>string</span> <span style=color:#111>messageBody</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;メッセージ本体&#34;</span><span style=color:#111>;</span>
+    <span style=color:#00a8c8>var</span> <span style=color:#111>message</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Message</span><span style=color:#111>(</span><span style=color:#111>Encoding</span><span style=color:#111>.</span><span style=color:#111>UTF8</span><span style=color:#111>.</span><span style=color:#111>GetBytes</span><span style=color:#111>(</span><span style=color:#111>messageBody</span><span style=color:#111>));</span>
+    <span style=color:#00a8c8>await</span> <span style=color:#111>queueClient</span><span style=color:#111>.</span><span style=color:#111>SendAsync</span><span style=color:#111>(</span><span style=color:#111>message</span><span style=color:#111>);</span>
+
+    <span style=color:#00a8c8>await</span> <span style=color:#111>queueClient</span><span style=color:#111>.</span><span style=color:#111>CloseAsync</span><span style=color:#111>();</span>
+<span style=color:#111>}</span>
+</code></pre></div><h3 id=キューの受信>キューの受信</h3><p><a href=https://github.com/Azure/azure-service-bus/tree/master/samples/DotNet/GettingStarted/Microsoft.Azure.ServiceBus/BasicSendReceiveUsingQueueClient target=_blank rel=noopener>QueueClientを使ったサンプル</a> は、一度起動すると、キューにあるメッセージをすべて取り出す。
+受信したメッセージごとに実行されるコールバックメソッドを定義する形。</p><p>キューのメッセージを1件だけ取り出して処理したい場合は、<a href=https://github.com/Azure/azure-service-bus/tree/master/samples/DotNet/GettingStarted/Microsoft.Azure.ServiceBus/SendReceiveUsingMessageSenderReceiver target=_blank rel=noopener>こちらのサンプル</a> または下記を参考にする。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Azure.ServiceBus</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Azure.ServiceBus.Core</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Text</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>
+<span style=color:#00a8c8>const</span> <span style=color:#00a8c8>string</span> <span style=color:#111>ServiceBusConnectionString</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;接続文字列&#34;</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>const</span> <span style=color:#00a8c8>string</span> <span style=color:#111>QueueName</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;キューの名前&#34;</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>static</span> <span style=color:#111>IMessageReceiver</span> <span style=color:#111>messageReceiver</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>static</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span><span style=color:#111>)</span>
+<span style=color:#111>{</span>
+    <span style=color:#111>messageReceiver</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>MessageReceiver</span><span style=color:#111>(</span><span style=color:#111>ServiceBusConnectionString</span><span style=color:#111>,</span> <span style=color:#111>QueueName</span><span style=color:#111>,</span> <span style=color:#111>ReceiveMode</span><span style=color:#111>.</span><span style=color:#111>PeekLock</span><span style=color:#111>);</span>
+
+    <span style=color:#75715e>// メッセージを受信
+</span><span style=color:#75715e></span>    <span style=color:#111>Message</span> <span style=color:#111>message</span> <span style=color:#111>=</span> <span style=color:#00a8c8>await</span> <span style=color:#111>messageReceiver</span><span style=color:#111>.</span><span style=color:#111>ReceiveAsync</span><span style=color:#111>();</span>
+    <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;Received message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}&#34;</span><span style=color:#111>);</span>
+
+    <span style=color:#00a8c8>await</span> <span style=color:#111>messageReceiver</span><span style=color:#111>.</span><span style=color:#111>CompleteAsync</span><span style=color:#111>(</span><span style=color:#111>message</span><span style=color:#111>.</span><span style=color:#111>SystemProperties</span><span style=color:#111>.</span><span style=color:#111>LockToken</span><span style=color:#111>);</span>
+
+    <span style=color:#00a8c8>await</span> <span style=color:#111>messageReceiver</span><span style=color:#111>.</span><span style=color:#111>CloseAsync</span><span style=color:#111>();</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>キューにメッセージがない場合、タイムアウトに指定された分だけ受信を待機した後、戻り値にnullを返す。
+タイムアウトは、<code>ReceiveAsync</code> メソッドの引数に指定可能。</p><h2 id=トピック>トピック</h2><p>複数の受信者を作れる。
+受信側でどんなメッセージを取り出すか、SQLみたいに指定して選べる。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
