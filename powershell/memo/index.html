@@ -1,0 +1,39 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>色々メモ - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>PowerShell</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#前提条件>前提条件</a></li><li><a href=#スクリプトのパスを取得する>スクリプトのパスを取得する</a></li><li><a href=#関数>関数</a></li><li><a href=#モジュール-psm1>モジュール (psm1)</a><ul><li><a href=#モジュールを読み込む>モジュールを読み込む</a></li><li><a href=#モジュールを作成する>モジュールを作成する</a></li></ul></li><li><a href=#ドットソース>ドットソース</a><ul><li><a href=#ドットソースと変数のスコープ>ドットソースと変数のスコープ</a></li></ul></li></ul></nav></aside></div><div class=main><article><h1>色々メモ</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-10-27 15:42:25 +0900 +0900" itemprop=datePublished>2020-10-27</time>
+(最終更新：<time datetime="2020-11-19 15:50:41 +0900 +0900" itemprop=dateModified>2020-11-19</time>)</div><div></div></div><h2 id=前提条件>前提条件</h2><p>基本的に PowerShell v5.1 を使っている。</p><h2 id=スクリプトのパスを取得する>スクリプトのパスを取得する</h2><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#75715e># スクリプトのフルパス</span>
+<span style=color:#111>$MyInvocation</span><span style=color:#111>.</span><span style=color:#111>MyCommand</span><span style=color:#111>.</span><span style=color:#111>Path</span>
+<span style=color:#75715e># スクリプトのフォルダパス</span>
+<span style=color:#111>Split-Path</span> <span style=color:#111>$MyInvocation</span><span style=color:#111>.</span><span style=color:#111>MyCommand</span><span style=color:#111>.</span><span style=color:#111>Path</span> <span style=color:#111>-Parent</span>
+</code></pre></div><h2 id=関数>関数</h2><p>参考：<a href="https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-5.1" target=_blank rel=noopener>Approved Verbs for PowerShell Commands - PowerShell | Microsoft Docs</a></p><p>命名規則がある。<code>動詞-名詞</code> の形。
+動詞に使える単語は決まっている。<code>Get-Verb</code> というコマンドを実行すると一覧が表示される。</p><h2 id=モジュール-psm1>モジュール (psm1)</h2><p>参考：<a href=https://tech.guitarrapc.com/entry/2013/12/03/014013 target=_blank rel=noopener>PowerShell のモジュール詳解とモジュールへのコマンドレット配置手法を考える - tech.guitarrapc.cóm</a></p><p>参考：<a href="https://docs.microsoft.com/ja-jp/powershell/scripting/developer/module/modifying-the-psmodulepath-installation-path?view=powershell-5.1" target=_blank rel=noopener>PSModulePath のインストールパスを変更する - PowerShell | Microsoft Docs</a></p><h3 id=モジュールを読み込む>モジュールを読み込む</h3><p>モジュールは所定のフォルダへ置くと、自動で読み込まれる。
+パスは <code>$env:PSModulePath</code> を参照すると分かる。
+<code>[ドキュメントフォルダ]\WindowsPowerShell\Modules</code> とか <code>C:\Program Files\WindowsPowerShell\Modules</code> が設定されている。</p><p>それ以外にフォルダを追加したい場合は、単純に <code>$env:PSModulePath</code> へパスを追加すると良い。ただし、この方法はセッション内でのみ有効。
+永続的にフォルダを追加したい場合は、Windowsの環境変数に書き加える。</p><h3 id=モジュールを作成する>モジュールを作成する</h3><p><code>$env:PSModulePath</code> に設定したフォルダに、モジュールファイル名と同じ名前のフォルダを作成する。</p><pre><code>hoge
+└ hoge.psm1
+</code></pre><p>psm1 ファイルに関数を書いたら、エクスポートして外部から使えるようにする。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#111>Export-ModuleMember</span> <span style=color:#111>-Function</span> <span style=color:#111>hogeFunc</span>
+</code></pre></div><h2 id=ドットソース>ドットソース</h2><p>例えば、<code>main.ps1</code> に書いたスクリプトの量が多くなり、<code>sub.ps1</code> に分割したい場合に使える。
+<code>main.ps1</code> の任意の場所に下記サンプルを挿入すると、その場所に <code>sub.ps1</code> が挿入される感じになる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#111>.</span> <span style=color:#d88200>&#34;.\sub.ps1&#34;</span>
+</code></pre></div><p>基本的には相対パスで指定してもいいが、PowerShellの場合、カレントフォルダはps1ファイルがある場所ではなく、<strong>ps1ファイルを実行したときのカレントフォルダ</strong> になるので注意。
+<code>main.ps1</code>では、自ファイルのパスを取得しつつ、絶対パスで <code>sub.ps1</code> をドットソースで読み込んだ方がよさそう。</p><h3 id=ドットソースと変数のスコープ>ドットソースと変数のスコープ</h3><p>ドットソースは、記述した場所にそのままps1ファイルの中身をコピペするようなイメージで動作する。</p><p>例えば、下記のような <code>sub.ps1</code> があるとする。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#111>$CONST1</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;CONST1sub&#34;</span>
+
+<span style=color:#00a8c8>function</span> <span style=color:#111>Get-Test2</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+    <span style=color:#111>Write-Host</span> <span style=color:#111>$CONST1</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>それを、<code>main.ps1</code> でドットソースで読込み、実行する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#111>.</span> <span style=color:#d88200>&#34;.\sub.ps1&#34;</span>
+
+<span style=color:#111>$CONST1</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;CONST1&#34;</span>
+
+<span style=color:#111>Get-Test2</span>
+</code></pre></div><p>すると、コンソールには <code>CONST1</code> が出力される。</p><p>理由としては、下記のような感じになるからだと思われる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-powershell data-lang=powershell><span style=color:#75715e># sub.ps1 ここから</span>
+<span style=color:#111>$CONST1</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;CONST1sub&#34;</span>
+
+<span style=color:#00a8c8>function</span> <span style=color:#111>Get-Test2</span><span style=color:#111>()</span> <span style=color:#111>{</span>
+    <span style=color:#111>Write-Host</span> <span style=color:#111>$CONST1</span>
+<span style=color:#111>}</span>
+<span style=color:#75715e># sub.ps1 ここまで</span>
+
+<span style=color:#111>$CONST1</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;CONST1&#34;</span>
+
+<span style=color:#111>Get-Test2</span>
+</code></pre></div><p>なので、ドットソースの読込の部分を、<code>Get-Test2</code> 関数を実行する直前に移すと、出力結果は <code>CONST1sub</code> に変わる。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
