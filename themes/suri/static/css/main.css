@@ -108,6 +108,22 @@ pre > code {
 #TableOfContents ul {
     padding-inline-start: 20px;
 }
+/* スマホ対応 */
+@media screen and (max-width: 560px) {
+    .content-container.single {
+        display: block;
+    }
+    .content-container.single .side {
+        display: none;
+    }
+    .content-container.single .main {
+        width: 100%;
+    }
+    .content-container.single .toc {
+        display: none;
+    }
+        
+}
 
 /* articleの日付やタグの情報 */
 .article-info {
