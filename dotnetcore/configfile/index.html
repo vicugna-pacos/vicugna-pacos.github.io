@@ -1,0 +1,101 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>設定ファイルをコンソールアプリで使用する - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#概要>概要</a></li><li><a href=#nuget-パッケージの追加>NuGet パッケージの追加</a></li><li><a href=#インメモリを使ったサンプル>インメモリを使ったサンプル</a></li><li><a href=#jsonファイルを使ったサンプル>JSONファイルを使ったサンプル</a></li></ul></nav></aside></div><div class=main><article><h1>設定ファイルをコンソールアプリで使用する</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-11-24 16:32:22 +0900 +0900" itemprop=datePublished>2020-11-24</time></div><div></div></div><h2 id=概要>概要</h2><p>.NET Core のコンソールアプリケーションでも設定ファイルを利用できる。</p><p>NuGet パッケージの <code>Microsoft.Extensions.Configuration</code> とその配下のパッケージを使う。
+キーと値のペア かつ キーは複数レベルの階層にわたる設定が作れる。
+たとえば、<code>SampleApp:Users:Tarou</code>という感じで、階層ごとにコロンで区切って指定する。
+設定値はすべてstringで、値をPOCOオブジェクトにバインドする機能もある。
+このAPIはASP.NETでは使われてきたが、それ以外のプラットフォームでも使える。</p><p>参考：<a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0" target=_blank rel=noopener>Configuration in ASP.NET Core | Microsoft Docs</a></p><p>前提条件：</p><ul><li>.NET Core 3.1</li><li>Visual Studio 2019 で開発</li></ul><h2 id=nuget-パッケージの追加>NuGet パッケージの追加</h2><p><code>Microsoft.Extensions.Configuration</code> から始まるパッケージ群を、目的に合わせて追加する。</p><p>設定ファイルの形態によって、以下のいずれかを追加する。</p><ul><li><code>Microsoft.Extensions.Configuration.Json</code></li><li><code>Microsoft.Extensions.Configuration.Ini</code></li><li><code>Microsoft.Extensions.Configuration.Xml</code></li><li>その他の Configuration Provider は <a href=https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration#cp target=_blank rel=noopener>ドキュメント</a> 参照。</li></ul><p>設定値をPOCOオブジェクトへバインドさせたい場合は、以下を追加する。</p><ul><li><code>Microsoft.Extensions.Configuration.Binder</code></li></ul><p>例えば、設定ファイルはjsonファイルにしつつ、POCOオブジェクトへのバインドも利用したい場合は、
+<code>Microsoft.Extensions.Configuration.Json</code> と <code>Microsoft.Extensions.Configuration.Binder</code> の2つを追加する。</p><h2 id=インメモリを使ったサンプル>インメモリを使ったサンプル</h2><p>コード上に設定値を書く、最もシンプルなもの。</p><p>NuGet パッケージは以下2つを追加する。</p><ul><li><code>Microsoft.Extensions.Configuration</code></li><li><code>Microsoft.Extensions.Configuration.Binder</code></li></ul><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Configuration</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+    <span style=color:#111>{</span>
+        <span style=color:#75715e>// コード上で設定値を作る
+</span><span style=color:#75715e></span>        <span style=color:#00a8c8>var</span> <span style=color:#111>values</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Dictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#00a8c8>string</span><span style=color:#111>&gt;()</span>
+        <span style=color:#111>{</span>
+<span style=color:#75af00>            [&#34;Profile:UserName&#34;]</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;太郎&#34;</span><span style=color:#111>,</span>
+<span style=color:#75af00>            [&#34;ConnectionStrings:str1&#34;]</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;接続文字列&#34;</span><span style=color:#111>,</span>
+<span style=color:#75af00>            [&#34;AppConfiguration:Model1:param1&#34;]</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;400&#34;</span><span style=color:#111>,</span>
+<span style=color:#75af00>            [&#34;AppConfiguration:Model1:param2&#34;]</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;600&#34;</span>
+        <span style=color:#111>};</span>
+
+        <span style=color:#75715e>// ビルダーに設定値を渡す
+</span><span style=color:#75715e></span>        <span style=color:#00a8c8>var</span> <span style=color:#111>builder</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>ConfigurationBuilder</span><span style=color:#111>();</span>
+        <span style=color:#111>builder</span><span style=color:#111>.</span><span style=color:#111>AddInMemoryCollection</span><span style=color:#111>(</span><span style=color:#111>values</span><span style=color:#111>);</span>
+
+        <span style=color:#75715e>// Configurationクラスを作る
+</span><span style=color:#75715e></span>        <span style=color:#111>IConfiguration</span> <span style=color:#111>config</span> <span style=color:#111>=</span> <span style=color:#111>builder</span><span style=color:#111>.</span><span style=color:#111>Build</span><span style=color:#111>();</span>
+
+        <span style=color:#75715e>// 設定値を取得する
+</span><span style=color:#75715e></span>        <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;Hello {config[&#34;</span><span style=color:#111>Profile</span><span style=color:#111>:</span><span style=color:#111>UserName</span><span style=color:#d88200>&#34;]}&#34;</span><span style=color:#111>);</span>
+
+        <span style=color:#75715e>// 接続文字列は専用の取得メソッドがある
+</span><span style=color:#75715e></span>        <span style=color:#75715e>// 「ConnectionStrings」という階層にある設定値を取得する
+</span><span style=color:#75715e></span>        <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>config</span><span style=color:#111>.</span><span style=color:#111>GetConnectionString</span><span style=color:#111>(</span><span style=color:#d88200>&#34;str1&#34;</span><span style=color:#111>));</span>
+
+        <span style=color:#75715e>// POCOオブジェクトにバインド
+</span><span style=color:#75715e></span>        <span style=color:#00a8c8>var</span> <span style=color:#111>model</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Model1</span><span style=color:#111>();</span>
+        <span style=color:#111>config</span><span style=color:#111>.</span><span style=color:#111>GetSection</span><span style=color:#111>(</span><span style=color:#d88200>&#34;AppConfiguration:Model1&#34;</span><span style=color:#111>).</span><span style=color:#111>Bind</span><span style=color:#111>(</span><span style=color:#111>model</span><span style=color:#111>);</span>
+
+        <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>model</span><span style=color:#111>);</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>下記はバインドに使ったPOCOオブジェクトのサンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>class</span> <span style=color:#75af00>Model1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>string</span> <span style=color:#111>param1</span> <span style=color:#111>{</span> <span style=color:#00a8c8>get</span><span style=color:#111>;</span> <span style=color:#00a8c8>set</span><span style=color:#111>;</span> <span style=color:#111>}</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>string</span> <span style=color:#111>param2</span> <span style=color:#111>{</span> <span style=color:#00a8c8>get</span><span style=color:#111>;</span> <span style=color:#00a8c8>set</span><span style=color:#111>;</span> <span style=color:#111>}</span>
+
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>override</span> <span style=color:#00a8c8>string</span> <span style=color:#111>ToString</span><span style=color:#111>()</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>return</span> <span style=color:#d88200>$&#34;param1={param1}, param2={param2}&#34;</span><span style=color:#111>;</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>下記はサンプルの実行結果。</p><pre><code>Hello 太郎
+接続文字列
+param1=400, param2=600
+</code></pre><h2 id=jsonファイルを使ったサンプル>JSONファイルを使ったサンプル</h2><p>NuGet パッケージは以下2つを追加する。</p><ul><li><code>Microsoft.Extensions.Configuration</code></li><li><code>Microsoft.Extensions.Configuration.Binder</code></li></ul><p>下記はJSONファイルのサンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+  <span style=color:#f92672>&#34;Profile&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;UserName&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;太郎&#34;</span>
+  <span style=color:#111>},</span>
+  <span style=color:#f92672>&#34;ConnectionStrings&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;str1&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;接続文字列&#34;</span>
+  <span style=color:#111>},</span>
+  <span style=color:#f92672>&#34;AppConfiguration&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;Model1&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+      <span style=color:#f92672>&#34;param1&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;400&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;param2&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;600&#34;</span>
+    <span style=color:#111>}</span>
+  <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>設定ファイルのプロパティの「出力ディレクトリにコピー」を「常にコピーする」または「新しい場合はコピーする」に変更する。</p><p>下記はプログラムのサンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Configuration</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+    <span style=color:#111>{</span>
+        <span style=color:#75715e>// ビルダーにJSONファイルを追加
+</span><span style=color:#75715e></span>        <span style=color:#00a8c8>var</span> <span style=color:#111>builder</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>ConfigurationBuilder</span><span style=color:#111>();</span>
+        <span style=color:#111>builder</span><span style=color:#111>.</span><span style=color:#111>AddJsonFile</span><span style=color:#111>(</span><span style=color:#d88200>&#34;appsettings.json&#34;</span><span style=color:#111>);</span>
+
+        <span style=color:#75715e>// Configurationクラスを作る
+</span><span style=color:#75715e></span>        <span style=color:#111>IConfiguration</span> <span style=color:#111>config</span> <span style=color:#111>=</span> <span style=color:#111>builder</span><span style=color:#111>.</span><span style=color:#111>Build</span><span style=color:#111>();</span>
+
+        <span style=color:#75715e>// 設定値を取得する
+</span><span style=color:#75715e></span>        <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;Hello {config[&#34;</span><span style=color:#111>Profile</span><span style=color:#111>:</span><span style=color:#111>UserName</span><span style=color:#d88200>&#34;]}&#34;</span><span style=color:#111>);</span>
+
+        <span style=color:#75715e>// 接続文字列は専用の取得メソッドがある
+</span><span style=color:#75715e></span>        <span style=color:#75715e>// 「ConnectionStrings」という階層にある設定値を取得する
+</span><span style=color:#75715e></span>        <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>config</span><span style=color:#111>.</span><span style=color:#111>GetConnectionString</span><span style=color:#111>(</span><span style=color:#d88200>&#34;str1&#34;</span><span style=color:#111>));</span>
+
+        <span style=color:#75715e>// POCOオブジェクトにバインド
+</span><span style=color:#75715e></span>        <span style=color:#00a8c8>var</span> <span style=color:#111>model</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Model1</span><span style=color:#111>();</span>
+        <span style=color:#111>config</span><span style=color:#111>.</span><span style=color:#111>GetSection</span><span style=color:#111>(</span><span style=color:#d88200>&#34;AppConfiguration:Model1&#34;</span><span style=color:#111>).</span><span style=color:#111>Bind</span><span style=color:#111>(</span><span style=color:#111>model</span><span style=color:#111>);</span>
+
+        <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>model</span><span style=color:#111>);</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>出力結果はインメモリのサンプルと同じ。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
