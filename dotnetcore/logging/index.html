@@ -1,0 +1,53 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>コンソールアプリでログ出力 - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#概要>概要</a></li><li><a href=#nuget-パッケージの追加>NuGet パッケージの追加</a></li><li><a href=#コンソールへログ出力>コンソールへログ出力</a></li><li><a href=#イベントログへ出力>イベントログへ出力</a></li></ul></nav></aside></div><div class=main><article><h1>コンソールアプリでログ出力</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-11-26 09:34:54 +0900 +0900" itemprop=datePublished>2020-11-26</time></div><div></div></div><h2 id=概要>概要</h2><p>前提条件：</p><ul><li>.NET Core 3.1</li><li>Visual Studio 2019 で開発</li></ul><p>ASP.NET なら初めから使える(っぽい)ログ出力の機能を、コンソールアプリで使用する方法。</p><p><code>Microsoft.Extensions.Logging</code> パッケージを使用するが、一番お手軽(と思われる)なファイルへの出力機能がない。
+コンソール出力やイベントログへの出力はできる。</p><p>参考：<a href="https://docs.microsoft.com/ja-jp/aspnet/core/fundamentals/logging/?view=aspnetcore-5.0#built-in-logging-providers" target=_blank rel=noopener>.NET Core および ASP.NET Core でのログ記録 | Microsoft Docs</a></p><h2 id=nuget-パッケージの追加>NuGet パッケージの追加</h2><p>下記パッケージをプロジェクトに追加する。</p><p><code>Microsoft.Extensions.Logging</code></p><p>これと併せて、使用したいプロバイダー(出力先)ごとにパッケージを追加する。</p><ul><li><code>Microsoft.Extensions.Logging.Console</code> - コンソール</li><li><code>Microsoft.Extensions.Logging.EventLog</code> - イベントログ</li><li><code>Microsoft.Extensions.Logging.ApplicationInsights</code> - Azure の AppInsights</li><li>など</li></ul><h2 id=コンソールへログ出力>コンソールへログ出力</h2><p>下記2つのパッケージをプロジェクトへ追加する。</p><pre><code>Microsoft.Extensions.Logging
+Microsoft.Extensions.Logging.Console
+</code></pre><p>下記がロガーの準備とログ出力のサンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Logging</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ConsoleApp1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>using</span> <span style=color:#111>var</span> <span style=color:#111>loggerFactory</span> <span style=color:#111>=</span> <span style=color:#111>LoggerFactory</span><span style=color:#111>.</span><span style=color:#111>Create</span><span style=color:#111>(</span><span style=color:#111>builder</span> <span style=color:#111>=&gt;</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>builder</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddFilter</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Microsoft&#34;</span><span style=color:#111>,</span> <span style=color:#111>LogLevel</span><span style=color:#111>.</span><span style=color:#111>Warning</span><span style=color:#111>)</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddFilter</span><span style=color:#111>(</span><span style=color:#d88200>&#34;System&#34;</span><span style=color:#111>,</span> <span style=color:#111>LogLevel</span><span style=color:#111>.</span><span style=color:#111>Warning</span><span style=color:#111>)</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddFilter</span><span style=color:#111>(</span><span style=color:#d88200>&#34;ConsoleApp1.Program&#34;</span><span style=color:#111>,</span> <span style=color:#111>LogLevel</span><span style=color:#111>.</span><span style=color:#111>Debug</span><span style=color:#111>)</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddConsole</span><span style=color:#111>();</span>
+            <span style=color:#111>});</span>
+            <span style=color:#111>ILogger</span> <span style=color:#111>logger</span> <span style=color:#111>=</span> <span style=color:#111>loggerFactory</span><span style=color:#111>.</span><span style=color:#111>CreateLogger</span><span style=color:#111>&lt;</span><span style=color:#111>Program</span><span style=color:#111>&gt;();</span>
+            <span style=color:#111>logger</span><span style=color:#111>.</span><span style=color:#111>LogInformation</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Example log message&#34;</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>このサンプルを実行すると、下記のログがコンソール上に出力される。</p><pre><code>info: ConsoleApp1.Program[0]
+      Example log message
+</code></pre><h2 id=イベントログへ出力>イベントログへ出力</h2><p>下記2つのパッケージをプロジェクトへ追加する。</p><pre><code>Microsoft.Extensions.Logging
+Microsoft.Extensions.Logging.EventLog
+</code></pre><p>下記がロガーの準備とログ出力のサンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Logging</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ConsoleApp1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>using</span> <span style=color:#111>var</span> <span style=color:#111>loggerFactory</span> <span style=color:#111>=</span> <span style=color:#111>LoggerFactory</span><span style=color:#111>.</span><span style=color:#111>Create</span><span style=color:#111>(</span><span style=color:#111>builder</span> <span style=color:#111>=&gt;</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>builder</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddFilter</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Microsoft&#34;</span><span style=color:#111>,</span> <span style=color:#111>LogLevel</span><span style=color:#111>.</span><span style=color:#111>Warning</span><span style=color:#111>)</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddFilter</span><span style=color:#111>(</span><span style=color:#d88200>&#34;System&#34;</span><span style=color:#111>,</span> <span style=color:#111>LogLevel</span><span style=color:#111>.</span><span style=color:#111>Warning</span><span style=color:#111>)</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddFilter</span><span style=color:#111>(</span><span style=color:#d88200>&#34;ConsoleApp1.Program&#34;</span><span style=color:#111>,</span> <span style=color:#111>LogLevel</span><span style=color:#111>.</span><span style=color:#111>Debug</span><span style=color:#111>)</span>
+                    <span style=color:#111>.</span><span style=color:#111>AddEventLog</span><span style=color:#111>();</span>
+            <span style=color:#111>});</span>
+            <span style=color:#111>ILogger</span> <span style=color:#111>logger</span> <span style=color:#111>=</span> <span style=color:#111>loggerFactory</span><span style=color:#111>.</span><span style=color:#111>CreateLogger</span><span style=color:#111>&lt;</span><span style=color:#111>Program</span><span style=color:#111>&gt;();</span>
+            <span style=color:#111>logger</span><span style=color:#111>.</span><span style=color:#111>LogInformation</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Example log message&#34;</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>イベントビューアの「Windows ログ」→「Application」の中にログが記録される。</p><p><img src=2020-11-26-11-24-22.png alt></p><p><code>AddEventLog</code> メソッドの引数でログのソース名などを指定できるが、ソースは事前に登録が必要。
+登録するには、PowerShell のコマンドを実行するのが一番手っ取り早い方法と思われる。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
