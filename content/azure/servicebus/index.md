@@ -99,6 +99,9 @@ static async Task Main(string[] args)
 キューにメッセージがない場合、タイムアウトに指定された分だけ受信を待機した後、戻り値にnullを返す。
 タイムアウトは、`ReceiveAsync` メソッドの引数に指定可能。
 
+### キューの数を取得
+https://github.com/Azure/azure-service-bus-dotnet/blob/master/test/Microsoft.Azure.ServiceBus.UnitTests/Management/ManagementClientTests.cs#L262
+
 ## トピック
 複数の受信者を作れる。
 受信側でどんなメッセージを取り出すか、SQLみたいに指定して選べる。
