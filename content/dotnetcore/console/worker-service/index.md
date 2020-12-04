@@ -1,7 +1,6 @@
 ---
-title: "Windows Service を作る"
+title: "Windows サービスを作る"
 date: 2020-12-03T16:22:40+09:00
-draft: true
 ---
 
 ## 概要
