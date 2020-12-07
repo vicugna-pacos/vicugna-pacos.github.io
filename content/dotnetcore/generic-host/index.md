@@ -81,7 +81,7 @@ namespace ConsoleApp1
 
 `IHostLifetime` の実装クラスが、いつホストが起動していつ終了するかを制御している。
 既定では `Microsoft.Extensions.Hosting.Internal.ConsoleLifetime` が使われていて、
-コンソールで Ctrl + C を押すまでホストが起動し続ける。
+ユーザーがコンソールで Ctrl + C を押すまでホストが起動し続ける。
 
 [ConsoleLifetime のソース](https://github.com/dotnet/runtime/blob/master/src/libraries/Microsoft.Extensions.Hosting/src/Internal/ConsoleLifetime.cs)
 
@@ -124,3 +124,12 @@ namespace ConsoleApp1
     }
 }
 ```
+
+## 環境の指定
+テスト環境だとか本番環境だとかを、起動時に指定できる。
+既定は `Production` 。
+環境ごとに `appsettings.{Environment}.json` とappsettingsファイルを分け、異なる設定値でアプリを動かせる。
+
+環境変数 `DOTNET_ENVIRONMENT` に 環境を指定する。
+Visual Studio 2019 でデバッグしている場合、プロジェクトのプロパティ → 「デバッグ」タブ → 「環境変数」 で編集可能。
+
