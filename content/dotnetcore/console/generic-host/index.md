@@ -103,3 +103,15 @@ namespace ConsoleApp1
 Visual Studio 2019 でデバッグしている場合、プロジェクトのプロパティ → 「デバッグ」タブ → 「環境変数」 で編集可能。
 
 ![](2020-12-08-15-59-42.png)
+
+## ログやコンフィグファイルを使う
+ソースコード上でログを出力したい場合は、DIで `Microsoft.Extensions.Logging.ILogger` を取得する。
+
+```cs
+public MainService(ILogger<MainService> logger)
+{
+    _logger = logger;
+}
+```
+
+コンフィグファイルを使用したい場合は、 DIで `Microsoft.Extensions.Configuration.IConfiguration` を取得する。
