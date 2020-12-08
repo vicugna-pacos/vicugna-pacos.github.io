@@ -1,0 +1,67 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Windows サービスを作る - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li><li>コンソールアプリ</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#概要>概要</a></li><li><a href=#プロジェクトの作成>プロジェクトの作成</a></li><li><a href=#windows-サービスに必要な設定をする>Windows サービスに必要な設定をする</a><ul><li><a href=#nuget-パッケージの追加>NuGet パッケージの追加</a></li><li><a href=#programcs-の編集>Program.cs の編集</a></li></ul></li><li><a href=#サービスの処理を実装>サービスの処理を実装</a></li><li><a href=#サービスの発行と登録>サービスの発行と登録</a></li><li><a href=#参考>参考</a></li></ul></nav></aside></div><div class=main><article><h1>Windows サービスを作る</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-12-03 16:22:40 +0900 +0900" itemprop=datePublished>2020-12-03</time></div><div></div></div><h2 id=概要>概要</h2><p>前提条件：</p><ul><li>.NET Core 3.1</li><li>Visual Studio 2019 で開発</li></ul><h2 id=プロジェクトの作成>プロジェクトの作成</h2><p>「Worker Service」のテンプレートを使い、プロジェクトを作成する。</p><p><img src=2020-12-04-14-13-20.png alt></p><p>プロジェクトを作成するときに下記のような画面が出るが、そのまま「作成」をクリック。</p><p><img src=2020-12-04-14-14-02.png alt></p><p>プロジェクトが作成されると、下記のようなファイルたちが作られる。</p><p><img src=2020-12-04-14-15-03.png alt></p><h2 id=windows-サービスに必要な設定をする>Windows サービスに必要な設定をする</h2><p>このままだと、コンソールアプリとしては起動するものの、Windows サービスとしては起動しない。
+このプロジェクトをそのままビルドして Windows サービスとして登録しても、起動しようとしたときに「エラー 1053: そのサービスは指定時間内に開始要求または制御要求に応答しませんでした」というエラーになる。</p><p><img src=2020-12-04-14-23-01.png alt></p><h3 id=nuget-パッケージの追加>NuGet パッケージの追加</h3><p>下記パッケージをプロジェクトへ追加する。</p><pre><code>Microsoft.Extensions.Hosting.WindowsService
+</code></pre><p>このとき、プロジェクトが最初からインストールしている <code>Microsoft.Extensions.Hosting</code> のバージョンが古いと <code>WindowsService</code> の追加に失敗することがある。
+そのときは、<code>Microsoft.Extensions.Hosting</code> のバージョンを最新版へ更新する。</p><h3 id=programcs-の編集>Program.cs の編集</h3><p><code>Program.cs</code> を開き、<code>HostBuilder</code> のところに <code>UseWindowsService</code> メソッドを追加する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.DependencyInjection</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Hosting</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Linq</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>WorkerService1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>CreateHostBuilder</span><span style=color:#111>(</span><span style=color:#111>args</span><span style=color:#111>).</span><span style=color:#111>Build</span><span style=color:#111>().</span><span style=color:#111>Run</span><span style=color:#111>();</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#111>IHostBuilder</span> <span style=color:#111>CreateHostBuilder</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span><span style=color:#111>)</span> <span style=color:#111>=&gt;</span>
+            <span style=color:#111>Host</span><span style=color:#111>.</span><span style=color:#111>CreateDefaultBuilder</span><span style=color:#111>(</span><span style=color:#111>args</span><span style=color:#111>)</span>
+                <span style=color:#111>.</span><span style=color:#111>ConfigureServices</span><span style=color:#111>((</span><span style=color:#111>hostContext</span><span style=color:#111>,</span> <span style=color:#111>services</span><span style=color:#111>)</span> <span style=color:#111>=&gt;</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>services</span><span style=color:#111>.</span><span style=color:#111>AddHostedService</span><span style=color:#111>&lt;</span><span style=color:#111>Worker</span><span style=color:#111>&gt;();</span>
+                <span style=color:#111>})</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>.</span><span style=color:#111>UseWindowsService</span><span style=color:#111>();</span>
+</span>    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=サービスの処理を実装>サービスの処理を実装</h2><p>サービスのビジネスロジックは、<code>Worker.cs</code> へ実装する。
+<code>ExecuteAsync</code> メソッド内にループ処理が書かれているので、この中に処理を書く。
+このループはサービスが中断されるまで続くので、同じ処理を定期的に繰り返すことになる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Hosting</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Logging</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Linq</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>WorkerService1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>Worker</span> <span style=color:#111>:</span> <span style=color:#111>BackgroundService</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>Worker</span><span style=color:#111>&gt;</span> <span style=color:#111>_logger</span><span style=color:#111>;</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#111>Worker</span><span style=color:#111>(</span><span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>Worker</span><span style=color:#111>&gt;</span> <span style=color:#111>logger</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>_logger</span> <span style=color:#111>=</span> <span style=color:#111>logger</span><span style=color:#111>;</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>protected</span> <span style=color:#00a8c8>override</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>ExecuteAsync</span><span style=color:#111>(</span><span style=color:#111>CancellationToken</span> <span style=color:#111>stoppingToken</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>while</span> <span style=color:#111>(!</span><span style=color:#111>stoppingToken</span><span style=color:#111>.</span><span style=color:#111>IsCancellationRequested</span><span style=color:#111>)</span>
+            <span style=color:#111>{</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#75715e>// ここに処理を書く
+</span></span><span style=display:block;width:100%;background-color:#e1e1e1><span style=color:#75715e></span>                <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogInformation</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Worker running at: {time}&#34;</span><span style=color:#111>,</span> <span style=color:#111>DateTimeOffset</span><span style=color:#111>.</span><span style=color:#111>Now</span><span style=color:#111>);</span>
+</span>
+                <span style=color:#75715e>// 1秒待機してループ
+</span><span style=color:#75715e></span>                <span style=color:#00a8c8>await</span> <span style=color:#111>Task</span><span style=color:#111>.</span><span style=color:#111>Delay</span><span style=color:#111>(</span><span style=color:#ae81ff>1000</span><span style=color:#111>,</span> <span style=color:#111>stoppingToken</span><span style=color:#111>);</span>
+            <span style=color:#111>}</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=サービスの発行と登録>サービスの発行と登録</h2><p>まず、プロジェクトを「発行」して、リリース版のexeファイルを作成する。その後、出来上がったexeファイルをサービスとして登録する。
+次に、コマンドプロンプトを「管理者として実行」し、下記コマンドを実行する。</p><pre><code>sc create &quot;Service Name&quot; binpath=&quot;path_to_exe\service.exe&quot;
+</code></pre><h2 id=参考>参考</h2><p><a href=https://tocalai.medium.com/create-windows-services-5a4dcc837c08 target=_blank rel=noopener>Create Windows Services. .Net Core 3.0 | by LAI TOCA | Medium</a></p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>

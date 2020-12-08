@@ -1,0 +1,58 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>汎用ホストを使う - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li><li>コンソールアプリ</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#概要>概要</a></li><li><a href=#実装手順>実装手順</a><ul><li><a href=#パッケージの追加>パッケージの追加</a></li><li><a href=#エントリーポイントの実装>エントリーポイントの実装</a></li><li><a href=#programcs-の実装>Program.cs の実装</a></li></ul></li><li><a href=#環境の指定>環境の指定</a></li><li><a href=#ログやコンフィグファイルを使う>ログやコンフィグファイルを使う</a></li></ul></nav></aside></div><div class=main><article><h1>汎用ホストを使う</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-11-26 15:01:47 +0900 +0900" itemprop=datePublished>2020-11-26</time>
+(最終更新：<time datetime="2020-12-08 15:52:09 +0900 +0900" itemprop=dateModified>2020-12-08</time>)</div><div></div></div><h2 id=概要>概要</h2><p>汎用ホストとは、ASP.NETで提供されているいくつかの機能を、コンソールアプリでも使えるよう汎用的にしたもの。
+使えるようになる機能の例は下記の通り。</p><ul><li>依存性の注入 (DI)</li><li>ログ</li><li>設定ファイル</li><li>起動環境の指定</li><li>etc&mldr;</li></ul><p>参考：<a href=https://docs.microsoft.com/ja-jp/dotnet/core/extensions/generic-host target=_blank rel=noopener>.NET Generic Host | Microsoft Docs</a></p><p>前提条件：</p><ul><li>.NET Core 3.1</li><li>Visual Studio 2019 で開発</li></ul><h2 id=実装手順>実装手順</h2><p>汎用ホストを公式ドキュメントのサンプル通りに実装すると、Webアプリケーションと同じく、一度起動するとアプリケーションが起動しっぱなしになる。
+既定では、ユーザーがコンソールウィンドウで Ctrl + C を押すまで終了しない。</p><p>当サンプルでは汎用ホストの便利機能は使いつつ、HostedServiceを使わずに処理を起動し終了する手順を示す。<br>※といっても、汎用ホストを起動せず、DIに登録したServiceクラスを手動で実行するだけ</p><p>常駐型のアプリを作りたい場合は、<a href=https://vicugna-pacos.github.io/dotnetcore/console/worker-service/>WorkerServiceテンプレートからプロジェクトを作る</a>のが良いと思う。</p><h3 id=パッケージの追加>パッケージの追加</h3><p>コンソールアプリケーションをテンプレートとしたプロジェクトを作成し、下記パッケージをプロジェクトに追加。</p><pre><code>Microsoft.Extensions.Hosting
+</code></pre><h3 id=エントリーポイントの実装>エントリーポイントの実装</h3><p>処理のエントリーポイントとなるServiceクラス(名前は何でもいい)を作成する。
+このクラスもDIへ登録するので、コンストラクタでDIに登録されているオブジェクトを受け取れる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Logging</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Text</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ConsoleApp1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>class</span> <span style=color:#75af00>MainService</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>ILogger</span> <span style=color:#111>_logger</span><span style=color:#111>;</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#111>MainService</span><span style=color:#111>(</span><span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>MainService</span><span style=color:#111>&gt;</span> <span style=color:#111>logger</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>_logger</span> <span style=color:#111>=</span> <span style=color:#111>logger</span><span style=color:#111>;</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Execute</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogInformation</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Executed!&#34;</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h3 id=programcs-の実装>Program.cs の実装</h3><p>汎用ホストを <code>Build</code> して、<code>Run</code> はせずにエントリーポイントとして作った <code>MainService</code> を実行するだけ。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.DependencyInjection</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Hosting</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ConsoleApp1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>builder</span> <span style=color:#111>=</span> <span style=color:#111>Host</span><span style=color:#111>.</span><span style=color:#111>CreateDefaultBuilder</span><span style=color:#111>(</span><span style=color:#111>args</span><span style=color:#111>)</span>
+                <span style=color:#111>.</span><span style=color:#111>ConfigureServices</span><span style=color:#111>((</span><span style=color:#111>hostContext</span><span style=color:#111>,</span> <span style=color:#111>services</span><span style=color:#111>)</span> <span style=color:#111>=&gt;</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>services</span><span style=color:#111>.</span><span style=color:#111>AddSingleton</span><span style=color:#111>&lt;</span><span style=color:#111>MainService</span><span style=color:#111>&gt;();</span>
+                <span style=color:#111>});</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#111>host</span> <span style=color:#111>=</span> <span style=color:#111>builder</span><span style=color:#111>.</span><span style=color:#111>Build</span><span style=color:#111>();</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>service</span> <span style=color:#111>=</span> <span style=color:#111>host</span><span style=color:#111>.</span><span style=color:#111>Services</span><span style=color:#111>.</span><span style=color:#111>GetService</span><span style=color:#111>&lt;</span><span style=color:#111>MainService</span><span style=color:#111>&gt;();</span>
+            <span style=color:#111>service</span><span style=color:#111>.</span><span style=color:#111>Execute</span><span style=color:#111>();</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=環境の指定>環境の指定</h2><p>汎用ホストを使うと、テスト環境だとか本番環境だとかを起動時に指定できる。
+既定は <code>Production</code> 。
+環境ごとに <code>appsettings.{Environment}.json</code> とappsettingsファイルを分け、異なる設定値でアプリを動かせる。</p><p>環境変数 <code>DOTNET_ENVIRONMENT</code> に 環境を指定する。
+Visual Studio 2019 でデバッグしている場合、プロジェクトのプロパティ → 「デバッグ」タブ → 「環境変数」 で編集可能。</p><p><img src=2020-12-08-15-59-42.png alt></p><h2 id=ログやコンフィグファイルを使う>ログやコンフィグファイルを使う</h2><p>ソースコード上でログを出力したい場合は、DIで <code>Microsoft.Extensions.Logging.ILogger</code> を取得する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>public</span> <span style=color:#111>MainService</span><span style=color:#111>(</span><span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>MainService</span><span style=color:#111>&gt;</span> <span style=color:#111>logger</span><span style=color:#111>)</span>
+<span style=color:#111>{</span>
+    <span style=color:#111>_logger</span> <span style=color:#111>=</span> <span style=color:#111>logger</span><span style=color:#111>;</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>コンフィグファイルを使用したい場合は、 DIで <code>Microsoft.Extensions.Configuration.IConfiguration</code> を取得する。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
