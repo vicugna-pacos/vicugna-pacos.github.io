@@ -70,6 +70,10 @@ namespace ConsoleApp1
 ログ出力自体は、他のプロバイダーと同じ。上記設定が済んでいれば Application Insights へログが送られる。
 
 基本的には trace テレメトリへログがたまるが、`TelemetryClient` を使うと、request テレメトリなどと親子関係を作り、トレースログをグループ化できる。
+
+また、非常駐型のコンソールアプリの場合、処理の最後で必ず `Flush` メソッドと数秒の待機時間を入れなければいけない。
+そうしないと、ログがAzureへちゃんと送信されないらしい。
+
 下記は、`TelemetryClient` を使用したサンプルである。
 
 ```cs
@@ -104,6 +108,7 @@ namespace ConsoleApp1
                 _logger.LogError("Execute4");
             }
             _client.Flush();
+            Task.Delay(5000).Wait();
         }
     }
 }
