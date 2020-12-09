@@ -1,0 +1,71 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Application Insights へログ出力 - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li><li>コンソールアプリ</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#概要>概要</a></li><li><a href=#nuget-パッケージの追加>NuGet パッケージの追加</a></li><li><a href=#appsettingsjson-の編集>appsettings.json の編集</a></li><li><a href=#programcs-の編集>Program.cs の編集</a></li><li><a href=#ログ出力>ログ出力</a></li></ul></nav></aside></div><div class=main><article><h1>Application Insights へログ出力</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-12-08 16:20:44 +0900 +0900" itemprop=datePublished>2020-12-08</time></div><div></div></div><h2 id=概要>概要</h2><p>コンソールアプリから、Application Insights へログ出力する手順。</p><p>前提条件：</p><ul><li>.NET Core 3.1</li><li>Visual Studio 2019 で開発</li><li>汎用ホストを使用</li></ul><p>参考：<a href=https://docs.microsoft.com/en-us/azure/azure-monitor/app/worker-service target=_blank rel=noopener>Application Insights for Worker Service apps (non-HTTP apps) - Azure Monitor | Microsoft Docs</a></p><h2 id=nuget-パッケージの追加>NuGet パッケージの追加</h2><p><code>Microsoft.ApplicationInsights.WorkerService</code> をプロジェクトへ追加する。</p><h2 id=appsettingsjson-の編集>appsettings.json の編集</h2><p>Application Insights へ接続するためのインストルメンテーション キーをAzure ポータイルサイトでコピーする。</p><p><img src=2020-12-07-16-54-56.png alt></p><p>コピーした値を appsettings.json の <code>ApplicationInsights:InstrumentationKey</code> へ記載する。
+また、Application Insights 用のログ出力設定は、<code>Logging:ApplicationInsights</code> に記載する。特に Application Insights の既定のログレベルは Warning なので、ログレベルを下げたいときは指定が必須。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+  <span style=color:#f92672>&#34;Logging&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;ApplicationInsights&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+      <span style=color:#f92672>&#34;LogLevel&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+        <span style=color:#f92672>&#34;Default&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Information&#34;</span>
+      <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+  <span style=color:#111>},</span>
+  <span style=color:#f92672>&#34;ApplicationInsights&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;InstrumentationKey&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;xxxxx&#34;</span>
+  <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=programcs-の編集>Program.cs の編集</h2><p>汎用ホストを使っている場合は、<code>ConfigureServices</code> メソッド内で、<code>AddApplicationInsightsTelemetryWorkerService</code> メソッドを呼び出す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.DependencyInjection</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Hosting</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ConsoleApp1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>builder</span> <span style=color:#111>=</span> <span style=color:#111>Host</span><span style=color:#111>.</span><span style=color:#111>CreateDefaultBuilder</span><span style=color:#111>(</span><span style=color:#111>args</span><span style=color:#111>)</span>
+                <span style=color:#111>.</span><span style=color:#111>ConfigureServices</span><span style=color:#111>((</span><span style=color:#111>hostContext</span><span style=color:#111>,</span> <span style=color:#111>services</span><span style=color:#111>)</span> <span style=color:#111>=&gt;</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>services</span><span style=color:#111>.</span><span style=color:#111>AddHostedService</span><span style=color:#111>&lt;</span><span style=color:#111>TestService</span><span style=color:#111>&gt;();</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                    <span style=color:#111>services</span><span style=color:#111>.</span><span style=color:#111>AddApplicationInsightsTelemetryWorkerService</span><span style=color:#111>();</span>
+</span>                <span style=color:#111>});</span>
+
+            <span style=color:#111>builder</span><span style=color:#111>.</span><span style=color:#111>Build</span><span style=color:#111>().</span><span style=color:#111>Run</span><span style=color:#111>();</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=ログ出力>ログ出力</h2><p>ログ出力自体は、他のプロバイダーと同じ。上記設定が済んでいれば Application Insights へログが送られる。</p><p>基本的には trace テレメトリへログがたまるが、<code>TelemetryClient</code> を使うと、request テレメトリなどと親子関係を作り、トレースログをグループ化できる。
+下記は、<code>TelemetryClient</code> を使用したサンプルである。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.ApplicationInsights</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.ApplicationInsights.DataContracts</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Logging</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Text</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ConsoleApp1</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>class</span> <span style=color:#75af00>MainService</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>ILogger</span> <span style=color:#111>_logger</span><span style=color:#111>;</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>TelemetryClient</span> <span style=color:#111>_client</span><span style=color:#111>;</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#111>MainService</span><span style=color:#111>(</span><span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>MainService</span><span style=color:#111>&gt;</span> <span style=color:#111>logger</span><span style=color:#111>,</span> <span style=color:#111>TelemetryClient</span> <span style=color:#111>client</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>_logger</span> <span style=color:#111>=</span> <span style=color:#111>logger</span><span style=color:#111>;</span>
+            <span style=color:#111>_client</span> <span style=color:#111>=</span> <span style=color:#111>client</span><span style=color:#111>;</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Execute</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogInformation</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Execute1&#34;</span><span style=color:#111>);</span>
+            <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogError</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Execute2&#34;</span><span style=color:#111>);</span>
+
+            <span style=color:#00a8c8>using</span> <span style=color:#111>(</span><span style=color:#111>_client</span><span style=color:#111>.</span><span style=color:#111>StartOperation</span><span style=color:#111>&lt;</span><span style=color:#111>RequestTelemetry</span><span style=color:#111>&gt;(</span><span style=color:#d88200>&#34;operation1&#34;</span><span style=color:#111>))</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogInformation</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Execute3&#34;</span><span style=color:#111>);</span>
+                <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogError</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Execute4&#34;</span><span style=color:#111>);</span>
+            <span style=color:#111>}</span>
+            <span style=color:#111>_client</span><span style=color:#111>.</span><span style=color:#111>Flush</span><span style=color:#111>();</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>これを実行し、Azureで結果を見ると下記のようになっている。</p><p><img src=2020-12-09-09-57-58.png alt></p><p><code>TelemetryClient</code> で囲んだ部分がグループ化されていることもわかる。</p><p><img src=2020-12-09-10-26-24.png alt></p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
