@@ -1,6 +1,7 @@
 ---
 title: "テキストメッセージの送受信"
 date: 2020-10-02T15:09:42+09:00
+lastMod: 2020-12-10T14:15:37+09:00
 weight: 5
 ---
 
@@ -84,3 +85,5 @@ await stepContext.Context.SendActivityAsync(reply, cancellationToken);
 厳密にいうと、`CardAction` のプロパティ `Type` によりボタンが押された時の動作が変わる。
 
 参考：[Add media to messages - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-add-media-attachments?view=azure-bot-service-4.0&tabs=csharp#process-events-within-rich-cards)
+
+※ Teams だと候補が出てこない。Adaptive Card を作る方がよさそう。
