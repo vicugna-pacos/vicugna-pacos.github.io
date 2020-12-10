@@ -16,6 +16,8 @@ Bot Framework SDK においては、コードでカードを作ることもで�
 
 [Adaptive Card の Designer](https://adaptivecards.io/designer/) で、カードを作る。
 
+![](2020-12-10-14-28-13.png)
+
 左上の「Select host app:」の部分が「Bot Framework WebChat」になっていることを確認する。
 また、右上の「Target Version」はおそらく最新バージョンが選択されるようになっているが、
 Bot Framework WebChatがサポートしているバージョンがそれより低い場合、「Target Version」を合わせる必要がある。
