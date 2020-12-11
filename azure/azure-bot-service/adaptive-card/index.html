@@ -1,11 +1,10 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Adaptive Card を送る - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#adaptive-card-とは>Adaptive Card とは</a></li><li><a href=#jsonからカードを作る>JSONからカードを作る</a></li></ul></nav></aside></div><div class=main><article><h1>Adaptive Card を送る</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Adaptive Card を送る - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#adaptive-card-とは>Adaptive Card とは</a></li><li><a href=#jsonからカードを作る>JSONからカードを作る</a></li><li><a href=#サンプル>サンプル</a><ul><li><a href=#ボタンを表示する>ボタンを表示する</a></li><li><a href=#ボタンにリンクを貼る>ボタンにリンクを貼る</a></li></ul></li><li><a href=#teams>Teams</a><ul><li><a href=#imback-を送る>imBack を送る</a></li><li><a href=#messageback-を送る>messageBack を送る</a></li></ul></li><li><a href=#参考>参考</a></li></ul></nav></aside></div><div class=main><article><h1>Adaptive Card を送る</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
 <time datetime="2020-11-13 12:47:14 +0900 +0900" itemprop=datePublished>2020-11-13</time></div><div></div></div><h2 id=adaptive-card-とは>Adaptive Card とは</h2><p>ボットからユーザーへ送信できるメッセージの一つで、ボタンとか画像とか色々含めたカードのようなUI。
-JSON形式で定義する。</p><p><a href=https://adaptivecards.io/ target=_blank rel=noopener>Adaptive Cardのサイト</a></p><p>Bot Framework SDK においては、コードでカードを作ることもできるし、JSONをパースしてカードを作ることもできる。</p><h2 id=jsonからカードを作る>JSONからカードを作る</h2><p><a href=https://adaptivecards.io/designer/ target=_blank rel=noopener>Adaptive Card の Designer</a> で、カードを作る。</p><p>左上の「Select host app:」の部分が「Bot Framework WebChat」になっていることを確認する。
-また、右上の「Target Version」はおそらく最新バージョンが選択されるようになっているが、
-Bot Framework WebChatがサポートしているバージョンがそれより低い場合、「Target Version」を合わせる必要がある。
-私が試したとき、Target Version は1.3で、Bot Framework WebChatがサポートしているバージョンは1.2だった。
-その状態で作ったJSONをボットに読み込ませても、空のカードになる。</p><p>作ったカードのJSONは、ボットのプロジェクトへjsonファイルとして配置する。
+JSON形式で定義する。</p><p><a href=https://adaptivecards.io/ target=_blank rel=noopener>Adaptive Cardのサイト</a></p><p>Bot Framework SDK においては、コードでカードを作ることもできるし、JSONをパースしてカードを作ることもできる。</p><p>前提条件：</p><ul><li>C#</li></ul><h2 id=jsonからカードを作る>JSONからカードを作る</h2><p><a href=https://adaptivecards.io/designer/ target=_blank rel=noopener>Adaptive Card の Designer</a> で、カードを作る。</p><p><img src=2020-12-10-14-28-13.png alt></p><p>左上の「Select host app:」の選択肢によって、それぞれの環境でどう見えるかが変化する。</p><p>また、host app によって、サポートしている Adaptive Card のバージョンが異なる場合がある。
+そのときは、カードのプレビューの下あたりに警告が表示される。
+例えば WebChat がサポートするバージョンが 1.2 の場合、Target Version が 1.3 になっている状態でカードを作っても、
+いざボットに取り込んだときに空のカードになってしまったりする。</p><p>作ったカードのJSONは、ボットのプロジェクトへjsonファイルとして配置する。
 今回は、<code>Cards/AdaptiveCard.json</code> に置いたと仮定する。</p><p>そのjsonファイルを読み込んで送信するサンプルが下記。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>var</span> <span style=color:#111>paths</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span><span style=color:#111>[]</span> <span style=color:#111>{</span> <span style=color:#d88200>&#34;.&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Cards&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;AdaptiveCard.json&#34;</span> <span style=color:#111>};</span>
 <span style=color:#00a8c8>var</span> <span style=color:#111>adaptiveCardJson</span> <span style=color:#111>=</span> <span style=color:#111>File</span><span style=color:#111>.</span><span style=color:#111>ReadAllText</span><span style=color:#111>(</span><span style=color:#111>Path</span><span style=color:#111>.</span><span style=color:#111>Combine</span><span style=color:#111>(</span><span style=color:#111>paths</span><span style=color:#111>));</span>
 
@@ -18,4 +17,62 @@ Bot Framework WebChatがサポートしているバージョンがそれより�
 <span style=color:#00a8c8>var</span> <span style=color:#111>message</span> <span style=color:#111>=</span> <span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Attachment</span><span style=color:#111>(</span><span style=color:#111>adaptiveCardAttachment</span><span style=color:#111>);</span>
 
 <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>message</span><span style=color:#111>,</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
-</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
+</code></pre></div><h2 id=サンプル>サンプル</h2><h3 id=ボタンを表示する>ボタンを表示する</h3><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+  <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;AdaptiveCard&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;$schema&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;http://adaptivecards.io/schemas/adaptive-card.json&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;version&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;1.2&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;body&#34;</span><span style=color:#111>:</span> <span style=color:#111>[</span>
+    <span style=color:#111>{</span>
+      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;TextBlock&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;text&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;好きな色を選んでください&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;wrap&#34;</span><span style=color:#111>:</span> <span style=color:#00a8c8>true</span>
+    <span style=color:#111>}</span>
+  <span style=color:#111>],</span>
+  <span style=color:#f92672>&#34;actions&#34;</span><span style=color:#111>:</span> <span style=color:#111>[</span>
+    <span style=color:#111>{</span>
+      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;赤&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;赤&#34;</span>
+    <span style=color:#111>},</span>
+    <span style=color:#111>{</span>
+      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;青&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;青&#34;</span>
+    <span style=color:#111>},</span>
+    <span style=color:#111>{</span>
+      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;黄色&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;黄色&#34;</span>
+    <span style=color:#111>}</span>
+  <span style=color:#111>]</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>↓WebChatでの見た目：<br><img src=2020-12-11-11-09-29.png alt></p><p>このサンプルは、Teamsでは上手く動作しない。詳細は Teams の章を参照。</p><h3 id=ボタンにリンクを貼る>ボタンにリンクを貼る</h3><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+  <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.OpenUrl&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Open Url&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;url&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;https://www.yahoo.co.jp/&#34;</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>このサンプルは Teams でも動作する。</p><h2 id=teams>Teams</h2><p><a href=https://docs.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-actions target=_blank rel=noopener>Add card actions in a bot - Teams | Microsoft Docs</a></p><p>Teams の場合、<code>Action.Submit</code> などが上記サンプルのままでは使用できない。ボタンは表示されるものの、押しても <code>data</code> の内容がボット側へ送信されない。
+動作させるためには、<code>data</code> プロパティに <code>msteams</code> と名前の付いたjsonオブジェクトを定義しないといけない。</p><h3 id=imback-を送る>imBack を送る</h3><p>imBack は、<code>value</code> プロパティに指定した文字列を、ユーザーが発言したものとして送る。<code>value</code> プロパティは、文字列のみ指定可能。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+  <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Click me for imBack&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;msteams&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+        <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;imBack&#34;</span><span style=color:#111>,</span>
+        <span style=color:#f92672>&#34;value&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Text to reply in chat&#34;</span>
+    <span style=color:#111>}</span>
+  <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h3 id=messageback-を送る>messageBack を送る</h3><p>messageBack は、チャットストリームに流すテキスト、ボットへ送るデータ、ボットへ送る文字列、それぞれを指定できる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+  <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Click me for messageBack&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;msteams&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+        <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;messageBack&#34;</span><span style=color:#111>,</span>
+        <span style=color:#f92672>&#34;displayText&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;I clicked this button&#34;</span><span style=color:#111>,</span>
+        <span style=color:#f92672>&#34;text&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;text to bots&#34;</span><span style=color:#111>,</span>
+        <span style=color:#f92672>&#34;value&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;{\&#34;bfKey\&#34;: \&#34;bfVal\&#34;, \&#34;conflictKey\&#34;: \&#34;from value\&#34;}&#34;</span>
+    <span style=color:#111>}</span>
+  <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>ボットへ送られるメッセージには <code>replyToId</code> プロパティがあり、これがユーザーがボタンをおしたカードのメッセージIDになる。
+これを使って、送信済みのメッセージを編集したりできる。</p><h2 id=参考>参考</h2><p><a href=https://blog.botframework.com/2019/07/02/using-adaptive-cards-with-the-microsoft-bot-framework/ target=_blank rel=noopener>Using Adaptive Cards with the Microsoft Bot Framework - Microsoft Bot Framework</a></p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
