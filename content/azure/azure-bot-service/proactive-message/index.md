@@ -1,7 +1,7 @@
 ---
 title: "ボットからメッセージを送る (プロアクティブなメッセージ)"
-date: 2020-09-23T19:11:50+09:00
-draft: true
+date: 2020-12-17T15:42:46+09:00
+weight: 9
 ---
 
 ## 前提条件
@@ -11,24 +11,22 @@ draft: true
 * .NET Core C#
 
 ## ボット側からメッセージを送る
-チャットボットは、基本的にユーザーから会話が始まりボットは返信するだけだが、ボット側からメッセージを送ることもできる。
+チャットボットは、基本的にユーザーから会話が始まりボットは返事をするだけだが、ボット側からメッセージを送ることもできる。
 ボットから話しかけることを、「プロアクティブな」メッセージという。
 
-基本的には、ボットと会話したことのあるユーザーにしか話しかけることができない。
+基本的には、ボットに接続したことのあるユーザーにしか話しかけることができない。
 ただし、Teamsの場合、組織単位でボットをアプリとして許可していれば、組織内の一度も会話したことのないユーザーへ話しかけられるらしい。
 その際は、Graph API を使ってユーザー情報を取得するらしい。
 
-参考：[Send proactive notifications to users - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-proactive-message?view=azure-bot-service-4.0&tabs=csharp)
+参考：
 
-参考：[Intro](https://microsoft.github.io/botframework-solutions/solution-accelerators/tutorials/enable-proactive-notifications/1-intro/)
-
-参考：[Send proactive messages - Teams | Microsoft Docs](https://docs.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/send-proactive-messages?tabs=dotnet)
+* [Send proactive notifications to users - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-proactive-message?view=azure-bot-service-4.0&tabs=csharp)
+* [Send proactive messages - Teams | Microsoft Docs](https://docs.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/send-proactive-messages?tabs=dotnet)
 
 
 
 ## ConversationReference を保存
-ユーザーがボットとの会話を始めると、`ConversationReference` という情報が作られる。
-これを保存しておけば、一度会話したことのあるユーザーに対してメッセージを送れる。
+ユーザーがボットに接続すると、`ConversationReference` という情報が作られる。これを保存しておけば、接続済みのユーザーに対してメッセージを送れる。
 
 本サンプルでは、ユーザーが会話に参加した時点で `ConversationReference` を保存する。
 
@@ -125,7 +123,73 @@ namespace ProactiveBot.Bots
 }
 ```
 
+### テストする
+ここまで実装したボットを Bot Framework Emulator でテストすると、ボットに接続した後に下記のようなメッセージが表示される。
+
+![](2020-12-17-15-27-54.png)
+
+ここに書かれている `id=` 以降の文字列がユーザーのIDとなる。
+
 ## メッセージの受け口を作る
+次に、プロアクティブなメッセージを受け付ける場所を作る。
+ボットから発言するといっても、実態はWebアプリなので勝手には動き出さない。
+トリガーは外部にあるため、メッセージを受け付けるためのURLをボットに用意する。
 
 ### Controller を追加
+サンプルでは、URL `api/proactive` を追加して、パラメータでメッセージ送信先のユーザーIDを受け取る。
+IDに一致する `ConversationReference` がある場合、そのユーザーに対してメッセージを送っている。
 
+```cs
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ProactiveBot.Controllers
+{
+    [Route("api/proactive")]
+    [ApiController]
+    public class ProactiveController : ControllerBase
+    {
+        private readonly IBotFrameworkHttpAdapter _adapter;
+        private readonly ConcurrentDictionary<string, ConversationReference> _references;
+        private readonly string _appId;
+
+        public ProactiveController(IBotFrameworkHttpAdapter adapter,ConcurrentDictionary<string, ConversationReference> references, IConfiguration config)
+        {
+            _adapter = adapter;
+            _references = references;
+            _appId = config["MicrosoftAppId"];
+        }
+
+        [HttpPost, HttpGet]
+        public async Task PostAsync()
+        {
+            var memberId = Request.Query["memberId"];
+            _references.TryGetValue(memberId, out ConversationReference reference);
+
+            if (reference != null)
+            {
+                await ((BotAdapter)_adapter).ContinueConversationAsync(_appId, reference, BotCallback, default);
+            }
+
+        }
+
+        private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
+        {
+            await turnContext.SendActivityAsync("proactive hello");
+        }
+    }
+}
+```
+
+### テストする
+ボットを起動し、Bot Framework Emulator で接続する。Welcomeメッセージとともに自分のIDをボットが発言するので、IDをコピーする。
+そしてブラウザなどで `http://localhost:3978/api/proactive?memberId=[ユーザーのID]` を実行する。
+ブラウザには何も表示されないが、Bot Framework Emulator を見ると「proactive hello」とボットが発言する。
+
+![](2020-12-17-15-40-11.png)
