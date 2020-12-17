@@ -59,8 +59,73 @@ namespace ProactiveBot
 ```
 
 ### ボット (ActiveHandler)
+サンプルでは、ユーザーがボットに接続したときに `ConversationReference` を保存し、ユーザーがボットから離れたときに `ConversationReference` を削除する。
+ただ、`OnMembersAddedAsync`, `OnMembersRemovedAsync` の両メソッドが呼び出されるかどうかはチャネルによって違うため、
+環境によっては保存した `ConversationReference` が削除されずにずっと残るかもしれない。
 
+```cs
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
+namespace ProactiveBot.Bots
+{
+    public class EchoBot : ActivityHandler
+    {
+        private readonly ConcurrentDictionary<string, ConversationReference> _references;
+        private readonly ILogger<EchoBot> _logger;
 
-## Controller を追加
+        public EchoBot(ConcurrentDictionary<string, ConversationReference> references, ILogger<EchoBot> logger)
+        {
+            _references = references;
+            _logger = logger;
+        }
+
+        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var welcomeText = "Hello and welcome!";
+
+            foreach (var member in membersAdded)
+            {
+                if (member.Id != turnContext.Activity.Recipient.Id)
+                {
+                    await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
+
+                    // 追加されたメンバーのConversationReference を保存
+                    var reference = turnContext.Activity.GetConversationReference();
+                    _references.AddOrUpdate(member.Id, reference,(key, oldValue) => reference );
+
+                    await turnContext.SendActivityAsync(MessageFactory.Text($"member added. count={_references.Count} id={member.Id}"), cancellationToken);
+                }
+            }
+        }
+
+        protected override async Task OnMembersRemovedAsync(IList<ChannelAccount> membersRemoved, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            foreach (var member in membersRemoved)
+            {
+                if (member.Id != turnContext.Activity.Recipient.Id)
+                {
+                    // いなくなったメンバーのConversationReference を削除
+                    _references.TryRemove(member.Id, out var removedValue);
+
+                    await turnContext.SendActivityAsync(MessageFactory.Text($"member removed. id={member.Id}"), cancellationToken);
+
+                    _logger.LogInformation($"member removed. count={_references.Count} id={member.Id}");
+                }
+            }
+        }
+
+    }
+}
+```
+
+## メッセージの受け口を作る
+
+### Controller を追加
 
