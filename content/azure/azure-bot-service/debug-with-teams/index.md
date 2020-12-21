@@ -54,7 +54,7 @@ Visual Studio のボット用プロジェクトを開き、プロジェクト名
 参考 secrets.jsonについて：[ASP.NET Core での開発におけるアプリシークレットの安全な保存 | Microsoft Docs](https://docs.microsoft.com/ja-jp/aspnet/core/security/app-secrets?view=aspnetcore-5.0&tabs=windows)
 
 ## ボット起動
-Visual Studio のボットアプリを起動する。開いたブラウザをうっかり閉じたりしないように気を付ける。
+Visual Studio のボットアプリを起動する。起動と同時にブラウザが起動する設定にしている場合は、開いたブラウザをうっかり閉じたりしないように気を付ける。
 
 ## ngrok 起動
 コマンドプロンプトで下記を実行。
