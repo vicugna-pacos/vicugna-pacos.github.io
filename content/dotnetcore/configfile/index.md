@@ -108,10 +108,11 @@ param1=400, param2=600
 ```
 
 ## JSONファイルを使ったサンプル
-NuGet パッケージは以下2つを追加する。
+NuGet パッケージは以下3つを追加する。
 
 * `Microsoft.Extensions.Configuration`
 * `Microsoft.Extensions.Configuration.Binder`
+* `Microsoft.Extensions.Configuration.Json`
 
 下記はJSONファイルのサンプル。
 
