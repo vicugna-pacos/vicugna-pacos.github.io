@@ -169,3 +169,50 @@ class Program
 ```
 
 出力結果はインメモリのサンプルと同じ。
+
+## UserSecrets を使う
+設定ファイルに、DBやクラウドサービスへの接続文字列など、Git等に保存したくない情報が含まれる場合、
+その設定値を一部「ユーザーシークレット」に分けて保存できる。
+「ユーザーシークレット」はPCのどこか別の場所に保存される。
+
+### UserSecrets を編集する
+プロジェクトで右クリック → 「ユーザーシークレットの管理」をクリック。
+
+![](2020-12-22-13-02-42.png)
+
+secrets.json ファイルが表示されるので、編集して保存する。
+
+このとき、プロジェクトが ASP.NET Core のものなら難なく secrets.json が開くが、コンソールアプリ等だと
+Visual Studio が自動的に NuGet パッケージの `Microsoft.Extensions.Configuration.UserSecrets` を参照に加えようとする。
+ただ、追加しようとするバージョンが低いせいか、私の環境では失敗したというダイアログが出た。
+
+![](2020-12-22-13-18-45.png)
+
+その場合は、手作業で同パッケージをインストールしてから、もう一度「ユーザーシークレットの管理」をクリックするところからやり直す。
+
+![](2020-12-22-13-20-01.png)
+
+↑ 手作業で追加したパッケージ (ダイアログではv3.1と書かれていたが、最新版はv5.0だった)
+
+### UserSecrets を読み込む
+ASP.NET や 汎用ホスト(GenericHost) を使っている場合は、自動的に読み込む。
+
+それ以外の場合は、`ConfigurationBuilder` の `AddUserSecrets` メソッドを呼び出す。
+
+```cs {hl_lines=[10]}
+using Microsoft.Extensions.Configuration;
+using System;
+
+class Program
+{
+    public static void Main(string[] args = null)
+    {
+        var builder = new ConfigurationBuilder();
+        builder.AddJsonFile("appsettings.json");
+        builder.AddUserSecrets<Program>();
+    }
+}
+```
+
+型パラメータには、コンソールアプリのアセンブリに含まれるクラスを指定する。
+とりあえずエントリーポイントになる `Program` にしておけば無難だと思われる。
