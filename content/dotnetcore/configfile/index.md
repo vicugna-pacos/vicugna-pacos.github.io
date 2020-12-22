@@ -175,6 +175,8 @@ class Program
 その設定値を一部「ユーザーシークレット」に分けて保存できる。
 「ユーザーシークレット」はPCのどこか別の場所に保存される。
 
+参考：[ASP.NET Core での開発におけるアプリシークレットの安全な保存 | Microsoft Docs](https://docs.microsoft.com/ja-jp/aspnet/core/security/app-secrets?view=aspnetcore-5.0&tabs=windows)
+
 ### UserSecrets を編集する
 プロジェクトで右クリック → 「ユーザーシークレットの管理」をクリック。
 
