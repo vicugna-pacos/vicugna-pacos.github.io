@@ -1,17 +1,15 @@
 ---
 title: "XPath"
 date: 2020-11-09T15:17:41+09:00
+lastMod: 2021-01-05T13:45:34+09:00
 ---
 
 ## 参考
 
-[xpath cover page - W3C](https://www.w3.org/TR/xpath/)
-
-[XPath | MDN](https://developer.mozilla.org/ja/docs/Web/XPath)
-
-[クローラ作成に必須！XPATHの記法まとめ - Qiita](https://qiita.com/rllllho/items/cb1187cec0fb17fc650a)
-
-[XPath | TECHSCORE(テックスコア)](https://www.techscore.com/tech/XML/XPath/index.html/)
+* [xpath cover page - W3C](https://www.w3.org/TR/xpath/)
+* [XPath | MDN](https://developer.mozilla.org/ja/docs/Web/XPath)
+* [クローラ作成に必須！XPATHの記法まとめ - Qiita](https://qiita.com/rllllho/items/cb1187cec0fb17fc650a)
+* [XPath | TECHSCORE(テックスコア)](https://www.techscore.com/tech/XML/XPath/index.html/)
 
 ## サンプル
 
@@ -105,7 +103,15 @@ date: 2020-11-09T15:17:41+09:00
 指定ノードと同じ親を持ち、ソース文書内で指定ノードの前に現れる全てのノード。
 * __self__  
 指定ノード自身。 この軸はピリオド (.) によって省略できる。
- 
+
+## 関数
+関数を使うと、「class属性に"header1"を含む」というような指定もできる。
+
+* contains(param1, param2)
+  * param1 に param2 が含まれていれば true を返す。
+  * `contains(@class, "header1")`
+* starts-with(param1, param2)
+  * param1 が param2 で始まっていればが含まれていれば true を返す。
 
 ## Chrome での検証方法
 1. 開発者ツールを起動する。
