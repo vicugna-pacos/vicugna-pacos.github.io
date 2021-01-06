@@ -1,12 +1,13 @@
 ---
 title: "Adaptive Card を送る"
 date: 2020-11-13T12:47:14+09:00
+lastMod: 2021-01-06T14:11:54+09:00
 weight: 6
 ---
 
 ## Adaptive Card とは
-ボットからユーザーへ送信できるメッセージの一つで、ボタンとか画像とか色々含めたカードのようなUI。
-JSON形式で定義する。
+ボットからユーザーへ送信できるメッセージの一つで、ボタンとか画像とか色々含めたカードのこと。
+JSON形式で定義し、カードは色々なプラットフォームで使用できる。
 
 [Adaptive Cardのサイト](https://adaptivecards.io/)
 
@@ -14,20 +15,36 @@ Bot Framework SDK においては、コードでカードを作ることもで�
 
 前提条件：
 
+* Windows 10
+* Visual Studio 2019
 * C#
 
-## JSONからカードを作る
+## 環境設定
 
+### jsonの文字コードをUTF-8にする
+Visual Studio 2019 では、jsonファイルの文字コードが Shift-JIS になっている可能性があるので、その場合は UTF-8 へ変更しておく。
+ソリューション or プロジェクト単位で設定するなら、.editorconfig ファイルを作成し、以下の設定を追加しておく。
+
+```
+# json files
+[*.json]
+charset = utf-8
+```
+
+## JSON からカードを作る
+
+### カードを設計する
 [Adaptive Card の Designer](https://adaptivecards.io/designer/) で、カードを作る。
 
 ![](2020-12-10-14-28-13.png)
 
-左上の「Select host app:」の選択肢によって、それぞれの環境でどう見えるかが変化する。
+左上の「Select host app:」の選択肢によって、Teams や WebChat それぞれの環境でどう見えるかを確認できる。
 
 また、host app によって、サポートしている Adaptive Card のバージョンが異なる場合がある。
 そのときは、カードのプレビューの下あたりに警告が表示される。
-例えば WebChat がサポートするバージョンが 1.2 の場合、Target Version が 1.3 になっている状態でカードを作っても、
-いざボットに取り込んだときに空のカードになってしまったりする。
+例えば WebChat がサポートするバージョンが 1.2 の場合、Target Version が 1.3 になっている状態でカードを作っても、いざボットから送信したときに空のカードになってしまったりする。
+
+### ボットからカードを送信する
 
 作ったカードのJSONは、ボットのプロジェクトへjsonファイルとして配置する。
 今回は、`Cards/AdaptiveCard.json` に置いたと仮定する。
