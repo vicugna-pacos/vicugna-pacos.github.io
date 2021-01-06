@@ -16,3 +16,6 @@ GoogleAnalytics = "UA-143399608-2"
 [markup]
   [markup.highlight]
     style = "monokailight"
+  [markup.tableOfContents]
+    endLevel = 4
+    startLevel = 2
