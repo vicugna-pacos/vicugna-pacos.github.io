@@ -66,6 +66,142 @@ var message = MessageFactory.Attachment(adaptiveCardAttachment);
 await turnContext.SendActivityAsync(message, cancellationToken);
 ```
 
+## Action.Submit
+カードを受け取ったユーザーがボタンを押すと、ボットへ何かしらのデータを送る機能。入力フィールドと一緒に使ったりする。
+submit時に送信できるデータ形式は、文字列とオブジェクトの2種類がある。
+
+### 文字列のsubmit
+actions の data プロパティに文字列を指定した場合、その内容がユーザーが通常送るメッセージと同様にボットへ送信される。
+
+例として、下記のようなカードを作成した。
+
+```json
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2",
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "はい",
+      "data": "Yes"
+    },
+    {
+      "type": "Action.Submit",
+      "title": "いいえ",
+      "data": "No"
+    }
+  ],
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "犬は好きですか？",
+      "wrap": true
+    }
+  ]
+}
+```
+
+カードに Submit ボタンが2つあり、それぞれ data プロパティに「Yes」と「No」が設定してある。
+これを エミュレーターでテストすると、下記のようなカードが表示される。
+
+![](2021-01-06-14-52-23.png)
+
+「はい」のボタンを押すと、ユーザーが「Yes」と発言したのと同様の動作をする。つまり、ユーザーの回答を取得したいなら、Activity の text プロパティを取得すればよい。
+下記にボットのサンプルを示す。
+
+```cs
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AdaptiveCards.Bots
+{
+    public class EchoBot : ActivityHandler
+    {
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var replyText = $"Echo: {turnContext.Activity.Text}";
+            await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
+        }
+
+        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var paths = new[] { ".", "Cards", "SubmitString.json" };
+            var adaptiveCardJson = File.ReadAllText(Path.Combine(paths));
+
+            var adaptiveCardAttachment = new Attachment()
+            {
+                ContentType = "application/vnd.microsoft.card.adaptive",
+                Content = JsonConvert.DeserializeObject(adaptiveCardJson),
+            };
+
+            var message = MessageFactory.Attachment(adaptiveCardAttachment);
+
+            foreach (var member in membersAdded)
+            {
+                if (member.Id != turnContext.Activity.Recipient.Id)
+                {
+                    await turnContext.SendActivityAsync(message, cancellationToken);
+                }
+            }
+        }
+    }
+}
+```
+
+EchoBot の Welcome メッセージとして Adaptive Card を送っているだけである。
+
+### オブジェクトのsubmit
+オブジェクトの submit は、非表示のデータをユーザーからボットへ送信する。
+例として、入力フィールドを2つもつカードを下記に示す。
+
+```json
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.2",
+    "body": [
+        {
+            "type": "Input.Text",
+            "placeholder": "Placeholder text",
+            "id": "input1"
+        },
+        {
+            "type": "Input.Date",
+            "id": "input2"
+        }
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "title": "Submit"
+        }
+    ]
+}
+```
+
+これを先ほどと同じように、Echo Bot の Welcome メッセージとして送信し、エミュレーターでテストすると下記のようになる。
+
+![](2021-01-06-15-21-36.png)
+
+ユーザーはなにも発言しないし、ボット側で Activity の text プロパティを参照しても何も出てこない。
+
+かわりに、Activity の　value プロパティにデータが入る。上記カードの場合、下記のような内容になっている。
+
+![](2021-01-06-15-30-27.png)
+
+入力フィールドの内容が json にまとめられ、JObject 型で格納されている。
+
+#### ダイアログでの利用
+ユーザーの入力を受け付ける流れを、Adaptive Card を使いつつ Dialog で実装する例を以下に示す。
+
+
+
 ## サンプル
 
 ### ボタンを表示する
