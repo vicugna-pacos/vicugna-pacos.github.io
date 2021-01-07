@@ -327,59 +327,5 @@ namespace AdaptiveCards.Dialogs
 }
 ```
 
-## サンプル
-
-### ボタンを表示する
-
-```json
-{
-  "type": "AdaptiveCard",
-  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-  "version": "1.2",
-  "body": [
-    {
-      "type": "TextBlock",
-      "text": "好きな色を選んでください",
-      "wrap": true
-    }
-  ],
-  "actions": [
-    {
-      "type": "Action.Submit",
-      "title": "赤",
-      "data": "赤"
-    },
-    {
-      "type": "Action.Submit",
-      "title": "青",
-      "data": "青"
-    },
-    {
-      "type": "Action.Submit",
-      "title": "黄色",
-      "data": "黄色"
-    }
-  ]
-}
-```
-
-↓WebChatでの見た目：  
-![](2020-12-11-11-09-29.png)
-
-このサンプルは、Teamsでは上手く動作しない。詳細は Teams の章を参照。
-
-### ボタンにリンクを貼る
-
-```json
-{
-  "type": "Action.OpenUrl",
-  "title": "Open Url",
-  "url": "https://www.yahoo.co.jp/"
-}
-```
-
-このサンプルは Teams でも動作する。
-
-
 ## 参考
 [Using Adaptive Cards with the Microsoft Bot Framework - Microsoft Bot Framework](https://blog.botframework.com/2019/07/02/using-adaptive-cards-with-the-microsoft-bot-framework/)
