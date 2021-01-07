@@ -67,7 +67,7 @@ await turnContext.SendActivityAsync(message, cancellationToken);
 ```
 
 ## Action.Submit
-カードを受け取ったユーザーがボタンを押すと、ボットへ何かしらのデータを送る機能。入力フィールドと一緒に使ったりする。
+Adaptive Card に付けられるボタン。カードを受け取ったユーザーがボタンを押すと、ボットへ何かしらのデータを送る機能。入力フィールドと一緒に使ったりする。
 submit時に送信できるデータ形式は、文字列とオブジェクトの2種類がある。
 
 ### 文字列のsubmit
@@ -156,6 +156,52 @@ namespace AdaptiveCards.Bots
 
 EchoBot の Welcome メッセージとして Adaptive Card を送っているだけである。
 
+#### Teams
+[Add card actions in a bot - Teams | Microsoft Docs](https://docs.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-actions)
+
+Action.Submit を Teams で使う場合、上記サンプルではボタンが表示されるものの、data プロパティの内容がボット側へ送信されない。
+動作させるためには、data プロパティに msteams と名前の付いたjsonオブジェクトを定義しないといけない。
+
+msteams の type プロパティによって、ボタンを押したときの挙動が異なる。
+
+imBack は、value プロパティに指定した文字列を、ユーザーが発言したものとして送る。value プロパティは、文字列のみ指定可能。
+
+```json
+{
+  "type": "Action.Submit",
+  "title": "はい",
+  "data": {
+    "msteams": {
+      "type": "imBack",
+      "value": "Yes"
+    }
+  }
+}
+```
+
+![](2021-01-07-11-10-43.png)
+
+messageBack は、会話履歴に流す文字列、ボットへ送る文字列、ボットへ送るデータ、それぞれを指定できる。
+
+```json
+{
+  "type": "Action.Submit",
+  "title": "はい",
+  "data": {
+    "msteams": {
+      "type": "messageBack",
+      "displayText": "はい を押しました",
+      "text": "Yes",
+      "value": {
+        "answer": "Yes!"
+      }
+    }
+  }
+}
+```
+
+![](2021-01-07-11-16-46.png)
+
 ### オブジェクトのsubmit
 オブジェクトの submit は、非表示のデータをユーザーからボットへ送信する。
 例として、入力フィールドを2つもつカードを下記に示す。
@@ -200,7 +246,86 @@ EchoBot の Welcome メッセージとして Adaptive Card を送っているだ
 #### ダイアログでの利用
 ユーザーの入力を受け付ける流れを、Adaptive Card を使いつつ Dialog で実装する例を以下に示す。
 
+通常、ボットがユーザーの入力を受け付けるときには Prompt を使用する。Adaptive Card を使う場合でも、同じように Prompt を使用できる。
+ただオブジェクトの submit の場合、データは value プロパティ経由で送られてくるので、TextPrompt などに備わっている Validator はうまく機能しない。Validator も自分で実装する必要がある。
 
+以下に、Dialog クラスのサンプルを示す。
+
+```cs
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AdaptiveCards.Dialogs
+{
+    public class SubmitObjectDialog : ComponentDialog
+    {
+        public SubmitObjectDialog() : base("SubmitObjectDialog")
+        {
+            // dialogの登録
+            var steps = new WaterfallStep[] { Step1Async, Step2Async };
+
+            AddDialog(new WaterfallDialog("WaterfallDialog1", steps));
+            AddDialog(new TextPrompt("TextPrompt", FormValidator)); // 自分でValidatorを実装する
+
+            // 最初に実行するdialogを指定する
+            InitialDialogId = "WaterfallDialog1";
+        }
+
+        private async Task<DialogTurnResult> Step1Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var paths = new[] { ".", "Cards", "SubmitObject.json" };
+            var adaptiveCardJson = File.ReadAllText(Path.Combine(paths));
+
+            var adaptiveCardAttachment = new Attachment()
+            {
+                ContentType = "application/vnd.microsoft.card.adaptive",
+                Content = JsonConvert.DeserializeObject(adaptiveCardJson),
+            };
+
+            var message = MessageFactory.Attachment(adaptiveCardAttachment);
+
+            return await stepContext.PromptAsync("TextPrompt", new PromptOptions { Prompt = (Activity)message }, cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> Step2Async(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            JObject value = (JObject)stepContext.Context.Activity.Value;
+
+            var message = MessageFactory.Text($"Echo: {value}");
+            await stepContext.Context.SendActivityAsync(message, cancellationToken);
+
+            return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+        }
+
+        private Task<bool> FormValidator(PromptValidatorContext<string> promptContext, CancellationToken cancellationToken)
+        {
+            // textプロパティに値は入ってこないのでfalse
+            if (promptContext.Recognized.Succeeded)
+            {
+                return Task.FromResult(false);
+            }
+
+            var value = promptContext.Context.Activity.Value;
+
+            if (!(value is JObject))
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+    }
+}
+```
 
 ## サンプル
 
@@ -255,48 +380,6 @@ EchoBot の Welcome メッセージとして Adaptive Card を送っているだ
 
 このサンプルは Teams でも動作する。
 
-## Teams
-[Add card actions in a bot - Teams | Microsoft Docs](https://docs.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-actions)
-
-Teams の場合、`Action.Submit` などが上記サンプルのままでは使用できない。ボタンは表示されるものの、押しても `data` の内容がボット側へ送信されない。
-動作させるためには、`data` プロパティに `msteams` と名前の付いたjsonオブジェクトを定義しないといけない。
-
-### imBack を送る
-imBack は、`value` プロパティに指定した文字列を、ユーザーが発言したものとして送る。`value` プロパティは、文字列のみ指定可能。
-
-```json
-{
-  "type": "Action.Submit",
-  "title": "Click me for imBack",
-  "data": {
-    "msteams": {
-        "type": "imBack",
-        "value": "Text to reply in chat"
-    }
-  }
-}
-```
-
-### messageBack を送る
-messageBack は、チャットストリームに流すテキスト、ボットへ送るデータ、ボットへ送る文字列、それぞれを指定できる。
-
-```json
-{
-  "type": "Action.Submit",
-  "title": "Click me for messageBack",
-  "data": {
-    "msteams": {
-        "type": "messageBack",
-        "displayText": "I clicked this button",
-        "text": "text to bots",
-        "value": "{\"bfKey\": \"bfVal\", \"conflictKey\": \"from value\"}"
-    }
-  }
-}
-```
-
-ボットへ送られるメッセージには `replyToId` プロパティがあり、これがユーザーがボタンをおしたカードのメッセージIDになる。
-これを使って、送信済みのメッセージを編集したりできる。
 
 ## 参考
 [Using Adaptive Cards with the Microsoft Bot Framework - Microsoft Bot Framework](https://blog.botframework.com/2019/07/02/using-adaptive-cards-with-the-microsoft-bot-framework/)
