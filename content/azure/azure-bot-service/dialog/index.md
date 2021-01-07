@@ -1,15 +1,19 @@
 ---
-title: "Dialog (会話) の実装"
+title: "会話の実装 (Dialog)"
 date: 2020-10-02T13:55:11+09:00
 lastMod: 2020-10-15T14:49:00+09:00
 weight: 7
 ---
 
-Dialogは、ユーザーとの複数回にわたる会話のやりとりの管理を助けるライブラリである。
+## はじめに
+参考：
 
-ステートレスなWebアプリにおいて、「今どこまで話したか？」を記憶・管理できる。
+* [Dialogs within the Bot Framework SDK - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-dialog)
 
-## ライブラリを参照に追加する
+Dialog は SDK の中核をなすもので、ユーザーとボットの会話のやり取りの管理を助けるライブラリである。
+ステートレスなWebアプリにおいて、「今どこまで話したか？」を記憶・管理するのを助けてくれる。
+
+## ライブラリの追加
 ボットで Dialog を使う前に、プロジェクトにライブラリの参照を追加する。
 VS Code でプロジェクトを開いている場合、コンソールで下記コマンドを実行すればよい。
 
@@ -25,14 +29,14 @@ dotnet add package Microsoft.Bot.Builder.Dialogs
 </ItemGroup>
 ```
 
-## Dialogの種類
+## Dialog の種類
 
 |種類|説明|
 |---|---|
 |Component Dialog|Dialogのセットをひとまとめにして、再利用可能にするためのDialog。単純なWaterfall Dialogを作る場合でも、Component Dialogの中に作成することが推奨っぽい。|
 |Waterfall Dialog|ステップの順番を定義して、決まった流れで質問などを行う場合に使うDialog。会話の流れに分岐やループは基本的にない。|
 |Prompt Dialog|ユーザーへインプットを求め、回答を受け取るための小さな部品。Promptにはいくつか種類があり、それぞれ有効な入力値が得られるか、キャンセルされるまで自動的に質問を繰り返す。Waterfall Dialogで使用するために設計された。|
-|adaptive dialog|柔軟な会話の流れを作れる。adaptive dialogを開始するには、dialog managerから始めないといけない。|
+|adaptive dialog|柔軟な会話の流れを作れる。|
 |action dialogs|会話フローをプログラマチックに定義できる。式とかステートメントとか。adaptive dialogでのみ使用できる。|
 |input dialogs|ユーザーにインプットを求めるときに使う。adaptive dialog内でのみ使用可能。|
 |skill dialog|skillを使う。|
