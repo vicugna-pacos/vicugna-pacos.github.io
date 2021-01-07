@@ -4,12 +4,14 @@ date: 2020-11-12T10:02:49+09:00
 draft: true
 ---
 
-https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-adaptive-dialog-introduction?view=azure-bot-service-4.0
+## はじめに
+参考：[Introduction to adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-adaptive-dialog-introduction)
 
-Adaptive Dialogは新しいイベントベースの追加機能を提供します。これにより、中断やディスパッチなどの制御が簡単になります。
+ボットの会話は Dialog を使って実装するが、会話の複雑さが上がるほど実装も大変になっていた。
+それを解決するために新しく追加されたのが Adaptive Dialog である。
 
-重要：
-Adaptive dialogは、現在.NET版のBot Framework SDKでのみ使用可能。Adaptive dialogを使ったサンプルソースは、[GitHubリポジトリ](https://github.com/microsoft/botbuilder-samples/tree/master/samples/csharp_dotnetcore)で参照可能。
+重要：  
+Adaptive Dialog は、現在.NET版のBot Framework SDKでのみ使用可能。Adaptive Dialogを使ったサンプルソースは [GitHubリポジトリ](https://github.com/microsoft/botbuilder-samples/tree/master/samples/csharp_dotnetcore) にある。
 
 
 ## 前提条件
@@ -17,13 +19,13 @@ Adaptive dialogは、現在.NET版のBot Framework SDKでのみ使用可能。Ad
 * Bot Framework V4 SDK の Dialog の基礎知識
 * Bot Framework V4 SDK の Prompt の基礎知識
 
-## Adaptive dialogs とは
+## Adaptive Dialog とは
 
 ### なぜ adaptive dialog なのか
 Adaptive dialog は WaterfallDialog に対してたくさんのアドバンテージがある。主な特徴は下記の通り。
 
 * 会話のフローをコンテキストやイベントによって動的に更新できる柔軟性を提供する。会話の途中でコンテキストが切り替わったり中断される場合に便利。
-* Dialogのイベントシステムをサポートする。中断、キャンセル、実行など。
+* Dialog のイベントシステムをサポートする。中断、キャンセル、実行など。
 * input recognition とルールベースのイベントハンドリングを提供する。
 * 会話モデル(Dialog)と出力生成を一つにまとめる。
 * 解析、イベントルール、機械学習の拡張機能を提供する。
@@ -134,3 +136,167 @@ Adaptive_dialog_interruption_example
 もし親dialogにもintentを処理できるtriggerを持っていない場合、intentはroot dialogまでさかのぼる。
 triggerがintentを処理し終えると、元々処理していたdialogへ処理が戻る。
 
+## 実装
+ドキュメント：https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-dialogs-adaptive
+サンプルソース：https://github.com/microsoft/BotBuilder-Samples/tree/main/samples/csharp_dotnetcore/adaptive-dialog/01.multi-turn-prompt
+
+## プロジェクトのセットアップ
+[Create a bot project for adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-adaptive-dialog-setup)
+
+Empty Bot のテンプレートから Adaptive Dialog を使えるようにする手順を示す。
+
+### NuGet パッケージの追加
+
+`Microsoft.Bot.Builder.Dialogs.Adaptive` を追加する。
+
+必要に応じて下記のパッケージを追加する：
+
+* Adaptive Dialog の単体テスト： `Microsoft.Bot.Builder.Dialogs.Adaptive.Testing`
+* LUIS：`Microsoft.Bot.Builder.AI.LUIS`
+* QnA Maker language understanding： `Microsoft.Bot.Builder.AI.QnA`
+
+### コンポーネントの登録
+Startup.cs の `ConfigureServices` メソッドに、下記を追加してコンポーネントの登録を行う。
+
+必須：
+
+```cs
+ComponentRegistration.Add(new AdaptiveComponentRegistration()); // Components common to all adaptive dialogs.
+ComponentRegistration.Add(new DialogsComponentRegistration()); // Common memory scopes and path resolvers.
+```
+
+任意：
+
+```cs
+ComponentRegistration.Add(new AdaptiveTestingComponentRegistration()); // Components used to unit test adaptive dialogs.
+ComponentRegistration.Add(new DeclarativeComponentRegistration()); // Components used to consume declarative dialogs.
+ComponentRegistration.Add(new LanguageGenerationComponentRegistration()); // Components used for language generation features.
+ComponentRegistration.Add(new LuisComponentRegistration()); // Components used for LUIS (language understanding) features.
+ComponentRegistration.Add(new QnAMakerComponentRegistration()); // Components used for QnA Maker (language understanding) features.
+ComponentRegistration.Add(new TeamsComponentRegistration()); // Components specific to the Teams channel.
+```
+
+For example, the adaptive multi-turn prompts sample registers these components in ConfigureServices.
+
+```cs
+// Register dialog. This sets up memory paths for adaptive.
+ComponentRegistration.Add(new DialogsComponentRegistration());
+
+// Register adaptive component
+ComponentRegistration.Add(new AdaptiveComponentRegistration());
+
+// Register to use language generation.
+ComponentRegistration.Add(new LanguageGenerationComponentRegistration());
+```
+
+## State の追加
+Startup.cs に UserState と ConversationState を追加する。
+
+```cs
+// Create the storage we'll be using for User and Conversation state. (Memory is great for testing purposes.) 
+services.AddSingleton<IStorage, MemoryStorage>();
+
+// Create the User state. (Used in this bot's Dialog implementation.)
+services.AddSingleton<UserState>();
+
+// Create the Conversation state. (Used by the Dialog system itself.)
+services.AddSingleton<ConversationState>();
+```
+
+次に、AdapterWithErrorHandler.cs に下記を追加する。
+
+```cs {hl_lines=[4,7,8,9]}
+public class AdapterWithErrorHandler : BotFrameworkHttpAdapter
+{
+    public AdapterWithErrorHandler(IConfiguration configuration, ILogger<BotFrameworkHttpAdapter> logger
+        , IStorage storage, UserState userState, ConversationState conversationState)
+        : base(configuration, logger)
+    {
+        this.UseStorage(storage);
+        this.UseBotState(userState);
+        this.UseBotState(conversationState);
+
+        OnTurnError = async (turnContext, exception) =>
+        {
+            // 略
+        };
+    }
+}
+```
+
+これを追加すると、turnContext から Storage と State を参照できるようになる。これがないと、DialogManager が動作しない。
+
+## RootDialog の追加
+Adaptive Dialog の基底となる RootDialog を作成する。例では Dialogs\RootDialog.cs に作成した。
+サンプルは下記の通り。
+
+```cs
+using Microsoft.Bot.Builder.Dialogs.Adaptive;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
+using Microsoft.Bot.Builder.Dialogs.Adaptive.Conditions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace AdaptiveDialogs.Dialogs
+{
+    public class RootDialog : AdaptiveDialog
+    {
+        public RootDialog() : base(nameof(RootDialog))
+        {
+            Triggers = new List<OnCondition>
+            {
+                new OnUnknownIntent
+                {
+                    Actions =
+                    {
+                        new SendActivity("Hi, we are up and running!!"),
+                    }
+                },
+            };
+        }
+    }
+}
+```
+
+RootDialog を作成したら、Startup.cs のDIに登録する。
+
+```cs
+services.AddSingleton<RootDialog>();
+```
+
+## ボットの編集
+前の手順で作成した RootDialog を、DialogManager を介してボットから呼び出す。以下にボットクラスのサンプルを示す。
+
+```cs
+using AdaptiveDialogs.Dialogs;
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AdaptiveDialogs
+{
+    public class EmptyBot : ActivityHandler
+    {
+        private readonly DialogManager _dialogManager;
+
+        public EmptyBot(RootDialog rootDialog)
+        {
+            _dialogManager = new DialogManager(rootDialog);
+        }
+
+        public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            await _dialogManager.OnTurnAsync(turnContext, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+    }
+}
+```
+
+## テストしてみる
+ボットを起動し Bot Framework Emulator で接続して、何かメッセージを送信する。
+ボットから、「Hi, we are up and running!!」と返事が来ればOK。
