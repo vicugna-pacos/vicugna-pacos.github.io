@@ -1,10 +1,14 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Adaptive Card を送る - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#adaptive-card-とは>Adaptive Card とは</a></li><li><a href=#jsonからカードを作る>JSONからカードを作る</a></li><li><a href=#サンプル>サンプル</a><ul><li><a href=#ボタンを表示する>ボタンを表示する</a></li><li><a href=#ボタンにリンクを貼る>ボタンにリンクを貼る</a></li></ul></li><li><a href=#teams>Teams</a><ul><li><a href=#imback-を送る>imBack を送る</a></li><li><a href=#messageback-を送る>messageBack を送る</a></li></ul></li><li><a href=#参考>参考</a></li></ul></nav></aside></div><div class=main><article><h1>Adaptive Card を送る</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
-<time datetime="2020-11-13 12:47:14 +0900 +0900" itemprop=datePublished>2020-11-13</time></div><div></div></div><h2 id=adaptive-card-とは>Adaptive Card とは</h2><p>ボットからユーザーへ送信できるメッセージの一つで、ボタンとか画像とか色々含めたカードのようなUI。
-JSON形式で定義する。</p><p><a href=https://adaptivecards.io/ target=_blank rel=noopener>Adaptive Cardのサイト</a></p><p>Bot Framework SDK においては、コードでカードを作ることもできるし、JSONをパースしてカードを作ることもできる。</p><p>前提条件：</p><ul><li>C#</li></ul><h2 id=jsonからカードを作る>JSONからカードを作る</h2><p><a href=https://adaptivecards.io/designer/ target=_blank rel=noopener>Adaptive Card の Designer</a> で、カードを作る。</p><p><img src=2020-12-10-14-28-13.png alt></p><p>左上の「Select host app:」の選択肢によって、それぞれの環境でどう見えるかが変化する。</p><p>また、host app によって、サポートしている Adaptive Card のバージョンが異なる場合がある。
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Adaptive Card を送る - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#adaptive-card-とは>Adaptive Card とは</a></li><li><a href=#環境設定>環境設定</a><ul><li><a href=#jsonの文字コードをutf-8にする>jsonの文字コードをUTF-8にする</a></li></ul></li><li><a href=#json-からカードを作る>JSON からカードを作る</a><ul><li><a href=#カードを設計する>カードを設計する</a></li><li><a href=#ボットからカードを送信する>ボットからカードを送信する</a></li></ul></li><li><a href=#actionsubmit>Action.Submit</a><ul><li><a href=#文字列のsubmit>文字列のsubmit</a><ul><li><a href=#teams>Teams</a></li></ul></li><li><a href=#オブジェクトのsubmit>オブジェクトのsubmit</a><ul><li><a href=#ダイアログでの利用>ダイアログでの利用</a></li></ul></li></ul></li><li><a href=#参考>参考</a></li></ul></nav></aside></div><div class=main><article><h1>Adaptive Card を送る</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2020-11-13 12:47:14 +0900 +0900" itemprop=datePublished>2020-11-13</time>
+(最終更新：<time datetime="2021-01-06 14:11:54 +0900 +0900" itemprop=dateModified>2021-01-06</time>)</div><div></div></div><h2 id=adaptive-card-とは>Adaptive Card とは</h2><p>ボットからユーザーへ送信できるメッセージの一つで、ボタンとか画像とか色々含めたカードのこと。
+JSON形式で定義し、カードは色々なプラットフォームで使用できる。</p><p><a href=https://adaptivecards.io/ target=_blank rel=noopener>Adaptive Cardのサイト</a></p><p>Bot Framework SDK においては、コードでカードを作ることもできるし、JSONをパースしてカードを作ることもできる。</p><p>前提条件：</p><ul><li>Windows 10</li><li>Visual Studio 2019</li><li>C#</li></ul><h2 id=環境設定>環境設定</h2><h3 id=jsonの文字コードをutf-8にする>jsonの文字コードをUTF-8にする</h3><p>Visual Studio 2019 では、jsonファイルの文字コードが Shift-JIS になっている可能性があるので、その場合は UTF-8 へ変更しておく。
+ソリューション or プロジェクト単位で設定するなら、.editorconfig ファイルを作成し、以下の設定を追加しておく。</p><pre><code># json files
+[*.json]
+charset = utf-8
+</code></pre><h2 id=json-からカードを作る>JSON からカードを作る</h2><h3 id=カードを設計する>カードを設計する</h3><p><a href=https://adaptivecards.io/designer/ target=_blank rel=noopener>Adaptive Card の Designer</a> で、カードを作る。</p><p><img src=2020-12-10-14-28-13.png alt></p><p>左上の「Select host app:」の選択肢によって、Teams や WebChat それぞれの環境でどう見えるかを確認できる。</p><p>また、host app によって、サポートしている Adaptive Card のバージョンが異なる場合がある。
 そのときは、カードのプレビューの下あたりに警告が表示される。
-例えば WebChat がサポートするバージョンが 1.2 の場合、Target Version が 1.3 になっている状態でカードを作っても、
-いざボットに取り込んだときに空のカードになってしまったりする。</p><p>作ったカードのJSONは、ボットのプロジェクトへjsonファイルとして配置する。
+例えば WebChat がサポートするバージョンが 1.2 の場合、Target Version が 1.3 になっている状態でカードを作っても、いざボットから送信したときに空のカードになってしまったりする。</p><h3 id=ボットからカードを送信する>ボットからカードを送信する</h3><p>作ったカードのJSONは、ボットのプロジェクトへjsonファイルとして配置する。
 今回は、<code>Cards/AdaptiveCard.json</code> に置いたと仮定する。</p><p>そのjsonファイルを読み込んで送信するサンプルが下記。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-csharp data-lang=csharp><span style=color:#00a8c8>var</span> <span style=color:#111>paths</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span><span style=color:#111>[]</span> <span style=color:#111>{</span> <span style=color:#d88200>&#34;.&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Cards&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;AdaptiveCard.json&#34;</span> <span style=color:#111>};</span>
 <span style=color:#00a8c8>var</span> <span style=color:#111>adaptiveCardJson</span> <span style=color:#111>=</span> <span style=color:#111>File</span><span style=color:#111>.</span><span style=color:#111>ReadAllText</span><span style=color:#111>(</span><span style=color:#111>Path</span><span style=color:#111>.</span><span style=color:#111>Combine</span><span style=color:#111>(</span><span style=color:#111>paths</span><span style=color:#111>));</span>
 
@@ -17,62 +21,194 @@ JSON形式で定義する。</p><p><a href=https://adaptivecards.io/ target=_bla
 <span style=color:#00a8c8>var</span> <span style=color:#111>message</span> <span style=color:#111>=</span> <span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Attachment</span><span style=color:#111>(</span><span style=color:#111>adaptiveCardAttachment</span><span style=color:#111>);</span>
 
 <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>message</span><span style=color:#111>,</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
-</code></pre></div><h2 id=サンプル>サンプル</h2><h3 id=ボタンを表示する>ボタンを表示する</h3><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+</code></pre></div><h2 id=actionsubmit>Action.Submit</h2><p>Adaptive Card に付けられるボタン。カードを受け取ったユーザーがボタンを押すと、ボットへ何かしらのデータを送る機能。入力フィールドと一緒に使ったりする。
+submit時に送信できるデータ形式は、文字列とオブジェクトの2種類がある。</p><h3 id=文字列のsubmit>文字列のsubmit</h3><p>actions の data プロパティに文字列を指定した場合、その内容がユーザーが通常送るメッセージと同様にボットへ送信される。</p><p>例として、下記のようなカードを作成した。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
   <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;AdaptiveCard&#34;</span><span style=color:#111>,</span>
   <span style=color:#f92672>&#34;$schema&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;http://adaptivecards.io/schemas/adaptive-card.json&#34;</span><span style=color:#111>,</span>
   <span style=color:#f92672>&#34;version&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;1.2&#34;</span><span style=color:#111>,</span>
-  <span style=color:#f92672>&#34;body&#34;</span><span style=color:#111>:</span> <span style=color:#111>[</span>
-    <span style=color:#111>{</span>
-      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;TextBlock&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;text&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;好きな色を選んでください&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;wrap&#34;</span><span style=color:#111>:</span> <span style=color:#00a8c8>true</span>
-    <span style=color:#111>}</span>
-  <span style=color:#111>],</span>
   <span style=color:#f92672>&#34;actions&#34;</span><span style=color:#111>:</span> <span style=color:#111>[</span>
     <span style=color:#111>{</span>
       <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;赤&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;赤&#34;</span>
+      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;はい&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Yes&#34;</span>
     <span style=color:#111>},</span>
     <span style=color:#111>{</span>
       <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;青&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;青&#34;</span>
-    <span style=color:#111>},</span>
+      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;いいえ&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;No&#34;</span>
+    <span style=color:#111>}</span>
+  <span style=color:#111>],</span>
+  <span style=color:#f92672>&#34;body&#34;</span><span style=color:#111>:</span> <span style=color:#111>[</span>
     <span style=color:#111>{</span>
-      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;黄色&#34;</span><span style=color:#111>,</span>
-      <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;黄色&#34;</span>
+      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;TextBlock&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;text&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;犬は好きですか？&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;wrap&#34;</span><span style=color:#111>:</span> <span style=color:#00a8c8>true</span>
     <span style=color:#111>}</span>
   <span style=color:#111>]</span>
 <span style=color:#111>}</span>
-</code></pre></div><p>↓WebChatでの見た目：<br><img src=2020-12-11-11-09-29.png alt></p><p>このサンプルは、Teamsでは上手く動作しない。詳細は Teams の章を参照。</p><h3 id=ボタンにリンクを貼る>ボタンにリンクを貼る</h3><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
-  <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.OpenUrl&#34;</span><span style=color:#111>,</span>
-  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Open Url&#34;</span><span style=color:#111>,</span>
-  <span style=color:#f92672>&#34;url&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;https://www.yahoo.co.jp/&#34;</span>
+</code></pre></div><p>カードに Submit ボタンが2つあり、それぞれ data プロパティに「Yes」と「No」が設定してある。
+これを エミュレーターでテストすると、下記のようなカードが表示される。</p><p><img src=2021-01-06-14-52-23.png alt></p><p>「はい」のボタンを押すと、ユーザーが「Yes」と発言したのと同様の動作をする。つまり、ユーザーの回答を取得したいなら、Activity の text プロパティを取得すればよい。
+下記にボットのサンプルを示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Schema</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Newtonsoft.Json</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.IO</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>AdaptiveCards.Bots</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>EchoBot</span> <span style=color:#111>:</span> <span style=color:#111>ActivityHandler</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>protected</span> <span style=color:#00a8c8>override</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>OnMessageActivityAsync</span><span style=color:#111>(</span><span style=color:#111>ITurnContext</span><span style=color:#111>&lt;</span><span style=color:#111>IMessageActivity</span><span style=color:#111>&gt;</span> <span style=color:#111>turnContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>replyText</span> <span style=color:#111>=</span> <span style=color:#d88200>$&#34;Echo: {turnContext.Activity.Text}&#34;</span><span style=color:#111>;</span>
+            <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Text</span><span style=color:#111>(</span><span style=color:#111>replyText</span><span style=color:#111>,</span> <span style=color:#111>replyText</span><span style=color:#111>),</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>protected</span> <span style=color:#00a8c8>override</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>OnMembersAddedAsync</span><span style=color:#111>(</span><span style=color:#111>IList</span><span style=color:#111>&lt;</span><span style=color:#111>ChannelAccount</span><span style=color:#111>&gt;</span> <span style=color:#111>membersAdded</span><span style=color:#111>,</span> <span style=color:#111>ITurnContext</span><span style=color:#111>&lt;</span><span style=color:#111>IConversationUpdateActivity</span><span style=color:#111>&gt;</span> <span style=color:#111>turnContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>paths</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span><span style=color:#111>[]</span> <span style=color:#111>{</span> <span style=color:#d88200>&#34;.&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Cards&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;SubmitString.json&#34;</span> <span style=color:#111>};</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>adaptiveCardJson</span> <span style=color:#111>=</span> <span style=color:#111>File</span><span style=color:#111>.</span><span style=color:#111>ReadAllText</span><span style=color:#111>(</span><span style=color:#111>Path</span><span style=color:#111>.</span><span style=color:#111>Combine</span><span style=color:#111>(</span><span style=color:#111>paths</span><span style=color:#111>));</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#111>adaptiveCardAttachment</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Attachment</span><span style=color:#111>()</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>ContentType</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;application/vnd.microsoft.card.adaptive&#34;</span><span style=color:#111>,</span>
+                <span style=color:#111>Content</span> <span style=color:#111>=</span> <span style=color:#111>JsonConvert</span><span style=color:#111>.</span><span style=color:#111>DeserializeObject</span><span style=color:#111>(</span><span style=color:#111>adaptiveCardJson</span><span style=color:#111>),</span>
+            <span style=color:#111>};</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#111>message</span> <span style=color:#111>=</span> <span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Attachment</span><span style=color:#111>(</span><span style=color:#111>adaptiveCardAttachment</span><span style=color:#111>);</span>
+
+            <span style=color:#00a8c8>foreach</span> <span style=color:#111>(</span><span style=color:#00a8c8>var</span> <span style=color:#111>member</span> <span style=color:#00a8c8>in</span> <span style=color:#111>membersAdded</span><span style=color:#111>)</span>
+            <span style=color:#111>{</span>
+                <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>member</span><span style=color:#111>.</span><span style=color:#111>Id</span> <span style=color:#111>!=</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>Recipient</span><span style=color:#111>.</span><span style=color:#111>Id</span><span style=color:#111>)</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>message</span><span style=color:#111>,</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
+                <span style=color:#111>}</span>
+            <span style=color:#111>}</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
 <span style=color:#111>}</span>
-</code></pre></div><p>このサンプルは Teams でも動作する。</p><h2 id=teams>Teams</h2><p><a href=https://docs.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-actions target=_blank rel=noopener>Add card actions in a bot - Teams | Microsoft Docs</a></p><p>Teams の場合、<code>Action.Submit</code> などが上記サンプルのままでは使用できない。ボタンは表示されるものの、押しても <code>data</code> の内容がボット側へ送信されない。
-動作させるためには、<code>data</code> プロパティに <code>msteams</code> と名前の付いたjsonオブジェクトを定義しないといけない。</p><h3 id=imback-を送る>imBack を送る</h3><p>imBack は、<code>value</code> プロパティに指定した文字列を、ユーザーが発言したものとして送る。<code>value</code> プロパティは、文字列のみ指定可能。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+</code></pre></div><p>EchoBot の Welcome メッセージとして Adaptive Card を送っているだけである。</p><h4 id=teams>Teams</h4><p><a href=https://docs.microsoft.com/en-us/microsoftteams/platform/task-modules-and-cards/cards/cards-actions target=_blank rel=noopener>Add card actions in a bot - Teams | Microsoft Docs</a></p><p>Action.Submit を Teams で使う場合、上記サンプルではボタンが表示されるものの、data プロパティの内容がボット側へ送信されない。
+動作させるためには、data プロパティに msteams と名前の付いたjsonオブジェクトを定義しないといけない。</p><p>msteams の type プロパティによって、ボタンを押したときの挙動が異なる。</p><p>imBack は、value プロパティに指定した文字列を、ユーザーが発言したものとして送る。value プロパティは、文字列のみ指定可能。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
   <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
-  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Click me for imBack&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;はい&#34;</span><span style=color:#111>,</span>
   <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
     <span style=color:#f92672>&#34;msteams&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
-        <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;imBack&#34;</span><span style=color:#111>,</span>
-        <span style=color:#f92672>&#34;value&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Text to reply in chat&#34;</span>
+      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;imBack&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;value&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Yes&#34;</span>
     <span style=color:#111>}</span>
   <span style=color:#111>}</span>
 <span style=color:#111>}</span>
-</code></pre></div><h3 id=messageback-を送る>messageBack を送る</h3><p>messageBack は、チャットストリームに流すテキスト、ボットへ送るデータ、ボットへ送る文字列、それぞれを指定できる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+</code></pre></div><p><img src=2021-01-07-11-10-43.png alt></p><p>messageBack は、会話履歴に流す文字列、ボットへ送る文字列、ボットへ送るデータ、それぞれを指定できる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
   <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
-  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Click me for messageBack&#34;</span><span style=color:#111>,</span>
+  <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;はい&#34;</span><span style=color:#111>,</span>
   <span style=color:#f92672>&#34;data&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
     <span style=color:#f92672>&#34;msteams&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
-        <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;messageBack&#34;</span><span style=color:#111>,</span>
-        <span style=color:#f92672>&#34;displayText&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;I clicked this button&#34;</span><span style=color:#111>,</span>
-        <span style=color:#f92672>&#34;text&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;text to bots&#34;</span><span style=color:#111>,</span>
-        <span style=color:#f92672>&#34;value&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;{\&#34;bfKey\&#34;: \&#34;bfVal\&#34;, \&#34;conflictKey\&#34;: \&#34;from value\&#34;}&#34;</span>
+      <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;messageBack&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;displayText&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;はい を押しました&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;text&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Yes&#34;</span><span style=color:#111>,</span>
+      <span style=color:#f92672>&#34;value&#34;</span><span style=color:#111>:</span> <span style=color:#111>{</span>
+        <span style=color:#f92672>&#34;answer&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Yes!&#34;</span>
+      <span style=color:#111>}</span>
     <span style=color:#111>}</span>
   <span style=color:#111>}</span>
 <span style=color:#111>}</span>
-</code></pre></div><p>ボットへ送られるメッセージには <code>replyToId</code> プロパティがあり、これがユーザーがボタンをおしたカードのメッセージIDになる。
-これを使って、送信済みのメッセージを編集したりできる。</p><h2 id=参考>参考</h2><p><a href=https://blog.botframework.com/2019/07/02/using-adaptive-cards-with-the-microsoft-bot-framework/ target=_blank rel=noopener>Using Adaptive Cards with the Microsoft Bot Framework - Microsoft Bot Framework</a></p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
+</code></pre></div><p><img src=2021-01-07-11-16-46.png alt></p><h3 id=オブジェクトのsubmit>オブジェクトのsubmit</h3><p>オブジェクトの submit は、非表示のデータをユーザーからボットへ送信する。
+例として、入力フィールドを2つもつカードを下記に示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;AdaptiveCard&#34;</span><span style=color:#111>,</span>
+    <span style=color:#f92672>&#34;$schema&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;http://adaptivecards.io/schemas/adaptive-card.json&#34;</span><span style=color:#111>,</span>
+    <span style=color:#f92672>&#34;version&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;1.2&#34;</span><span style=color:#111>,</span>
+    <span style=color:#f92672>&#34;body&#34;</span><span style=color:#111>:</span> <span style=color:#111>[</span>
+        <span style=color:#111>{</span>
+            <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Input.Text&#34;</span><span style=color:#111>,</span>
+            <span style=color:#f92672>&#34;placeholder&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Placeholder text&#34;</span><span style=color:#111>,</span>
+            <span style=color:#f92672>&#34;id&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;input1&#34;</span>
+        <span style=color:#111>},</span>
+        <span style=color:#111>{</span>
+            <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Input.Date&#34;</span><span style=color:#111>,</span>
+            <span style=color:#f92672>&#34;id&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;input2&#34;</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>],</span>
+    <span style=color:#f92672>&#34;actions&#34;</span><span style=color:#111>:</span> <span style=color:#111>[</span>
+        <span style=color:#111>{</span>
+            <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Action.Submit&#34;</span><span style=color:#111>,</span>
+            <span style=color:#f92672>&#34;title&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;Submit&#34;</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>]</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>これを先ほどと同じように、Echo Bot の Welcome メッセージとして送信し、エミュレーターでテストすると下記のようになる。</p><p><img src=2021-01-06-15-21-36.png alt></p><p>ユーザーはなにも発言しないし、ボット側で Activity の text プロパティを参照しても何も出てこない。</p><p>かわりに、Activity の　value プロパティにデータが入る。上記カードの場合、下記のような内容になっている。</p><p><img src=2021-01-06-15-30-27.png alt></p><p>入力フィールドの内容が json にまとめられ、JObject 型で格納されている。</p><h4 id=ダイアログでの利用>ダイアログでの利用</h4><p>ユーザーの入力を受け付ける流れを、Adaptive Card を使いつつ Dialog で実装する例を以下に示す。</p><p>通常、ボットがユーザーの入力を受け付けるときには Prompt を使用する。Adaptive Card を使う場合でも、同じように Prompt を使用できる。
+ただオブジェクトの submit の場合、データは value プロパティ経由で送られてくるので、TextPrompt などに備わっている Validator はうまく機能しない。Validator も自分で実装する必要がある。</p><p>以下に、Dialog クラスのサンプルを示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Schema</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Newtonsoft.Json</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Newtonsoft.Json.Linq</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.IO</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Linq</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>AdaptiveCards.Dialogs</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>SubmitObjectDialog</span> <span style=color:#111>:</span> <span style=color:#111>ComponentDialog</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#111>SubmitObjectDialog</span><span style=color:#111>()</span> <span style=color:#111>:</span> <span style=color:#00a8c8>base</span><span style=color:#111>(</span><span style=color:#d88200>&#34;SubmitObjectDialog&#34;</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#75715e>// dialogの登録
+</span><span style=color:#75715e></span>            <span style=color:#00a8c8>var</span> <span style=color:#111>steps</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>WaterfallStep</span><span style=color:#111>[]</span> <span style=color:#111>{</span> <span style=color:#111>Step1Async</span><span style=color:#111>,</span> <span style=color:#111>Step2Async</span> <span style=color:#111>};</span>
+
+            <span style=color:#111>AddDialog</span><span style=color:#111>(</span><span style=color:#00a8c8>new</span> <span style=color:#111>WaterfallDialog</span><span style=color:#111>(</span><span style=color:#d88200>&#34;WaterfallDialog1&#34;</span><span style=color:#111>,</span> <span style=color:#111>steps</span><span style=color:#111>));</span>
+            <span style=color:#111>AddDialog</span><span style=color:#111>(</span><span style=color:#00a8c8>new</span> <span style=color:#111>TextPrompt</span><span style=color:#111>(</span><span style=color:#d88200>&#34;TextPrompt&#34;</span><span style=color:#111>,</span> <span style=color:#111>FormValidator</span><span style=color:#111>));</span> <span style=color:#75715e>// 自分でValidatorを実装する
+</span><span style=color:#75715e></span>
+            <span style=color:#75715e>// 最初に実行するdialogを指定する
+</span><span style=color:#75715e></span>            <span style=color:#111>InitialDialogId</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;WaterfallDialog1&#34;</span><span style=color:#111>;</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span><span style=color:#111>&lt;</span><span style=color:#111>DialogTurnResult</span><span style=color:#111>&gt;</span> <span style=color:#111>Step1Async</span><span style=color:#111>(</span><span style=color:#111>WaterfallStepContext</span> <span style=color:#111>stepContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>paths</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span><span style=color:#111>[]</span> <span style=color:#111>{</span> <span style=color:#d88200>&#34;.&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Cards&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;SubmitObject.json&#34;</span> <span style=color:#111>};</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>adaptiveCardJson</span> <span style=color:#111>=</span> <span style=color:#111>File</span><span style=color:#111>.</span><span style=color:#111>ReadAllText</span><span style=color:#111>(</span><span style=color:#111>Path</span><span style=color:#111>.</span><span style=color:#111>Combine</span><span style=color:#111>(</span><span style=color:#111>paths</span><span style=color:#111>));</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#111>adaptiveCardAttachment</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Attachment</span><span style=color:#111>()</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>ContentType</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;application/vnd.microsoft.card.adaptive&#34;</span><span style=color:#111>,</span>
+                <span style=color:#111>Content</span> <span style=color:#111>=</span> <span style=color:#111>JsonConvert</span><span style=color:#111>.</span><span style=color:#111>DeserializeObject</span><span style=color:#111>(</span><span style=color:#111>adaptiveCardJson</span><span style=color:#111>),</span>
+            <span style=color:#111>};</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#111>message</span> <span style=color:#111>=</span> <span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Attachment</span><span style=color:#111>(</span><span style=color:#111>adaptiveCardAttachment</span><span style=color:#111>);</span>
+
+            <span style=color:#00a8c8>return</span> <span style=color:#00a8c8>await</span> <span style=color:#111>stepContext</span><span style=color:#111>.</span><span style=color:#111>PromptAsync</span><span style=color:#111>(</span><span style=color:#d88200>&#34;TextPrompt&#34;</span><span style=color:#111>,</span> <span style=color:#00a8c8>new</span> <span style=color:#111>PromptOptions</span> <span style=color:#111>{</span> <span style=color:#111>Prompt</span> <span style=color:#111>=</span> <span style=color:#111>(</span><span style=color:#111>Activity</span><span style=color:#111>)</span><span style=color:#111>message</span> <span style=color:#111>},</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span><span style=color:#111>&lt;</span><span style=color:#111>DialogTurnResult</span><span style=color:#111>&gt;</span> <span style=color:#111>Step2Async</span><span style=color:#111>(</span><span style=color:#111>WaterfallStepContext</span> <span style=color:#111>stepContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>JObject</span> <span style=color:#00a8c8>value</span> <span style=color:#111>=</span> <span style=color:#111>(</span><span style=color:#111>JObject</span><span style=color:#111>)</span><span style=color:#111>stepContext</span><span style=color:#111>.</span><span style=color:#111>Context</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>Value</span><span style=color:#111>;</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#111>message</span> <span style=color:#111>=</span> <span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Text</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;Echo: {value}&#34;</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>await</span> <span style=color:#111>stepContext</span><span style=color:#111>.</span><span style=color:#111>Context</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>message</span><span style=color:#111>,</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
+
+            <span style=color:#00a8c8>return</span> <span style=color:#00a8c8>await</span> <span style=color:#111>stepContext</span><span style=color:#111>.</span><span style=color:#111>EndDialogAsync</span><span style=color:#111>(</span><span style=color:#111>cancellationToken</span><span style=color:#111>:</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>private</span> <span style=color:#111>Task</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>bool</span><span style=color:#111>&gt;</span> <span style=color:#111>FormValidator</span><span style=color:#111>(</span><span style=color:#111>PromptValidatorContext</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>&gt;</span> <span style=color:#111>promptContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#75715e>// textプロパティに値は入ってこないのでfalse
+</span><span style=color:#75715e></span>            <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>promptContext</span><span style=color:#111>.</span><span style=color:#111>Recognized</span><span style=color:#111>.</span><span style=color:#111>Succeeded</span><span style=color:#111>)</span>
+            <span style=color:#111>{</span>
+                <span style=color:#00a8c8>return</span> <span style=color:#111>Task</span><span style=color:#111>.</span><span style=color:#111>FromResult</span><span style=color:#111>(</span><span style=color:#00a8c8>false</span><span style=color:#111>);</span>
+            <span style=color:#111>}</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#00a8c8>value</span> <span style=color:#111>=</span> <span style=color:#111>promptContext</span><span style=color:#111>.</span><span style=color:#111>Context</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>Value</span><span style=color:#111>;</span>
+
+            <span style=color:#00a8c8>if</span> <span style=color:#111>(!(</span><span style=color:#00a8c8>value</span> <span style=color:#00a8c8>is</span> <span style=color:#111>JObject</span><span style=color:#111>))</span>
+            <span style=color:#111>{</span>
+                <span style=color:#00a8c8>return</span> <span style=color:#111>Task</span><span style=color:#111>.</span><span style=color:#111>FromResult</span><span style=color:#111>(</span><span style=color:#00a8c8>false</span><span style=color:#111>);</span>
+            <span style=color:#111>}</span>
+
+            <span style=color:#00a8c8>return</span> <span style=color:#111>Task</span><span style=color:#111>.</span><span style=color:#111>FromResult</span><span style=color:#111>(</span><span style=color:#00a8c8>true</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=参考>参考</h2><p><a href=https://blog.botframework.com/2019/07/02/using-adaptive-cards-with-the-microsoft-bot-framework/ target=_blank rel=noopener>Using Adaptive Cards with the Microsoft Bot Framework - Microsoft Bot Framework</a></p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
