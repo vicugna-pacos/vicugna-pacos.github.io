@@ -12,11 +12,24 @@
         <li>{{ .Title }}</li>
         <ul>
           {{ range .Pages }}
+          {{/* 3階層目もセクションの場合 */}}
+          {{ if .IsSection }}
+          <li>{{ .Title }}</li>
+          <ul>
+            {{ range .Pages }}
+            <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+            {{ end }}
+          </ul>
+          {{ end }}
+          {{/* 3階層目 普通のページの場合 */}}
+          {{ if not .IsSection }}
           <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
           {{ end }}
+          {{ end }}
         </ul>
+
         {{ end }}
-        {{/* 普通のページの場合 */}}
+        {{/* 2階層目 普通のページの場合 */}}
         {{ if not .IsSection }}
         <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
         {{ end }}
