@@ -1,79 +1,64 @@
 ---
 title: "Adaptive Dialog"
-date: 2020-11-12T10:02:49+09:00
+date: 2021-01-08T13:27:54+09:00
 draft: true
 ---
 
 ## はじめに
-参考：[Introduction to adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-adaptive-dialog-introduction)
+参考：
 
-ボットの会話は Dialog を使って実装するが、会話の複雑さが上がるほど実装も大変になっていた。
-それを解決するために新しく追加されたのが Adaptive Dialog である。
+* [Introduction to adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-adaptive-dialog-introduction)
+* [Adaptive Dialog のサンプル (GitHubリポジトリ)](https://github.com/microsoft/botbuilder-samples/tree/master/samples/csharp_dotnetcore)
 
-重要：  
-Adaptive Dialog は、現在.NET版のBot Framework SDKでのみ使用可能。Adaptive Dialogを使ったサンプルソースは [GitHubリポジトリ](https://github.com/microsoft/botbuilder-samples/tree/master/samples/csharp_dotnetcore) にある。
-
+ボットの会話は Dialog を使って実装するが、会話の複雑さが上がるほど中断とか分岐とか考慮しなくてはいけないことが増え、実装が大変になる。
+それを解決するために新しく追加されたのが Adaptive Dialog らしい。
+いままでの Dialog の実装方法と異なり、「宣言的」に定義できるのが特徴で、ソースコードでも実装できるが json ファイルに定義することもできる。
+また、Bot Framework Composer も、この Adaptive Dialog の考え方を元にしているようにみえる。
 
 ## 前提条件
 
+* 現在.NET版のBot Framework SDKでのみ使用可能。
 * Bot Framework V4 SDK の Dialog の基礎知識
 * Bot Framework V4 SDK の Prompt の基礎知識
 
-## Adaptive Dialog とは
-
-### なぜ adaptive dialog なのか
-Adaptive dialog は WaterfallDialog に対してたくさんのアドバンテージがある。主な特徴は下記の通り。
-
-* 会話のフローをコンテキストやイベントによって動的に更新できる柔軟性を提供する。会話の途中でコンテキストが切り替わったり中断される場合に便利。
-* Dialog のイベントシステムをサポートする。中断、キャンセル、実行など。
-* input recognition とルールベースのイベントハンドリングを提供する。
-* 会話モデル(Dialog)と出力生成を一つにまとめる。
-* 解析、イベントルール、機械学習の拡張機能を提供する。
-* 開始から宣言的に設計された。Bot Framework Composerからツールとして使用できる。
-
-## Adaptive dialog の構造
+## Adaptive Dialog の構造
 
 ### Trigger
-すべての Adaptive Dialog は、Triggerと言われるイベントハンドラのリストを持っている。そして、トリガーは `Condition` と `Action`のリストを持っている。
-Triggerはイベントのキャッチとレスポンスを可能にする。Conditionが満たされるとActionが実行され、それ以降のActionは実行されない。
-もしConditionが満たされない場合、イベントは次のイベントハンドラへ処理を渡す。
+Adaptive Dialog は、Trigger と言われるイベントハンドラのリストを定義する。そして、トリガーは Condition と Action のリストを持つ。
+Adaptive Dialog は自身の Trigger のリストを上から走査し、Trigger の Condition が合致すると Action が実行され、それ以降の処理は行わない。
 
-トリガーについての詳細は、[Events and triggers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-triggers?view=azure-bot-service-4.0)を参照。
+トリガーについての詳細は、[Events and triggers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-triggers) を参照。
 
 ### Action
-Actionは、特定のイベントがTrigger経由でキャプチャーされたときの会話のフローを定義する。
-それぞれのステップが関数となっているWaterfall dialogとは違い、Adaptive dialogのActionはそれ自体がダイアログである。
-これはAdaptive dialogをよりパワフルでフレキシブルにしつつ、中断や分岐の状態の管理を容易にする。
+Action は、Trigger の条件が合致したときに行う処理を定義する。
+それぞれのステップがメソッドとなっている Waterfall Dialog とは違い、Adaptive dialog の Action は Dialog クラスを拡張したもののリストである。
+これは Adaptive Dialog をより強力で柔軟にしつつ、中断や分岐などの管理を容易にする。
 
-Bot Framework SDKは、たくさんのビルトインActionを提供する。例えば、メモリの生成、ダイアログ管理、会話フローの制御などである。
-Actionは拡張可能で、自分のカスタムActionを作成できる。
+Bot Framework SDKは、たくさんのビルトインActionを提供している。例えば、メモリの生成、ダイアログ管理、会話フローの制御などである。
+Actionは拡張可能で、自分のカスタム Action を作成できる。
 
-Actionの詳細は、[Actions in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-actions?view=azure-bot-service-4.0) を参照。
+Actionの詳細は、[Actions in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-actions) を参照。
 
 ### Input
-Input はAdaptive dialogへの入力であり、PromptはDialogの基底クラスへのPromptである。
-Input は、ユーザーへ情報をリクエスト＆検証するために、Adaptive Dialogで使える特別なActionである。
-すべての input クラスは、下記の機能がある。
+Input は Adaptive Dialog 用の Prompt である。Input は、ユーザーへ情報をリクエスト＆検証するために、Adaptive Dialog で使える特別なActionである。
+すべての Input クラスは、下記の機能がある。
 
 * ユーザーへプロンプトする前に、その情報をボットがすでに持っているかどうかをチェックする。
 * 入力が想定通りの形式である場合に、指定されたプロパティへ値を保存する。
 * 制約を使える。最小、最大など。
 
-Inputの詳細は、[Asking for user input using adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-inputs?view=azure-bot-service-4.0) を参照。
+Inputの詳細は、[Asking for user input using adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-inputs) を参照。
+
+[Inputs in adaptive dialogs - reference guide - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/adaptive-dialog/adaptive-dialog-prebuilt-inputs)
 
 ### Recognizer
-Recognizerは、ボットに、ユーザーの入力を理解し、意味のある断片へ拡張することを可能にする。
-すべての Recognizer は、ユーザーの発話からintentを取り出した際に`recognizedIntent`イベントを送出する。
-Recognizer の利用は必須ではないが、`recognizedIntent`イベントのかわりに`unknownIntent`が発生するようになる。
+Recognizerは、ユーザーの入力を理解し意味のある断片へ分けてくれる。
+すべての Recognizer は、ユーザーの入力からインテントを取り出した際に `recognizedIntent` イベントを送出する。
+Recognizer の利用は必須ではないが、`recognizedIntent` イベントのかわりに `unknownIntent` が発生するようになる。
 
-Recognizer の詳細は、[Recognizers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-recognizers?view=azure-bot-service-4.0) を参照。
+Recognizer の詳細は、[Recognizers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-recognizers) を参照。
 
 ### Generator
-Generator は、特定の言語生成システムをAdaptive Dialog に結びつける。
-これは、Recognizer とともにダイアログの言語理解と言語生成のクリーンな分離とカプセル化を可能にする。
-言語生成機能を使用すると、generator を.lgファイルに関連付けるか、Generator をTemplateEngineインスタンスに設定して、アダプティブダイアログを強化する1つ以上の.lgファイルを明示的に管理できます。
-
-詳細は、[Language Generation in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-generators?view=azure-bot-service-4.0) を参照。
 
 ### Memory scopes and managing state
 アダプティブダイアログは、メモリにアクセスして管理する方法を提供します。すべてのアダプティブダイアログはデフォルトでこのモデルを使用するため、メモリを消費または寄与するすべてのコンポーネントには、適切なスコープで情報を読み書きするための共通の方法があります。すべてのスコープのすべてのプロパティはプロパティバッグであり、保存されているプロパティを動的に変更できます。
@@ -86,56 +71,6 @@ Adaptive Dialog を拡張して、自分でカスタマイズしたdialogクラ�
 
 [Using declarative assets](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-declarative?view=azure-bot-service-4.0)
 
-## すべてをまとめる
-
-### The adaptive dialog runtime behavior
-下記の架空の旅行代理店ボットのサンプルは、Adaptive Dialogのふるまいを表している。
-現実世界のアプリケーションは、複数の機能がある。例えば飛行機の座席やホテルの空室、レンタカーを検索したり、天気までチェックできたりする。
-
-もし、ユーザーがボットとの会話の途中で予期しない行動をしたら何が起こるか？
-
-下記のシナリオを例としてみる：
-
-    User: I’d like to book a flight
-    Bot:  Sure. What is your destination city?
-    User: How’s the weather in Seattle?
-    Bot:  Its 72 and sunny in Seattle
-    ...
-
-ユーザーは質問に答えなかっただけでなく、話題を完全に変えている。これを実行するには、別のdialogに存在する別のコード(Action)が必要になる。
-Adaptive dialogは、このシナリオの制御を可能にする。
-
-Adaptive_dialog_runtime_behavior
-
-このボットは下記3つのadaptive dialogを持っている。
-
-1. `rootDialog` 自身のLUISモデルとトリガーとアクションのセットを持っている。一部のActionは、特定のリクエスト用に設計された子dialogを呼び出す。
-1. `bookFlightDialog` 自身のLUISモデルとトリガーとアクションのセットを持っている。飛行機の予約を扱うdialog。
-1. `weatherDialog` 自身のLUISモデルとトリガーとアクションのセットを持っている。天気予報を教えてくれるdialog。
-
-ユーザーが `I'd like to book a flight` と言ったときのフローを示す。
-
-Adaptive_dialog_conversation_flow_example
-
-rootDialog の recognizer が `recognizedIntent` イベントを放出する。このイベントは `OnIntent` トリガーでキャッチできる。
-このケースでは、ユーザーが言った　"I’d like to book a flight"　が rootDialogで定義した intentにマッチしたため、bookFlightDialog を呼び出す `BeginDialog`アクションを持った OnIntent トリガーが発生した。
-bookFlightDialog は、ユーザーの目的地の都市を質問するという自身のactionを実行する。
-
-ユーザーはどんな返答もできるため、時にはボットの質問と何の関係も無いような返答をすることがある。例えば、 "How's the weather in Seattle?" である。
-
-Adaptive_dialog_interruption_example
-
-ユーザーリクエストに対して、`bookFlightDialog`の`OnIntent`トリガーに引っかからない場合、ボットは会話スタックを、root dialogめがけて上へさかのぼる。そして、`rootDialog`に定義した天気の`OnIntent`トリガーに引っかかったため、`weatherDialog`の`BeginDialog`アクションを実行する。
-`weatherDialog`のレスポンスが終わったとき、ボットは元々処理していたdialogに会話フローを戻す。つまり`bookFlightDialog`にもどり、ふたたびユーザーに目的地の都市を聞く。
-
-まとめ:
-
-それぞれのdialogのrecognizerがユーザーの入力を解析し、インテントを求める。
-インテントが定まったとき、recognizerは`IntentRecognized`イベントを送出する。このイベントはdialogのOnIntentトリガーとなる。
-もしアクティブなdialogに、このintentを処理できるOnIntentトリガーがない場合、ボットはそのdialogの親dialogへインテントを投げる。
-もし親dialogにもintentを処理できるtriggerを持っていない場合、intentはroot dialogまでさかのぼる。
-triggerがintentを処理し終えると、元々処理していたdialogへ処理が戻る。
-
 ## 実装
 ドキュメント：https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-dialogs-adaptive
 サンプルソース：https://github.com/microsoft/BotBuilder-Samples/tree/main/samples/csharp_dotnetcore/adaptive-dialog/01.multi-turn-prompt
@@ -143,7 +78,7 @@ triggerがintentを処理し終えると、元々処理していたdialogへ処�
 ## プロジェクトのセットアップ
 [Create a bot project for adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-adaptive-dialog-setup)
 
-Empty Bot のテンプレートから Adaptive Dialog を使えるようにする手順を示す。
+Empty Bot のテンプレートプロジェクトを元に、Adaptive Dialog を使えるようにする手順を示す。
 
 ### NuGet パッケージの追加
 
@@ -176,30 +111,12 @@ ComponentRegistration.Add(new QnAMakerComponentRegistration()); // Components us
 ComponentRegistration.Add(new TeamsComponentRegistration()); // Components specific to the Teams channel.
 ```
 
-For example, the adaptive multi-turn prompts sample registers these components in ConfigureServices.
-
-```cs
-// Register dialog. This sets up memory paths for adaptive.
-ComponentRegistration.Add(new DialogsComponentRegistration());
-
-// Register adaptive component
-ComponentRegistration.Add(new AdaptiveComponentRegistration());
-
-// Register to use language generation.
-ComponentRegistration.Add(new LanguageGenerationComponentRegistration());
-```
-
-## State の追加
+### State の追加
 Startup.cs に UserState と ConversationState を追加する。
 
 ```cs
-// Create the storage we'll be using for User and Conversation state. (Memory is great for testing purposes.) 
 services.AddSingleton<IStorage, MemoryStorage>();
-
-// Create the User state. (Used in this bot's Dialog implementation.)
 services.AddSingleton<UserState>();
-
-// Create the Conversation state. (Used by the Dialog system itself.)
 services.AddSingleton<ConversationState>();
 ```
 
@@ -226,8 +143,8 @@ public class AdapterWithErrorHandler : BotFrameworkHttpAdapter
 
 これを追加すると、turnContext から Storage と State を参照できるようになる。これがないと、DialogManager が動作しない。
 
-## RootDialog の追加
-Adaptive Dialog の基底となる RootDialog を作成する。例では Dialogs\RootDialog.cs に作成した。
+### RootDialog の追加
+Adaptive Dialog となる RootDialog を作成する。例では Dialogs/RootDialog.cs に作成した。
 サンプルは下記の通り。
 
 ```cs
@@ -251,7 +168,7 @@ namespace AdaptiveDialogs.Dialogs
                 {
                     Actions =
                     {
-                        new SendActivity("Hi, we are up and running!!"),
+                        new SendActivity("nothing!"),
                     }
                 },
             };
@@ -266,7 +183,7 @@ RootDialog を作成したら、Startup.cs のDIに登録する。
 services.AddSingleton<RootDialog>();
 ```
 
-## ボットの編集
+### ボットの編集
 前の手順で作成した RootDialog を、DialogManager を介してボットから呼び出す。以下にボットクラスのサンプルを示す。
 
 ```cs
@@ -297,6 +214,195 @@ namespace AdaptiveDialogs
 }
 ```
 
-## テストしてみる
+### テストしてみる
 ボットを起動し Bot Framework Emulator で接続して、何かメッセージを送信する。
-ボットから、「Hi, we are up and running!!」と返事が来ればOK。
+ボットから、「nothing!」と返事が来ればOK。
+
+## Welcome メッセージを追加する
+ボットから DialogManager を呼び出す処理を `OnTurnAsync` メソッドに書いたことから分かるように、Adaptive Dialog は全てのイベント、アクティビティに対して処理できる。
+ユーザーがボットに初めて接続したときの `OnMembersAddedAsync` メソッドの処理も Adaptive Dialog へ移せる。
+
+サンプルその1を以下に示す。
+
+```cs
+public class RootDialog : AdaptiveDialog
+{
+    public RootDialog() : base(nameof(RootDialog))
+    {
+        Triggers = new List<OnCondition>
+        {
+            new OnConversationUpdateActivity()
+            {
+                Actions = WelcomeUserSteps()
+            },
+            new OnUnknownIntent
+            {
+                // 略
+            },
+        };
+    }
+
+    private static List<Dialog> WelcomeUserSteps()
+    {
+        return new List<Dialog>()
+        {
+            new Foreach()
+            {
+                ItemsProperty = "turn.activity.membersAdded",
+                Actions = new List<Dialog>()
+                {
+                    new IfCondition()
+                    {
+                        Condition = "$foreach.value.name != turn.activity.recipient.name",
+                        Actions = new List<Dialog>()
+                        {
+                            new SendActivity("Hello!")
+                        }
+                    }
+                }
+            }
+        };
+    }
+}
+```
+
+`WelcomeUserSteps` メソッドの内容が Action にあたる。Foreach とか If まで Action クラスになっていて、それらをネストしたりしながら使っていく。
+ただこれだとかえって何をやっているかわかりづらいし、ちょっとしたロジックなのに煩雑にみえる。
+そういう場合、`CodeAction` を使うと良い。
+
+```cs
+public class RootDialog : AdaptiveDialog
+{
+    public RootDialog() : base(nameof(RootDialog))
+    {
+        Triggers = new List<OnCondition>
+        {
+            new OnConversationUpdateActivity()
+            {
+                Actions = 
+                {
+                    new CodeAction(WelcomeUser)
+                }
+            },
+            new OnUnknownIntent
+            {
+                // 略
+            },
+        };
+    }
+
+    private static async Task<DialogTurnResult> WelcomeUser(DialogContext dc, object options)
+    {
+        foreach (var member in dc.Context.Activity.MembersAdded)
+        {
+            if (member.Name != dc.Context.Activity.Recipient.Name)
+            {
+                var message = MessageFactory.Text("Hello!");
+                await dc.Context.SendActivityAsync(message);
+            }
+        }
+        return await dc.EndDialogAsync(options);
+    }
+}
+```
+
+## Language Generator
+
+参考：
+* [Generators in adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-generators)
+  * Language Generator とは、の説明が載っている
+* [.lg file format - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/file-format/bot-builder-lg-file-format)
+  * lg ファイルの基本的な書き方が載っている
+* [Adaptive expressions prebuilt functions - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/adaptive-expressions/adaptive-expressions-prebuilt-functions)
+  * lg ファイル内で利用できる関数が載っている
+
+Language Generation を使うと、ボットのセリフをリソースファイルに隔離して管理できる。
+リソースファイルには条件式の指定やStateの参照が可能で、より自然なボットのセリフを構築できる。
+
+リソースファイルの拡張子は `.lg` で、通常は利用する Dialog クラスと1対1で作成し、Dialog クラスと同じフォルダに配置する。
+lgファイルのプロパティを変更し、「出力ディレクトリにコピー」するようにしておくこと。
+文字コードは、UTF-8-BOM にする(BOM無しでも大丈夫っぽい)。
+
+サンプルとして、 Dialogs/RootDialog.lg を作成した。
+
+```markdown
+# Nothing
+- nothing1!
+- nothing2!
+```
+
+次に RootDialog をLGを使うように変更する。
+
+```cs {hl_lines=[18,"23-26"]}
+public class RootDialog : AdaptiveDialog
+{
+    public RootDialog() : base(nameof(RootDialog))
+    {
+        Triggers = new List<OnCondition>
+        {
+            new OnConversationUpdateActivity()
+            {
+                Actions =
+                {
+                    new CodeAction(WelcomeUser)
+                }
+            },
+            new OnUnknownIntent()
+            {
+                Actions =
+                {
+                    new SendActivity("${Nothing()}")
+                }
+            },
+        };
+
+        string[] paths = { ".", "Dialogs", "RootDialog.lg" };
+        string fullPath = Path.Combine(paths);
+
+        Generator = new TemplateEngineLanguageGenerator(Templates.ParseFile(fullPath));
+    }
+    // 略
+}
+```
+
+次に Startup.cs を開き、`ConfigureServices` メソッドにコンポーネントの登録を追加する。
+(この記述がなくても動作したが…念のため)
+
+```cs
+ComponentRegistration.Add(new LanguageGenerationComponentRegistration()); // Components used for language generation features.
+```
+
+これでボットをテストすると、「nothing1!」か「nothing2!」のいずれかを返すようになる。
+
+### CodeAction 内でLGを使う
+Adaptive Dialog の Action 類からLGを使うときは `${テンプレート名()}` で良いが、自分で Action の内容を実装したときにLGを使う方法を示す。
+
+```cs
+private static async Task<DialogTurnResult> OriginalAction(DialogContext dc, object options)
+{
+    var template = new ActivityTemplate("${Greeting()}");
+    var message = await template.BindAsync(dc, dc.State);
+    await dc.Context.SendActivityAsync(message);
+}
+```
+
+### 条件式や関数
+LGファイルに以下のような定義を追加し、時間帯に合わせて挨拶を変えることができたりする。
+
+```md
+# timeOfDay
+- ${getTimeOfDay(convertFromUTC(utcNow(), 'Asia/Tokyo'))}
+
+# Greeting
+- IF: ${timeOfDay() == 'morning'}
+  - おはよう！
+- ELSEIF: ${timeOfDay() == 'afternoon'}
+  - こんにちは！
+- ELSE:
+  - こんばんは！
+```
+
+Dialog の方で `${Greeting()}` を参照すれば、朝なら「おはよう」、昼なら「こんにちは」と喋らせることができる。
+`Greeting` のIF文で `timeOfDay` を参照しているように、LGのあるテンプレートから他のテンプレートを参照することが可能。
+変数を定義＆参照するような感覚で使える。
+
