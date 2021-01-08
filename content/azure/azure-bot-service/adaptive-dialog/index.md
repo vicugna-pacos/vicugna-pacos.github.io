@@ -24,10 +24,38 @@ draft: true
 ## Adaptive Dialog の構造
 
 ### Trigger
-Adaptive Dialog は、Trigger と言われるイベントハンドラのリストを定義する。そして、トリガーは Condition と Action のリストを持つ。
-Adaptive Dialog は自身の Trigger のリストを上から走査し、Trigger の Condition が合致すると Action が実行され、それ以降の処理は行わない。
+参考：
 
-トリガーについての詳細は、[Events and triggers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-triggers) を参照。
+* [Events and triggers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-triggers)
+  * Trigger についての説明が載っている
+* [Events and triggers in adaptive dialogs - reference guide - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/adaptive-dialog/adaptive-dialog-prebuilt-triggers)
+  * あらかじめ定義されている Trigger の説明が載っている
+
+Adaptive Dialog には、Trigger と言われるイベントハンドラのリストを定義する。
+Trigger には Condition (条件) と Action (処理) を定義する。
+Trigger のリストを上から順にたどっていって、Condition が合っていると Action が実行され、それ以降の Action は実行されない。
+なので、リストの最後には、どの条件にも引っかからなかった場合の処理を用意しておくのが良いっぽい。
+下記サンプルの `OnUnknownIntent` の部分がそれにあたる。
+
+```cs
+public RootDialog() : base(nameof(RootDialog))
+{
+    Triggers = new List<OnCondition>
+    {
+        new OnConversationUpdateActivity()
+        {
+            Actions = WelcomeUserSteps()
+        },
+        new OnUnknownIntent
+        {
+            Actions =
+            {
+                new SendActivity("Hi, we are up and running!!"),
+            }
+        },
+    };
+}
+```
 
 ### Action
 Action は、Trigger の条件が合致したときに行う処理を定義する。
