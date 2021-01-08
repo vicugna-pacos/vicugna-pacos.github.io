@@ -115,7 +115,7 @@ submit時に送信できるデータ形式は、文字列とオブジェクト�
   <span style=color:#111>}</span>
 <span style=color:#111>}</span>
 </code></pre></div><p><img src=2021-01-07-11-16-46.png alt></p><h3 id=オブジェクトのsubmit>オブジェクトのsubmit</h3><p>オブジェクトの submit は、非表示のデータをユーザーからボットへ送信する。
-例として、入力フィールドを2つもつカードを下記に示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+例として、入力フィールドを2つ持つカードを下記に示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
     <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;AdaptiveCard&#34;</span><span style=color:#111>,</span>
     <span style=color:#f92672>&#34;$schema&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;http://adaptivecards.io/schemas/adaptive-card.json&#34;</span><span style=color:#111>,</span>
     <span style=color:#f92672>&#34;version&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;1.2&#34;</span><span style=color:#111>,</span>
@@ -137,8 +137,8 @@ submit時に送信できるデータ形式は、文字列とオブジェクト�
         <span style=color:#111>}</span>
     <span style=color:#111>]</span>
 <span style=color:#111>}</span>
-</code></pre></div><p>これを先ほどと同じように、Echo Bot の Welcome メッセージとして送信し、エミュレーターでテストすると下記のようになる。</p><p><img src=2021-01-06-15-21-36.png alt></p><p>ユーザーはなにも発言しないし、ボット側で Activity の text プロパティを参照しても何も出てこない。</p><p>かわりに、Activity の　value プロパティにデータが入る。上記カードの場合、下記のような内容になっている。</p><p><img src=2021-01-06-15-30-27.png alt></p><p>入力フィールドの内容が json にまとめられ、JObject 型で格納されている。</p><h4 id=ダイアログでの利用>ダイアログでの利用</h4><p>ユーザーの入力を受け付ける流れを、Adaptive Card を使いつつ Dialog で実装する例を以下に示す。</p><p>通常、ボットがユーザーの入力を受け付けるときには Prompt を使用する。Adaptive Card を使う場合でも、同じように Prompt を使用できる。
-ただオブジェクトの submit の場合、データは value プロパティ経由で送られてくるので、TextPrompt などに備わっている Validator はうまく機能しない。Validator も自分で実装する必要がある。</p><p>以下に、Dialog クラスのサンプルを示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder</span><span style=color:#111>;</span>
+</code></pre></div><p>これを先ほどと同じように、Echo Bot の Welcome メッセージとして送信し、エミュレーターでテストすると下記のようになる。</p><p><img src=2021-01-06-15-21-36.png alt></p><p>ユーザーはなにも発言しないし、ボット側で Activity の text プロパティを参照しても何も出てこない。</p><p>かわりに Activity の value プロパティにデータが入る。上記カードの場合、下記のような内容になっている。</p><p><img src=2021-01-06-15-30-27.png alt></p><p>入力フィールドの内容が json にまとめられ、JObject 型で格納されている。</p><h4 id=ダイアログでの利用>ダイアログでの利用</h4><p>ユーザーの入力を受け付ける流れを、Adaptive Card を使いつつ Dialog で実装する例を以下に示す。</p><p>通常、ボットがユーザーの入力を受け付けるときには Prompt を使用する。Adaptive Card を使う場合でも、同じように Prompt を使用できる。
+ただオブジェクトの submit の場合、データは value プロパティ経由で送られてくるので、TextPrompt などに備わっている Validator はうまく機能しない。そのため、Validator も自分で実装する必要がある。</p><p>以下に、Dialog クラスのサンプルを示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Schema</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>Newtonsoft.Json</span><span style=color:#111>;</span>
