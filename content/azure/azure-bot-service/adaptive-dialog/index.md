@@ -87,11 +87,26 @@ Recognizer の利用は必須ではないが、`recognizedIntent` イベント�
 Recognizer の詳細は、[Recognizers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-recognizers) を参照。
 
 ### Generator
+実装編で解説。
 
-### Memory scopes and managing state
-アダプティブダイアログは、メモリにアクセスして管理する方法を提供します。すべてのアダプティブダイアログはデフォルトでこのモデルを使用するため、メモリを消費または寄与するすべてのコンポーネントには、適切なスコープで情報を読み書きするための共通の方法があります。すべてのスコープのすべてのプロパティはプロパティバッグであり、保存されているプロパティを動的に変更できます。
+### メモリのスコープと State の管理
+参考：
 
-[Memory scopes and managing state in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-memory-states?view=azure-bot-service-4.0)
+* [Managing state in Adaptive Dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-memory-states)
+  * 説明
+* [Managing state in adaptive dialogs - reference guide - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/adaptive-dialog/adaptive-dialog-prebuilt-memory-states)
+  * スコープの一覧と使用例が載っている
+
+Adaptive Dialog では、State への読み書きも簡易になっている。State にはいくつかのスコープがあり、User State であれば `user.xxxx` といった具合にアクセスできる。
+以下にスコープの一覧を示す：
+
+* __User scope__ (`user`) - 会話に参加したユーザーごと。
+* __Conversation scope__ (`conversation`) - 会話ごと。
+* __Dialog scope__ (`dialog`) - ダイアログごと。そのダイアログのが終わるとメモリが消えるかもしれない(未確認)。
+* __Turn scope__ (`turn`) - ターンごと。
+* __Settings scope__ (`settings`) - 設定値。appsettings.json とかの設定値を取得できる。コード上で書き込むことは少ないと思われる。
+* __This scope__ (`this`) - その Action クラスのプロパティを取得できる。Input アクションを使用するときによく使ったりするらしい。
+* __Class scope__ (`class`) - アクティブなダイアログのプロパティを取得できる。
 
 ### Declarative assets
 Adaptive Dialog を拡張して、自分でカスタマイズしたdialogクラスを作成できるが、それとは別に、JSONファイルを作って Adaptive dialogを拡張できる。
