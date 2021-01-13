@@ -592,4 +592,99 @@ AppInsights に記録されていたエラーメッセージ：
     Exception : Microsoft.CognitiveServices.QnAMaker.Runtime.Exceptions.AzureSearchBadStateException
     Message : Strict filter (dialogname) does not exist in the KB. Please retry with valid strict filters.
 
+### Teams
+Teams は SuggestedActions をサポートしていないので、代わりに AdaptiveCard を使う。
+やっつけ気味だが、自分がたどり着いた実装方法を下記に記載する。
 
+まず、RootDialog.cs の一部を上記サンプルから変更する。
+
+```cs {hl_lines=[32]}
+namespace AdaptiveDialogs.Dialogs
+{
+    public class RootDialog : AdaptiveDialog
+    {
+        public RootDialog(IConfiguration configuration) : base(nameof(RootDialog))
+        {
+            // 略
+            Triggers = new List<OnCondition>
+            {
+                new OnQnAMatch()
+                {
+                    Actions = new List<Dialog>()
+                    {
+                        new SendActivity()
+                        {
+                            Activity = new ActivityTemplate("Here's what I have from QnA Maker - ${@answer}"),
+                        }
+                    }
+                },
+                new OnQnAMatch()
+                {
+                    Condition = "count(turn.recognized.answers[0].context.prompts) > 0",
+                    Actions = new List<Dialog>()
+                    {
+                        new SetProperty()
+                        {
+                            Property = "dialog.qnaContext",
+                            Value = "=turn.recognized.answers[0].context.prompts"
+                        },
+                        new TextInput()
+                        {
+                            Prompt = new ActivityTemplate("${ShowMultiTurnAnswer2()}"),
+                            Property = "turn.qnaMultiTurnResponse",
+                            AllowInterruptions = false,
+                            AlwaysPrompt = true
+                        },
+                        // 略
+                    }
+                },
+                // 略
+            };
+
+            string[] paths = { ".", "Dialogs", "RootDialog.lg" };
+            string fullPath = Path.Combine(paths);
+
+            Generator = new TemplateEngineLanguageGenerator(Templates.ParseFile(fullPath));
+
+        }
+    }
+}
+```
+
+RootDialog.lg に追加したテンプレートは下記の通り。
+
+````markdown
+# ShowMultiTurnAnswer2
+[Activity
+    Text = ${@answer}
+    Attachments = ${json(ShowMultiTurnAnswer3())}
+]
+
+# ShowMultiTurnAnswer3
+- ```
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2",
+  "actions": [
+    ${join(foreach(turn.recognized.answers[0].context.prompts, x, ActionButton(x.displayText)), ',')}
+  ]
+}
+```
+
+# ActionButton (displayText)
+- ```
+{
+    "type": "Action.Submit",
+    "title": "${displayText}",
+    "data": {
+    "msteams": {
+        "type": "imBack",
+        "value": "${displayText}"
+        }
+    }
+}
+```
+````
+
+follow-up prompt があるときだけ Adaptive Card になるのは違和感があるが、しかたなさそう。
