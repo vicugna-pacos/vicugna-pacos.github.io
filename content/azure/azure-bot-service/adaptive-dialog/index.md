@@ -80,11 +80,20 @@ Inputの詳細は、[Asking for user input using adaptive dialogs](https://docs.
 [Inputs in adaptive dialogs - reference guide - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/adaptive-dialog/adaptive-dialog-prebuilt-inputs)
 
 ### Recognizer
-Recognizerは、ユーザーの入力を理解し意味のある断片へ分けてくれる。
-すべての Recognizer は、ユーザーの入力からインテントを取り出した際に `recognizedIntent` イベントを送出する。
-Recognizer の利用は必須ではないが、`recognizedIntent` イベントのかわりに `unknownIntent` が発生するようになる。
 
-Recognizer の詳細は、[Recognizers in adaptive dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-recognizers) を参照。
+* [Recognizers in adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-recognizers)
+
+Recognizerは、ユーザーの入力を解析してくれる。
+例えば、LUIS を使ってインテントが見つかるかどうか検証したり、QnA Maker に答えられる質問かどうかを検証したりする。
+
+Recognizer には下記の種類がある：
+
+* __RegexRecognizer__ - 正規表現を使い、ユーザーの入力からインテントを見つける。
+* __LUIS recognizer__ - LUIS を使い、ユーザーの入力からインテントを見つける。Azure の同サービスが必要。
+* __QnA Maker recognizer__ - QnA Maker を使い、ユーザーの入力が QnA Maker に答えられる質問かどうかを検証する。
+* __Multi-language recognizer__ - 言語ごとに Recognizer を指定できる。
+* __CrossTrained recognizer set__ - 複数の Recognizer の設定を学習し、解析したりしてくれるもの(？)
+* __RecognizerSet__ - 複数の Recognizer を使うときに使う。
 
 ### Generator
 実装編で解説。
