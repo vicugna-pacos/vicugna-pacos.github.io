@@ -84,4 +84,5 @@ Azure ポータルサイトでボットチャネルのページを開く。
 
 ## 参考
 
-[【第4/5】Teams bot をローカル (Visual Studio 2019) で開発し、Azure で無料で動かす【その４：Teams に繋げてデバッグ編】 - Qiita](https://qiita.com/chomado/items/23c66a975e21265d99ae)
+* [Debug a channel using ngrok - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-debug-channel-ngrok)
+* [【第4/5】Teams bot をローカル (Visual Studio 2019) で開発し、Azure で無料で動かす【その４：Teams に繋げてデバッグ編】 - Qiita](https://qiita.com/chomado/items/23c66a975e21265d99ae)
