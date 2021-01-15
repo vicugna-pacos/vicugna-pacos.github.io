@@ -1,6 +1,7 @@
 ---
 title: "Luis"
 date: 2020-12-25T12:55:45+09:00
+lastMod: 2021-01-14T15:55:49+09:00
 draft: true
 ---
 参考：
@@ -26,7 +27,7 @@ Intent とは 意図 のこと。ピザの注文をできるボットを作る�
 * `Greeting` - ボットと会話を始めるための挨拶。
 * `ConfirmOrder` - 注文内容を確定する。「それでいいです」とか「了解」とか。
 
-なお、Intent の名前はボット等のアプリ側でも触れるので、英数字にしておいた方がいい。
+なお、Intent の名前は日本語も指定できる。
 
 ### None について
 必ず既定で作成され、削除もできない Intent。
@@ -42,3 +43,13 @@ Intent を作ったら、その Intent に含めたい文章を登録してい�
 そういうときに、あらかじめ「マルゲリータピザ」と「シーザーサラダ」を固有名詞として Entity に登録しておく。
 この場合は、ListタイプのEntityを使う。
 
+### 定義済みのエンティティ
+
+[すべての作成済みエンティティ - LUIS - Azure Cognitive Services | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/cognitive-services/luis/luis-reference-prebuilt-entities)
+
+電話番号とかメールアドレスとか、汎用的なエンティティはあらかじめ用意されている。
+上記ドキュメントに言語ごとの一覧に日本語があるので確認するとよい(サポートされているものが少ない…)。
+
+これ以外に、[Microsoft Recognizers Text の GitHub リポジトリ](https://github.com/microsoft/Recognizers-Text) を調べてみると日本語のエンティティが定義されている。
+このリポジトリが LUIS の 定義済みエンティティの元ネタになるっぽいが、実際は存在しないのでよくわからない。
+さらにパターンが YAML ファイルになっていて、JSON をインポート形式としている LUIS には取り込めなさそう。
