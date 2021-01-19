@@ -146,3 +146,97 @@ public RootDialog(IConfiguration configuration, IBotTelemetryClient telemetryCli
     // 略
 }
 ```
+
+## 分析
+※ Bot Framework Solutions を使っているなら、[Power BI のテンプレート](https://microsoft.github.io/botframework-solutions/solution-accelerators/tutorials/view-analytics/1-intro/) を使って Power BI からログを分析できる。ただし、Solutions を使わずにボットを作っている場合は、このテンプレートを使ってもあまり有用なデータは得られない。
+
+集まったログは Azure ポータルサイトの Application Insights のリソースのページで検索できる。
+とりあえず直近のログの一覧を見たい場合は、ページ左側のメニューから「トランザクションの検索」を選ぶ。直近24時間のログが表示される。
+クエリを使って検索・分析したい場合は、「ログ」を選ぶ。クエリは「Kusto クエリ」というものを使う。SQLと似ているので、SQLを知っているなら応用がききやすいと思う。
+
+参考：[Getting started with Kusto | Microsoft Docs](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/concepts/)
+
+ボットのログはほとんどが customEvents テーブルに蓄積されている。QnAMaker の場合は、name = QnAMakerRecognizerResult にある。それぞれの customEvents の詳しい内容は、customDimentions 列の中に json 形式で格納されている。
+
+↓クエリのサンプルと結果
+
+```
+customEvents
+| where name == "QnAMakerRecognizerResult" and 
+    customDimensions.activityType == "message"
+| project
+    timestamp,
+    customDimensions
+```
+
+![](2021-01-19-14-13-27.png)
+
+json は 直下のプロパティであれば `customDimentions.Intents` というようにドットでつなげて参照できる。
+ただし、2階層目以降は、都度 `parse_json(tostring(プロパティ))` としないとアクセスできない。
+
+↓クエリのサンプルと結果
+
+```
+customEvents
+| where name == "QnAMakerRecognizerResult" and 
+    customDimensions.activityType == "message"
+| extend d = parse_json(tostring(customDimensions))
+| extend i = parse_json(tostring(d.Intents))
+| project
+    timestamp,
+    customDimensions,
+    score_ok = i.QnAMatch.score,
+    score_ng = d.Intents.QnAMatch.score
+```
+
+![](2021-01-19-14-20-34.png)
+
+### Power BI Desktop で分析
+Azure ポータルサイトのクエリのページで色々検索するのもよいが、Power BI を使って検索するのも良いと思う。
+特に customDimensions を目的に合わせてパースしていくのはクエリが煩雑になりがちなので、customEvents テーブルのデータを素のまま Power BI に取り込み、
+あとは好みに合わせて Power BI 上でカスタマイズするのも良いと思う。
+
+下記に、Power BI から Application Insights を検索する方法を示す。
+
+まず、Azure ポータルサイトのクエリのページでクエリを入力する。
+細かい抽出などは Power BI で行うため、ここではただ customEvents テーブルを全件検索する。
+既定では直近3日間くらいのデータしか抽出されないため、下記のようにして検索条件で直近60日のデータが取得されるようにすると良い。
+
+```
+customEvents
+| where timestamp > ago(60d)
+```
+
+クエリができたら、「エクスポート」→「Power BI へエクスポート (M Query)」をクリックする。
+
+![](2021-01-19-16-25-21.png)
+
+クエリが書かれたテキストファイルがダウンロードされる。
+
+次に Power BI を起動し、新しいレポートを作成する。
+「データを取得」の画面が表示されたら、「その他」の「空のクエリ」を選ぶ。
+
+クエリエディターが起動するので、リボンの「詳細エディター」をクリックする。
+
+![](2021-01-19-16-30-04.png)
+
+詳細エディターの画面が表示されるので、先ほどダウンロードしたテキストファイルの内容をコピーして置換する。
+そのあと、クエリの内容を確認し、下記画像のように `#"timespan"="P3D",` と書かれている部分がある場合は削除する。
+
+![](2021-01-19-17-35-41.png)
+
+これがあると、検索条件で直近60日間を指定していても、結局データが直近3日間に絞られてしまう。なので、これを利用して、クエリの where 句は無くして `#"timespan"="P60D",` としても良いかもしれない。
+
+詳細エディターの「完了」を押すと、customEvents テーブルのデータが表示される。
+
+![](2021-01-19-16-37-45.png)
+
+このとき、Application Insights への接続が初めての場合、資格情報の入力を求められる。
+「組織アカウント」→「サインイン」とクリックし、Azure のアカウントを入力すると接続できるようになる。
+
+![](2021-01-19-16-35-27.png)
+
+GitHub アカウントで Azure を使っている場合でも、GitHub アカウントのメールアドレスを入力すると自動的に GitHub 経由でのログインになる。
+
+ちなみに、クエリの結果を見ると、customDimensions の方が文字列になっている。
+JSONにするには、クエリエディターで customDimensions を選択し、リボンの「変換」タブ→「解析」→「JSON」とクリックする。
