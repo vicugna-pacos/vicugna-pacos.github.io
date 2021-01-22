@@ -1,0 +1,71 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>LUIS - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li><li>Adaptive Dialog</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#luis-を使う>LUIS を使う</a></li></ul></nav></aside></div><div class=main><article><h1>LUIS</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-01-08 13:27:54 +0900 +0900" itemprop=datePublished>2021-01-08</time></div><div></div></div><h2 id=luis-を使う>LUIS を使う</h2><p>あらかじめ、<a href=https://www.luis.ai/ target=_blank rel=noopener>LUIS ポータルサイト</a> でアプリケーションとインテント等の定義を作っておく。
+今回は、下記のようなシンプルなインテントを作っておいた。</p><p><img src=2021-01-14-11-31-12.png alt></p><p>LUIS ポータルサイトで、アプリケーションID、エンドポイント、エンドポイントキーの3つを取得する。</p><p>アプリケーションIDは、アプリケーションの設定画面で取得できる。</p><p><img src=2021-01-14-11-35-15.png alt></p><p>もしくは、該当アプリケーションのページを見ているときのURLからも取得できる。</p><p><img src=2021-01-14-11-37-49.png alt></p><p>エンドポイント、エンドポイントキーは Azure Resources のページで取得できる。この2つは Azure ポータルサイトの Cognitive Service のリソースからも取得できる。</p><p><img src=2021-01-14-11-41-40.png alt></p><p>次に、RootDialog.cs に LUIS の Recognizer、Trigger などを追加する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>namespace</span> <span style=color:#111>AdaptiveDialogs.Dialogs</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>RootDialog</span> <span style=color:#111>:</span> <span style=color:#111>AdaptiveDialog</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#111>RootDialog</span><span style=color:#111>(</span><span style=color:#111>IConfiguration</span> <span style=color:#111>configuration</span><span style=color:#111>)</span> <span style=color:#111>:</span> <span style=color:#00a8c8>base</span><span style=color:#111>(</span><span style=color:#111>nameof</span><span style=color:#111>(</span><span style=color:#111>RootDialog</span><span style=color:#111>))</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>Recognizer</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>RecognizerSet</span><span style=color:#111>()</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>Recognizers</span> <span style=color:#111>=</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#00a8c8>new</span> <span style=color:#111>QnAMakerRecognizer</span><span style=color:#111>()</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>                    <span style=color:#111>},</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                    <span style=color:#00a8c8>new</span> <span style=color:#111>LuisAdaptiveRecognizer</span><span style=color:#111>()</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                    <span style=color:#111>{</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                        <span style=color:#111>ApplicationId</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;luis:applicationId&#34;</span><span style=color:#111>],</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                        <span style=color:#111>EndpointKey</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;luis:endpointKey&#34;</span><span style=color:#111>],</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                        <span style=color:#111>Endpoint</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;luis:endpoint&#34;</span><span style=color:#111>]</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                    <span style=color:#111>}</span>
+</span>                <span style=color:#111>}</span>
+            <span style=color:#111>};</span>
+
+            <span style=color:#111>Triggers</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>OnCondition</span><span style=color:#111>&gt;</span>
+            <span style=color:#111>{</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#00a8c8>new</span> <span style=color:#111>OnIntent</span><span style=color:#111>(</span><span style=color:#d88200>&#34;有給申請&#34;</span><span style=color:#111>)</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>{</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                    <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>Dialog</span><span style=color:#111>&gt;()</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                    <span style=color:#111>{</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                        <span style=color:#00a8c8>new</span> <span style=color:#111>SendActivity</span><span style=color:#111>(</span><span style=color:#d88200>&#34;だめ！&#34;</span><span style=color:#111>)</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                    <span style=color:#111>}</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>},</span>
+</span>                <span style=color:#00a8c8>new</span> <span style=color:#111>OnQnAMatch</span><span style=color:#111>()</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>Dialog</span><span style=color:#111>&gt;()</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SendActivity</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Activity</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>ActivityTemplate</span><span style=color:#111>(</span><span style=color:#d88200>&#34;${@answer}&#34;</span><span style=color:#111>),</span>
+                        <span style=color:#111>}</span>
+                    <span style=color:#111>}</span>
+                <span style=color:#111>},</span>
+                <span style=color:#00a8c8>new</span> <span style=color:#111>OnQnAMatch</span><span style=color:#111>()</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>Condition</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;count(turn.recognized.answers[0].context.prompts) &gt; 0&#34;</span><span style=color:#111>,</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#111>QnAMakerMultiTurnStep</span><span style=color:#111>()</span>
+                <span style=color:#111>},</span>
+                <span style=color:#00a8c8>new</span> <span style=color:#111>OnUnknownIntent</span><span style=color:#111>()</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SendActivity</span><span style=color:#111>(</span><span style=color:#d88200>&#34;nothing!&#34;</span><span style=color:#111>)</span>
+                    <span style=color:#111>}</span>
+                <span style=color:#111>},</span>
+            <span style=color:#111>};</span>
+
+            <span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>paths</span> <span style=color:#111>=</span> <span style=color:#111>{</span> <span style=color:#d88200>&#34;.&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Dialogs&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;RootDialog.lg&#34;</span> <span style=color:#111>};</span>
+            <span style=color:#00a8c8>string</span> <span style=color:#111>fullPath</span> <span style=color:#111>=</span> <span style=color:#111>Path</span><span style=color:#111>.</span><span style=color:#111>Combine</span><span style=color:#111>(</span><span style=color:#111>paths</span><span style=color:#111>);</span>
+
+            <span style=color:#111>Generator</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>TemplateEngineLanguageGenerator</span><span style=color:#111>(</span><span style=color:#111>Templates</span><span style=color:#111>.</span><span style=color:#111>ParseFile</span><span style=color:#111>(</span><span style=color:#111>fullPath</span><span style=color:#111>));</span>
+
+        <span style=color:#111>}</span>
+
+        <span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>これで、「有給申請したい」とボットに話しかけると、「だめ！」と返事をしてくれる。
+(このサンプルの場合、LUIS に登録した例文が少なすぎて、何を言っても「だめ！」と返すが…)</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>

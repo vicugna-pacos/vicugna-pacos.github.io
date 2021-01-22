@@ -1,0 +1,204 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>QnA Maker - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li><li>Adaptive Dialog</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#サンプル>サンプル</a></li><li><a href=#注意点>注意点</a></li><li><a href=#teams>Teams</a></li></ul></nav></aside></div><div class=main><article><h1>QnA Maker</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-01-08 13:27:54 +0900 +0900" itemprop=datePublished>2021-01-08</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>参考：</p><ul><li><a href=https://github.com/microsoft/BotBuilder-Samples/tree/main/samples/csharp_dotnetcore/adaptive-dialog/07.qnamaker target=_blank rel=noopener>BotBuilder-Samples/samples/csharp_dotnetcore/adaptive-dialog/07.qnamaker at main · microsoft/BotBuilder-Samples</a></li></ul><p>Adaptive Dialog で QnAMaker を使う方法を記載する。
+MS のドキュメントに載っているのは、ボットのソースコードと一緒に <code>.qna</code> ファイルを作成し、Q&Aのリストを管理する方法だが、
+ここに記載するのは、QnAMaker ポータルサイトに作成した Q&A のリストを使う方法である。</p><h2 id=サンプル>サンプル</h2><p>以下に RootDialog.cs のサンプルを記載する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>AdaptiveExpressions.Properties</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.AI.QnA.Recognizers</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs.Adaptive</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs.Adaptive.Actions</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs.Adaptive.Conditions</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs.Adaptive.Generators</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs.Adaptive.Input</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Dialogs.Adaptive.Templates</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.LanguageGeneration</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Configuration</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.IO</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Linq</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>AdaptiveDialogs.Dialogs</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>RootDialog</span> <span style=color:#111>:</span> <span style=color:#111>AdaptiveDialog</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#111>RootDialog</span><span style=color:#111>(</span><span style=color:#111>IConfiguration</span> <span style=color:#111>configuration</span><span style=color:#111>)</span> <span style=color:#111>:</span> <span style=color:#00a8c8>base</span><span style=color:#111>(</span><span style=color:#111>nameof</span><span style=color:#111>(</span><span style=color:#111>RootDialog</span><span style=color:#111>))</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>Recognizer</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>QnAMakerRecognizer</span><span style=color:#111>()</span>
+            <span style=color:#111>{</span>
+                <span style=color:#75715e>// HostName, EndpointKey, KnowledgeBaseId は、従来の物と同じ
+</span><span style=color:#75715e></span>                <span style=color:#111>HostName</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;qna:hostname&#34;</span><span style=color:#111>],</span>
+                <span style=color:#111>EndpointKey</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;qna:endpointKey&#34;</span><span style=color:#111>],</span>
+                <span style=color:#111>KnowledgeBaseId</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;qna:KnowledgeBaseId&#34;</span><span style=color:#111>],</span>
+                <span style=color:#111>QnAId</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;turn.qnaIdFromPrompt&#34;</span><span style=color:#111>,</span> <span style=color:#75715e>// follow-up prompt を使うなら指定が必要
+</span><span style=color:#75715e></span>                <span style=color:#111>IncludeDialogNameInMetadata</span> <span style=color:#111>=</span> <span style=color:#00a8c8>false</span>
+            <span style=color:#111>};</span>
+
+            <span style=color:#111>Triggers</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>OnCondition</span><span style=color:#111>&gt;</span>
+            <span style=color:#111>{</span>
+                <span style=color:#00a8c8>new</span> <span style=color:#111>OnQnAMatch</span><span style=color:#111>()</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>Dialog</span><span style=color:#111>&gt;()</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SendActivity</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Activity</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>ActivityTemplate</span><span style=color:#111>(</span><span style=color:#d88200>&#34;${@answer}&#34;</span><span style=color:#111>),</span>
+                        <span style=color:#111>}</span>
+                    <span style=color:#111>}</span>
+                <span style=color:#111>},</span>
+                <span style=color:#00a8c8>new</span> <span style=color:#111>OnQnAMatch</span><span style=color:#111>()</span> <span style=color:#75715e>// follow-up prompt を使うならこの部分が必要。
+</span><span style=color:#75715e></span>                <span style=color:#111>{</span>
+                    <span style=color:#111>Condition</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;count(turn.recognized.answers[0].context.prompts) &gt; 0&#34;</span><span style=color:#111>,</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>Dialog</span><span style=color:#111>&gt;()</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SetProperty</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Property</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;dialog.qnaContext&#34;</span><span style=color:#111>,</span>
+                            <span style=color:#111>Value</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;=turn.recognized.answers[0].context.prompts&#34;</span>
+                        <span style=color:#111>},</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>TextInput</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Prompt</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>ActivityTemplate</span><span style=color:#111>(</span><span style=color:#d88200>&#34;${ShowMultiTurnAnswer()}&#34;</span><span style=color:#111>),</span>
+                            <span style=color:#111>Property</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;turn.qnaMultiTurnResponse&#34;</span><span style=color:#111>,</span>
+                            <span style=color:#111>AllowInterruptions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>false</span><span style=color:#111>,</span>
+                            <span style=color:#111>AlwaysPrompt</span> <span style=color:#111>=</span> <span style=color:#00a8c8>true</span>
+                        <span style=color:#111>},</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SetProperty</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Property</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;turn.qnaMatchFromContext&#34;</span><span style=color:#111>,</span>
+                            <span style=color:#111>Value</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;=where(dialog.qnaContext, item, item.displayText == turn.qnaMultiTurnResponse)&#34;</span>
+                        <span style=color:#111>},</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>DeleteProperty</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Property</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;dialog.qnaContext&#34;</span>
+                        <span style=color:#111>},</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>IfCondition</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Condition</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;turn.qnaMatchFromContext &amp;&amp; count(turn.qnaMatchFromContext) &gt; 0&#34;</span><span style=color:#111>,</span>
+                            <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>Dialog</span><span style=color:#111>&gt;()</span>
+                            <span style=color:#111>{</span>
+                                <span style=color:#00a8c8>new</span> <span style=color:#111>SetProperty</span><span style=color:#111>()</span>
+                                <span style=color:#111>{</span>
+                                    <span style=color:#111>Property</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;turn.qnaIdFromPrompt&#34;</span><span style=color:#111>,</span>
+                                    <span style=color:#111>Value</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;=turn.qnaMatchFromContext[0].qnaId&#34;</span>
+                                <span style=color:#111>},</span>
+                                <span style=color:#00a8c8>new</span> <span style=color:#111>EmitEvent</span><span style=color:#111>()</span>
+                                <span style=color:#111>{</span>
+                                    <span style=color:#111>EventName</span> <span style=color:#111>=</span> <span style=color:#111>DialogEvents</span><span style=color:#111>.</span><span style=color:#111>ActivityReceived</span><span style=color:#111>,</span>
+                                    <span style=color:#111>EventValue</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;=turn.activity&#34;</span>
+                                <span style=color:#111>}</span>
+                            <span style=color:#111>}</span>
+                        <span style=color:#111>}</span>
+                    <span style=color:#111>}</span>
+                <span style=color:#111>},</span>
+                <span style=color:#00a8c8>new</span> <span style=color:#111>OnUnknownIntent</span><span style=color:#111>()</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SendActivity</span><span style=color:#111>(</span><span style=color:#d88200>&#34;nothing!&#34;</span><span style=color:#111>)</span>
+                    <span style=color:#111>}</span>
+                <span style=color:#111>},</span>
+            <span style=color:#111>};</span>
+
+            <span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>paths</span> <span style=color:#111>=</span> <span style=color:#111>{</span> <span style=color:#d88200>&#34;.&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Dialogs&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;RootDialog.lg&#34;</span> <span style=color:#111>};</span>
+            <span style=color:#00a8c8>string</span> <span style=color:#111>fullPath</span> <span style=color:#111>=</span> <span style=color:#111>Path</span><span style=color:#111>.</span><span style=color:#111>Combine</span><span style=color:#111>(</span><span style=color:#111>paths</span><span style=color:#111>);</span>
+
+            <span style=color:#111>Generator</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>TemplateEngineLanguageGenerator</span><span style=color:#111>(</span><span style=color:#111>Templates</span><span style=color:#111>.</span><span style=color:#111>ParseFile</span><span style=color:#111>(</span><span style=color:#111>fullPath</span><span style=color:#111>));</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>加えて、RootDialog.lg ファイルに以下の定義を追加。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-md data-lang=md># ShowMultiTurnAnswer
+[Activity
+    Text = ${@answer}
+    SuggestedActions = ${foreach(turn.recognized.answers[0].context.prompts, x, x.displayText)}
+]
+</code></pre></div><h2 id=注意点>注意点</h2><p><code>QnAMakerRecognizer</code> の生成時に、<code>IncludeDialogNameInMetadata</code> プロパティを <code>false</code> にしている。
+これを忘れると既定値の <code>true</code> が適用され、QnAMaker 検索時に常にダイアログ名がメタデータフィルターにセットされる。
+QnAMaker 側にメタデータの設定がない場合、QnAMaker が必ず 400 (Bad Request) を返す。
+ボット側でエラーの原因を見つけるのは難しく、QnAMaker 作成時に一緒に作成した AppInsights のログを見てやっと気づけた。</p><p>AppInsights に記録されていたエラーメッセージ：</p><pre><code>Exception : Microsoft.CognitiveServices.QnAMaker.Runtime.Exceptions.AzureSearchBadStateException
+Message : Strict filter (dialogname) does not exist in the KB. Please retry with valid strict filters.
+</code></pre><h2 id=teams>Teams</h2><p>Teams は SuggestedActions をサポートしていないので、代わりに AdaptiveCard を使う。
+やっつけ気味だが、自分がたどり着いた実装方法を下記に記載する。</p><p>まず、RootDialog.cs の一部を上記サンプルから変更する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>namespace</span> <span style=color:#111>AdaptiveDialogs.Dialogs</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>RootDialog</span> <span style=color:#111>:</span> <span style=color:#111>AdaptiveDialog</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#111>RootDialog</span><span style=color:#111>(</span><span style=color:#111>IConfiguration</span> <span style=color:#111>configuration</span><span style=color:#111>)</span> <span style=color:#111>:</span> <span style=color:#00a8c8>base</span><span style=color:#111>(</span><span style=color:#111>nameof</span><span style=color:#111>(</span><span style=color:#111>RootDialog</span><span style=color:#111>))</span>
+        <span style=color:#111>{</span>
+            <span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>            <span style=color:#111>Triggers</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>OnCondition</span><span style=color:#111>&gt;</span>
+            <span style=color:#111>{</span>
+                <span style=color:#00a8c8>new</span> <span style=color:#111>OnQnAMatch</span><span style=color:#111>()</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>Dialog</span><span style=color:#111>&gt;()</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SendActivity</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Activity</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>ActivityTemplate</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Here&#39;s what I have from QnA Maker - ${@answer}&#34;</span><span style=color:#111>),</span>
+                        <span style=color:#111>}</span>
+                    <span style=color:#111>}</span>
+                <span style=color:#111>},</span>
+                <span style=color:#00a8c8>new</span> <span style=color:#111>OnQnAMatch</span><span style=color:#111>()</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>Condition</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;count(turn.recognized.answers[0].context.prompts) &gt; 0&#34;</span><span style=color:#111>,</span>
+                    <span style=color:#111>Actions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>Dialog</span><span style=color:#111>&gt;()</span>
+                    <span style=color:#111>{</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>SetProperty</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+                            <span style=color:#111>Property</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;dialog.qnaContext&#34;</span><span style=color:#111>,</span>
+                            <span style=color:#111>Value</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;=turn.recognized.answers[0].context.prompts&#34;</span>
+                        <span style=color:#111>},</span>
+                        <span style=color:#00a8c8>new</span> <span style=color:#111>TextInput</span><span style=color:#111>()</span>
+                        <span style=color:#111>{</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                            <span style=color:#111>Prompt</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>ActivityTemplate</span><span style=color:#111>(</span><span style=color:#d88200>&#34;${ShowMultiTurnAnswer2()}&#34;</span><span style=color:#111>),</span>
+</span>                            <span style=color:#111>Property</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;turn.qnaMultiTurnResponse&#34;</span><span style=color:#111>,</span>
+                            <span style=color:#111>AllowInterruptions</span> <span style=color:#111>=</span> <span style=color:#00a8c8>false</span><span style=color:#111>,</span>
+                            <span style=color:#111>AlwaysPrompt</span> <span style=color:#111>=</span> <span style=color:#00a8c8>true</span>
+                        <span style=color:#111>},</span>
+                        <span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>                    <span style=color:#111>}</span>
+                <span style=color:#111>},</span>
+                <span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>            <span style=color:#111>};</span>
+
+            <span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>paths</span> <span style=color:#111>=</span> <span style=color:#111>{</span> <span style=color:#d88200>&#34;.&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Dialogs&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;RootDialog.lg&#34;</span> <span style=color:#111>};</span>
+            <span style=color:#00a8c8>string</span> <span style=color:#111>fullPath</span> <span style=color:#111>=</span> <span style=color:#111>Path</span><span style=color:#111>.</span><span style=color:#111>Combine</span><span style=color:#111>(</span><span style=color:#111>paths</span><span style=color:#111>);</span>
+
+            <span style=color:#111>Generator</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>TemplateEngineLanguageGenerator</span><span style=color:#111>(</span><span style=color:#111>Templates</span><span style=color:#111>.</span><span style=color:#111>ParseFile</span><span style=color:#111>(</span><span style=color:#111>fullPath</span><span style=color:#111>));</span>
+
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>RootDialog.lg に追加したテンプレートは下記の通り。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-markdown data-lang=markdown># ShowMultiTurnAnswer2
+[Activity
+    Text = ${@answer}
+    Attachments = ${json(ShowMultiTurnAnswer3())}
+]
+
+# ShowMultiTurnAnswer3
+<span style=color:#00a8c8>-</span> ```
+{
+  &#34;type&#34;: &#34;AdaptiveCard&#34;,
+  &#34;$schema&#34;: &#34;http://adaptivecards.io/schemas/adaptive-card.json&#34;,
+  &#34;version&#34;: &#34;1.2&#34;,
+  &#34;actions&#34;: [
+    ${join(foreach(turn.recognized.answers[0].context.prompts, x, ActionButton(x.displayText)), &#39;,&#39;)}
+  ]
+}
+<span style=color:#d88200>```
+</span><span style=color:#d88200></span>
+# ActionButton (displayText)
+- ```
+{
+    &#34;type&#34;: &#34;Action.Submit&#34;,
+    &#34;title&#34;: &#34;${displayText}&#34;,
+    &#34;data&#34;: {
+    &#34;msteams&#34;: {
+        &#34;type&#34;: &#34;imBack&#34;,
+        &#34;value&#34;: &#34;${displayText}&#34;
+        }
+    }
+}
+<span style=color:#d88200>```</span>
+</code></pre></div><p>follow-up prompt があるときだけ Adaptive Card になるのは違和感があるが、しかたなさそう。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>

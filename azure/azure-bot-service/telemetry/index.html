@@ -70,14 +70,16 @@ Bot Framework SDK にも、Application Insights へログを記録する機能�
                 <span style=color:#111>KnowledgeBaseId</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;qna:KnowledgeBaseId&#34;</span><span style=color:#111>],</span>
                 <span style=color:#111>QnAId</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;turn.qnaIdFromPrompt&#34;</span><span style=color:#111>,</span>
                 <span style=color:#111>IncludeDialogNameInMetadata</span> <span style=color:#111>=</span> <span style=color:#00a8c8>false</span><span style=color:#111>,</span>
-<span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>TelemetryClient</span> <span style=color:#111>=</span> <span style=color:#111>telemetryClient</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>TelemetryClient</span> <span style=color:#111>=</span> <span style=color:#111>telemetryClient</span><span style=color:#111>,</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>LogPersonalInformation</span> <span style=color:#111>=</span> <span style=color:#00a8c8>true</span>
 </span>            <span style=color:#111>},</span>
             <span style=color:#00a8c8>new</span> <span style=color:#111>LuisAdaptiveRecognizer</span><span style=color:#111>()</span>
             <span style=color:#111>{</span>
                 <span style=color:#111>ApplicationId</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;luis:applicationId&#34;</span><span style=color:#111>],</span>
                 <span style=color:#111>EndpointKey</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;luis:endpointKey&#34;</span><span style=color:#111>],</span>
                 <span style=color:#111>Endpoint</span> <span style=color:#111>=</span> <span style=color:#111>configuration</span><span style=color:#111>[</span><span style=color:#d88200>&#34;luis:endpoint&#34;</span><span style=color:#111>],</span>
-<span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>TelemetryClient</span> <span style=color:#111>=</span> <span style=color:#111>telemetryClient</span>
+<span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>TelemetryClient</span> <span style=color:#111>=</span> <span style=color:#111>telemetryClient</span><span style=color:#111>,</span>
+</span><span style=display:block;width:100%;background-color:#e1e1e1>                <span style=color:#111>LogPersonalInformation</span> <span style=color:#111>=</span> <span style=color:#00a8c8>true</span>
 </span>            <span style=color:#111>}</span>
         <span style=color:#111>}</span>
     <span style=color:#111>};</span>
