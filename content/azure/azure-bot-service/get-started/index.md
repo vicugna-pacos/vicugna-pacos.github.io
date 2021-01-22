@@ -1,6 +1,7 @@
 ---
-title: "新しいボットを作る (VS2019)"
+title: "Get Started (VS2019)"
 date: 2020-09-23T19:11:50+09:00
+lastMod: 2021-01-22T11:38:57+09:00
 weight: 1
 ---
 
@@ -12,26 +13,45 @@ weight: 1
 
 参考：[Bot Framework SDK for .NET を使用したボットの作成 - Bot Service | Microsoft Docs](https://docs.microsoft.com/ja-jp/azure/bot-service/dotnet/bot-builder-dotnet-sdk-quickstart?view=azure-bot-service-4.0&tabs=vs)
 
-## Bot Framework Emulator をインストール
+## 開発環境の準備
+
+### Bot Framework Emulator をインストール
 [Bot Framework Emulator](https://github.com/microsoft/BotFramework-Emulator/tree/master)
 
 Bot Framework Emulator は、ローカルでボットをテストするためのツール。
 上記サイトの「Download」にある「Github Releases」のページへ移動し、最新版のインストーラを取得し、インストールする。
 
-## Bot Framework v4 SDK Templates をインストール
+### Bot Framework v4 SDK Templates をインストール
 
 1. Visual Studio を起動し、メニューの「拡張機能」→「拡張機能の管理」をクリック。
 1. 「Bot Framework v4 SDK Templates for Visual Studio」を検索し、ダウンロード。
 1. Visual Studio を終了し、インストールを実行させる。
 1. 再度 Visual Studio を起動する。
 
-## 新しいプロジェクトの作成
+### ngrok 利用登録とインストール
+ngrok は、localhost に外部から接続できるURLを用意してくれるサービス。
+ボットアプリとチャネルはWebサーバー同士のやり取りという感じなので、ローカルにあるボットアプリをAzure上にあるTeamsやSlackのチャネルと接続するときに必要。
+Bot Framework Emulator を使ったテストでは必要ないが、WebChat 以外のチャネルを使うのであれば必要になってくる。利用開始までの手順は下記の通り。
+
+1. [Webサイト](https://ngrok.com/) で利用登録し、Windows用のアプリケーションをダウンロードする。
+1. ダウンロードした zip ファイルを解凍すると、exeファイルが1つ入っているので、任意のフォルダへ置いておく。
+1. ngrok.exe を置いたフォルダでコマンドプロンプトを起動する。
+1. 下記コマンドを実行する。キーの部分は、サインインした状態で [Setup](https://dashboard.ngrok.com/get-started/setup) のページを見るとスニペットに書いてある。
+
+```
+ngrok authtoken [キー]
+```
+
+実行に成功すると、ユーザーフォルダ配下にngrokのファイルが作成される。
+
+## ボットの新規作成
+### 新しいプロジェクトの作成
 Visual Studioのメニューの「ファイル」→「新規作成」→「プロジェクト」をクリック。
-テンプレートとして、「Echo Bot (Bot Framework v4 - .NET Core 3.1)」を選ぶ。※.NET Core 2.1を選ばないように注意。
+テンプレートとして、「Echo Bot (Bot Framework v4 - .NET Core 3.1)」を選ぶ。※.NET Core 2.1など古い方を選ばないように注意。
 
 ![](2020-09-23-20-59-33.png)
 
-## プロジェクトを実行
+### プロジェクトを実行
 ソリューションエクスプローラーで、プロジェクト名を選択して `F5` を押す。
 するとプロジェクトがビルド＆実行される。実行されるとブラウザが起動し、`http://localhost:3978/` として以下のページが表示される。
 
@@ -42,7 +62,7 @@ Visual Studioのメニューの「ファイル」→「新規作成」→「プ�
 もしくは、実行時に勝手にブラウザが起動しないように設定できる。
 プロジェクトで右クリック → 「プロパティ」 → 「デバッグ」タブ → 「ブラウザーの起動」のチェックを外す。
 
-## Bot Framework Emulator でテストする
+### Bot Framework Emulator でテストする
 
 1. Bot Framework Emulator を起動する。
 1. 「Open Bot」のボタンを押す。
@@ -52,7 +72,7 @@ Visual Studioのメニューの「ファイル」→「新規作成」→「プ�
 
 Echo Bot は、こちらが送ったメッセージをそのまま返すだけのボットなので、送ったメッセージがそのまま返ってくればOK。
 
-## そのほかのテンプレート
+### そのほかのテンプレート
 参考：[microsoft/BotBuilder-Samples](https://github.com/microsoft/BotBuilder-Samples/tree/main/generators/dotnet-templates)
 
 Bot Framework v4 SDK Templates をインストールすると、Echo Bot の他にもテンプレートが追加される。
