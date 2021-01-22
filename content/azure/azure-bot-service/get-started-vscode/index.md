@@ -1,5 +1,5 @@
 ---
-title: "新しいボットを作成する (VS Code)"
+title: "Get Started (VS Code)"
 date: 2020-10-12T15:25:42+09:00
 lastModified: 2020-11-16T15:04:11+09:00
 weight: 2
