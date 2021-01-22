@@ -116,7 +116,7 @@ AdaptiveDialog で使う QnAMaker や LUIS の Recognizer に `IBotTelemetryClie
 
 下記は、AdaptiveDialog のコンストラクタで、Recognizer に `IBotTelemetryClient` を渡しているサンプル。
 
-```cs {hl_lines=[3,16,23]}
+```cs {hl_lines=[3,16,17,24,25]}
 public RootDialog(IConfiguration configuration, IBotTelemetryClient telemetryClient) : base(nameof(RootDialog))
 {
     this.TelemetryClient = telemetryClient;
@@ -132,14 +132,16 @@ public RootDialog(IConfiguration configuration, IBotTelemetryClient telemetryCli
                 KnowledgeBaseId = configuration["qna:KnowledgeBaseId"],
                 QnAId = "turn.qnaIdFromPrompt",
                 IncludeDialogNameInMetadata = false,
-                TelemetryClient = telemetryClient
+                TelemetryClient = telemetryClient,
+                LogPersonalInformation = true
             },
             new LuisAdaptiveRecognizer()
             {
                 ApplicationId = configuration["luis:applicationId"],
                 EndpointKey = configuration["luis:endpointKey"],
                 Endpoint = configuration["luis:endpoint"],
-                TelemetryClient = telemetryClient
+                TelemetryClient = telemetryClient,
+                LogPersonalInformation = true
             }
         }
     };
