@@ -25,7 +25,7 @@ Empty Bot のテンプレートプロジェクトを元に、Adaptive Dialog を
 必要に応じて下記のパッケージを追加する：
 
 * LUIS：`Microsoft.Bot.Builder.AI.LUIS`
-* QnA Maker language understanding： `Microsoft.Bot.Builder.AI.QnA`
+* QnA Maker： `Microsoft.Bot.Builder.AI.QnA`
 * Adaptive Dialog の単体テスト： `Microsoft.Bot.Builder.Dialogs.Adaptive.Testing`
 
 ### コンポーネントの登録
