@@ -1,7 +1,6 @@
 ---
 title: "Adaptive Dialog"
 date: 2021-01-08T13:27:54+09:00
-draft: true
 ---
 
 ## はじめに
