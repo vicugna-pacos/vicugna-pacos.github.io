@@ -96,3 +96,32 @@ namespace AdaptiveDialogs.Dialogs
 
 これで、「有給申請したい」とボットに話しかけると、「だめ！」と返事をしてくれる。
 (このサンプルの場合、LUIS に登録した例文が少なすぎて、何を言っても「だめ！」と返すが…)
+
+## .lu ファイル形式
+.lu ファイルは、LUISポータルサイトで行う Intent や Entity の定義を Markdown に似た形式で記述するもの。
+ボットのソースと一緒に管理できて、Bot Framework の CLI ツールをインストールすれば、CLI から定義をパブリッシュできる。
+定義が多くなってくると、ポータルサイトでメンテナンスするより、手元のファイルで管理できた方が楽かもしれない。
+
+参考：[.lu file format - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/file-format/bot-builder-lu-file-format)
+
+### コメント
+
+```
+>
+```
+
+### インテント
+
+```
+# Greeting
+- Hi
+- Hello
+- Good morning
+- Good evening
+```
+
+### エンティティ
+
+```
+@ <entity-type> <entity-name> [[hasRole[s]] <comma-separated-list-of-roles>] [hasFeature[s] <comma-separated-list-of-features>]
+```
