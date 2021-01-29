@@ -193,3 +193,12 @@ namespace ProactiveBot.Controllers
 ブラウザには何も表示されないが、Bot Framework Emulator を見ると「proactive hello」とボットが発言する。
 
 ![](2020-12-17-15-40-11.png)
+
+## メッセージ送信制限に気を付ける
+外部からのリクエストに応じるプロアクティブなメッセージの場合、一度に大量のリクエストが送られるとボットからのメッセージも大量になる。
+ボットのチャネルは、それぞれ一定時間に送れるメッセージ量を制限していることがある。
+下記に Teams での制限に対してどのように実装したらよいかのサンプルが載っている。
+
+[Rate limiting - Teams | Microsoft Docs](https://docs.microsoft.com/en-us/microsoftteams/platform/bots/how-to/rate-limit)
+
+一定時間待機してからリトライ、という感じ。
