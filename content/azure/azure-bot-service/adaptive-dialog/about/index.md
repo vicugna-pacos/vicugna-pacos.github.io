@@ -86,13 +86,16 @@ Language Generator は、ボットからのメッセージをテンプレート�
 ### Recognizer
 
 * [Recognizers in adaptive dialogs - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-adaptive-dialog-recognizers)
+  * Recognizer について
+* [Recognizers in adaptive dialogs - reference guide - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/adaptive-dialog/adaptive-dialog-prebuilt-recognizers)
+  * 下記 Recognizer の説明が載っている
 
 Recognizerは、ユーザーの入力を解析してくれる。
 例えば、LUIS を使ってインテントが見つかるかどうか検証したり、QnA Maker に答えられる質問かどうかを検証したりする。
 
 Recognizer には下記の種類がある：
 
-* __RegexRecognizer__ - 正規表現を使い、ユーザーの入力からインテントを見つける。
+* __RegexRecognizer__ - 正規表現を使い、ユーザーの入力からインテントを見つける。LUISを使うほどでもない場合はこれを使うと良い。
 * __LUIS recognizer__ - LUIS を使い、ユーザーの入力からインテントを見つける。Azure の同サービスが必要。
 * __QnA Maker recognizer__ - QnA Maker を使い、ユーザーの入力が QnA Maker に答えられる質問かどうかを検証する。
 * __Multi-language recognizer__ - 言語ごとに Recognizer を指定できる。
