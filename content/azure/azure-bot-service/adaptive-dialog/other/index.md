@@ -32,6 +32,7 @@ public class RootDialog : AdaptiveDialog
     private static async Task<DialogTurnResult> WelcomeUser(DialogContext dc, object options)
     {
         // ここに処理を書く
+        return await dc.EndDialogAsync(options);
     }
 }
 ```
