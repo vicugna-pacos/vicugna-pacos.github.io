@@ -1,6 +1,34 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>その他いろいろ - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li><li>Adaptive Dialog</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#welcome-メッセージを追加する>Welcome メッセージを追加する</a></li></ul></nav></aside></div><div class=main><article><h1>その他いろいろ</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
-<time datetime="2021-01-08 13:27:54 +0900 +0900" itemprop=datePublished>2021-01-08</time></div><div></div></div><h2 id=welcome-メッセージを追加する>Welcome メッセージを追加する</h2><p>ボットから DialogManager を呼び出す処理を <code>OnTurnAsync</code> メソッドに書いたことから分かるように、Adaptive Dialog は全てのイベント、アクティビティに対して処理できる。
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>その他いろいろ - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li><li>Adaptive Dialog</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#codeaction-を使う>CodeAction を使う</a></li><li><a href=#welcome-メッセージを追加する>Welcome メッセージを追加する</a></li></ul></nav></aside></div><div class=main><article><h1>その他いろいろ</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-01-08 13:27:54 +0900 +0900" itemprop=datePublished>2021-01-08</time></div><div></div></div><h2 id=codeaction-を使う>CodeAction を使う</h2><p>Adaptive Dialog の Action 部分は Dialog クラスをリストにしたりネストにしたりして実装するが、
+処理が複雑でそれだと実装しづらい場合は、<code>Microsoft.Bot.Builder.Dialogs.Adaptive.Actions.CodeAction</code> クラスを使って自分でコードを書ける。
+<code>CodeAction</code> のコンストラクタに実行させたいメソッドを指定すればよい。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>RootDialog</span> <span style=color:#111>:</span> <span style=color:#111>AdaptiveDialog</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#111>RootDialog</span><span style=color:#111>()</span> <span style=color:#111>:</span> <span style=color:#00a8c8>base</span><span style=color:#111>(</span><span style=color:#111>nameof</span><span style=color:#111>(</span><span style=color:#111>RootDialog</span><span style=color:#111>))</span>
+    <span style=color:#111>{</span>
+        <span style=color:#111>Triggers</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#111>OnCondition</span><span style=color:#111>&gt;</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>new</span> <span style=color:#111>OnConversationUpdateActivity</span><span style=color:#111>()</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>Actions</span> <span style=color:#111>=</span> 
+                <span style=color:#111>{</span>
+                    <span style=color:#00a8c8>new</span> <span style=color:#111>CodeAction</span><span style=color:#111>(</span><span style=color:#111>WelcomeUser</span><span style=color:#111>)</span>
+                <span style=color:#111>}</span>
+            <span style=color:#111>},</span>
+            <span style=color:#00a8c8>new</span> <span style=color:#111>OnUnknownIntent</span>
+            <span style=color:#111>{</span>
+                <span style=color:#75715e>// 略
+</span><span style=color:#75715e></span>            <span style=color:#111>},</span>
+        <span style=color:#111>};</span>
+    <span style=color:#111>}</span>
+
+    <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span><span style=color:#111>&lt;</span><span style=color:#111>DialogTurnResult</span><span style=color:#111>&gt;</span> <span style=color:#111>WelcomeUser</span><span style=color:#111>(</span><span style=color:#111>DialogContext</span> <span style=color:#111>dc</span><span style=color:#111>,</span> <span style=color:#00a8c8>object</span> <span style=color:#111>options</span><span style=color:#111>)</span>
+    <span style=color:#111>{</span>
+        <span style=color:#75715e>// ここに処理を書く
+</span><span style=color:#75715e></span>        <span style=color:#00a8c8>return</span> <span style=color:#00a8c8>await</span> <span style=color:#111>dc</span><span style=color:#111>.</span><span style=color:#111>EndDialogAsync</span><span style=color:#111>(</span><span style=color:#111>options</span><span style=color:#111>);</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=welcome-メッセージを追加する>Welcome メッセージを追加する</h2><p>ボットから DialogManager を呼び出す処理を <code>OnTurnAsync</code> メソッドに書いたことから分かるように、Adaptive Dialog は全てのイベント、アクティビティに対して処理できる。
 ユーザーがボットに初めて接続したときの <code>OnMembersAddedAsync</code> メソッドの処理も Adaptive Dialog へ移せる。</p><p>サンプルその1を以下に示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>RootDialog</span> <span style=color:#111>:</span> <span style=color:#111>AdaptiveDialog</span>
 <span style=color:#111>{</span>
     <span style=color:#00a8c8>public</span> <span style=color:#111>RootDialog</span><span style=color:#111>()</span> <span style=color:#111>:</span> <span style=color:#00a8c8>base</span><span style=color:#111>(</span><span style=color:#111>nameof</span><span style=color:#111>(</span><span style=color:#111>RootDialog</span><span style=color:#111>))</span>
