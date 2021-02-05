@@ -117,3 +117,40 @@ public override async Task OnTurnAsync(ITurnContext turnContext, CancellationTok
 }
 ```
 
+## Azure Blob Storage を使う
+
+### ストレージアカウントの準備
+State の保存場所に Azure Blob Storage を使う場合、まずストレージアカウントをAzureに作成する。
+作成後、ストレージアカウントのリソースを表示し、左側メニューの「設定」→「アクセスキー」をクリック。
+
+key1 または key2 の接続文字列をコピーする。コピーした接続文字列は secrets.json へ貼り付ける。
+
+```json
+{
+  "storage": {
+    "connectionString": "接続文字列を貼り付ける",
+    "containerName": "bot-state"
+  }
+}
+```
+
+`containerName` は好きな名前を付ける。ボット動作時に自動的に作成されるため、コンテナをあらかじめ作成しておく必要はない。
+
+### Startup.cs の編集
+
+NuGet パッケージ `Microsoft.Bot.Builder.Azure.Blobs` を追加する。  
+※ `Microsoft.Bot.Builder.Azure` を追加して `AzureBlobStorage` クラスを使おうとしたら非推奨といわれた。
+
+ConfigureService メソッドに下記を追加する。
+
+```cs
+using Microsoft.Bot.Builder.Azure.Blobs;
+
+// 略
+
+var storage = new BlobsStorage(Configuration["storage:connectionString"], Configuration["storage:containerName"]);
+services.AddSingleton<IStorage>(storage);
+services.AddSingleton<UserState>();
+services.AddSingleton<ConversationState>();
+```
+
