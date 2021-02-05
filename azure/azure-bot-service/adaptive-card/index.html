@@ -114,7 +114,18 @@ submit時に送信できるデータ形式は、文字列とオブジェクト�
     <span style=color:#111>}</span>
   <span style=color:#111>}</span>
 <span style=color:#111>}</span>
-</code></pre></div><p><img src=2021-01-07-11-16-46.png alt></p><h3 id=オブジェクトのsubmit>オブジェクトのsubmit</h3><p>オブジェクトの submit は、非表示のデータをユーザーからボットへ送信する。
+</code></pre></div><p><img src=2021-01-07-11-16-46.png alt></p><p>また、カードのボタンが押されたときに送られるアクティビティの中に、発信元のカードのIDが含まれている。
+<code>replyToId</code> というプロパティで、この値を使ってカードのアクティビティを更新・削除できる。</p><p>下記はボタンを押したときに送られてくるアクティビティのサンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
+  <span style=color:#f92672>&#34;activity&#34;</span><span style=color:#111>:</span> 
+  <span style=color:#111>{</span>
+    <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;message&#34;</span><span style=color:#111>,</span>
+    <span style=color:#f92672>&#34;timestamp&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;2021-02-02T10:51:49.041+09:00&#34;</span><span style=color:#111>,</span>
+    <span style=color:#f92672>&#34;localTimestamp&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;2021-02-02T10:51:49.041+09:00&#34;</span><span style=color:#111>,</span>
+
+<span style=display:block;width:100%;background-color:#e1e1e1>    <span style=color:#f92672>&#34;replyToId&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;1612230695294&#34;</span>
+</span>  <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h3 id=オブジェクトのsubmit>オブジェクトのsubmit</h3><p>オブジェクトの submit は、非表示のデータをユーザーからボットへ送信する。
 例として、入力フィールドを2つ持つカードを下記に示す。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>{</span>
     <span style=color:#f92672>&#34;type&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;AdaptiveCard&#34;</span><span style=color:#111>,</span>
     <span style=color:#f92672>&#34;$schema&#34;</span><span style=color:#111>:</span> <span style=color:#d88200>&#34;http://adaptivecards.io/schemas/adaptive-card.json&#34;</span><span style=color:#111>,</span>
