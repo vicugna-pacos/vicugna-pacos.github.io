@@ -10,37 +10,41 @@ weight: 7
 
 * [Dialogs within the Bot Framework SDK - Bot Service | Microsoft Docs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-dialog)
 
+前提条件：
+
+* Windows 10
+* Visual Studio 2019
+* C#
+
 Dialog は SDK の中核をなすもので、ユーザーとボットの会話のやり取りの管理を助けるライブラリである。
-ステートレスなWebアプリにおいて、「今どこまで話したか？」を記憶・管理するのを助けてくれる。
+ステートレスなWebアプリにおいて、「今どこまで話したか？」を記憶・管理してくれる。
+ボットの主な処理は Dialog クラスに実装するのがほとんどだと思う。
 
 ## ライブラリの追加
-ボットで Dialog を使う前に、プロジェクトにライブラリの参照を追加する。
-VS Code でプロジェクトを開いている場合、コンソールで下記コマンドを実行すればよい。
+ボットで Dialog を使うには、プロジェクトに下記 NuGet パッケージを追加する。
 
 ```
-dotnet add package Microsoft.Bot.Builder.Dialogs
+Microsoft.Bot.Builder.Dialogs
 ```
 
-そうすると、プロジェクトの `csproj` ファイルに以下が追加され、Dialogを使用可能になる。
-
-```xml
-<ItemGroup>
-  <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.10.3" />
-</ItemGroup>
-```
+Dialogには色々な種類があるが、Adaptive Dialog が使えるなら Adaptive Dialog を主に使った方が良い。Adaptive Dialog を使用するなら、
+[こちらの記事]({{< ref "/azure/azure-bot-service/adaptive-dialog/get-started/index.md" >}}) に従ってプロジェクトをセットアップする。
 
 ## Dialog の種類
+現在色々な種類の Dialog があるが、まず使うのは Adaptive Dialog だと思う。複数の Dialog をまとめるための Component Dialog も使う。
 
-|種類|説明|
-|---|---|
-|Component Dialog|Dialogのセットをひとまとめにして、再利用可能にするためのDialog。単純なWaterfall Dialogを作る場合でも、Component Dialogの中に作成することが推奨っぽい。|
-|Waterfall Dialog|ステップの順番を定義して、決まった流れで質問などを行う場合に使うDialog。会話の流れに分岐やループは基本的にない。|
-|Prompt Dialog|ユーザーへインプットを求め、回答を受け取るための小さな部品。Promptにはいくつか種類があり、それぞれ有効な入力値が得られるか、キャンセルされるまで自動的に質問を繰り返す。Waterfall Dialogで使用するために設計された。|
-|adaptive dialog|柔軟な会話の流れを作れる。|
-|action dialogs|会話フローをプログラマチックに定義できる。式とかステートメントとか。adaptive dialogでのみ使用できる。|
-|input dialogs|ユーザーにインプットを求めるときに使う。adaptive dialog内でのみ使用可能。|
-|skill dialog|skillを使う。|
-|QnA Maker dialog|QnA Makerを使う。|
+* Component Dialog
+  * 複数の Dialog をひとまとめににできる Dialog。
+* Waterfall Dialog
+  * 分岐やループのないシンプルな会話の流れを、ステップとして定義するDialog。Adaptive Dialog が上位互換になるので、新たに Waterfall Dialog を使うケースは少ないかもしれない。
+* Prompt Dialog
+  * ユーザーへインプットを求め、回答を受け取るための小さな部品。Promptにはいくつか種類があり、それぞれ有効な入力値が得られるか、キャンセルされるまで自動的に質問を繰り返してくれる。Waterfall Dialogで使用するために設計された。
+* Adaptive Dialog
+  * イベントトリガーを使って柔軟な会話を実装できる Dialog。大体の場合はこちらを使う。
+* Action Dialog
+  * Adaptive Dialog で使用できる。Dialog の振る舞いが実装されたもの。メッセージ送信、条件分岐、ループなど、多彩なサブクラスがある。
+* Input Dialog
+  * Adaptive Dialog で使用できる。Prompt の上位互換のようなもの。
 
 ## WaterfallDialog
 WaterfallDialogとは、決まった順番でユーザーへ質問を行い、回答を収集するようなケースで使用する。
