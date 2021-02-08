@@ -34,5 +34,3 @@ QnA Maker に登録した質問を投げかけ、回答が返ってくるのを�
 
 ![](2020-10-12-11-59-30.png)
 
-## ボットをカスタマイズする
-QnA Maker を使うボットをカスタマイズしたい場合は、[こちらの記事]({{<ref "azure/azure-bot-service/qnamaker/index.md">}}) を参照。

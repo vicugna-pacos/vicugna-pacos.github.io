@@ -27,8 +27,7 @@ Dialog は SDK の中核をなすもので、ユーザーとボットの会話�
 Microsoft.Bot.Builder.Dialogs
 ```
 
-Dialogには色々な種類があるが、Adaptive Dialog が使えるなら Adaptive Dialog を主に使った方が良い。Adaptive Dialog を使用するなら、
-[こちらの記事]({{< ref "/azure/azure-bot-service/adaptive-dialog/get-started/index.md" >}}) に従ってプロジェクトをセットアップする。
+Dialogには色々な種類があるが、Adaptive Dialog が使えるなら Adaptive Dialog を主に使った方が良い。
 
 ## Dialog の種類
 現在色々な種類の Dialog があるが、まず使うのは Adaptive Dialog だと思う。複数の Dialog をまとめるための Component Dialog も使う。
