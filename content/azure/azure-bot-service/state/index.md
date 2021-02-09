@@ -1,7 +1,7 @@
 ---
-title: "State (記憶) の管理"
+title: "記憶の管理 (State)"
 date: 2020-10-02T12:04:50+09:00
-lastMod: 2020-10-15T14:49:00+09:00
+lastMod: 2021-02-09T15:32:26+09:00
 weight: 6
 ---
 
@@ -11,16 +11,15 @@ weight: 6
 1回目のターンでやりとりした内容は、基本的には2回目ではもう覚えていない。
 しかし、より充実した機能を提供するには「今までどんな会話をしてきたか」を覚えなくてはいけない場合がある。
 
-そういった情報を保存する場所は、インメモリとかDBとかどこでも良いが、
-Bot Framework SDKには以下のストレージに対する実装がある:
+そういった情報を保存する場所として、Bot Framework SDKには以下の3つが用意されている：
 
-* Memory storage - テスト用のインメモリのストレージ。ローカルでボットのテストをしたいときに使う。ボットが再起動すると消える。
+* Memory Storage - テスト用のインメモリのストレージ。ローカルでボットのテストをしたいときに使う。ボットが再起動すると消える。
 * Azure Blob Storage
 * Azure Cosmos DB
 
 ## Stateのスコープ
 
-Stateのスコープは3つある。
+Stateのスコープは3つ用意されている。
 
 * User state - ユーザーとボットの間でずっと有効なスコープ。
 * Conversation state - 特定の会話で有効なスコープ。ユーザーは問わない(例えばグループ会話)
@@ -35,8 +34,7 @@ Stateのスコープは3つある。
 このサンプルでは、conversation state と user state の2種類のスコープを扱う。
 
 ### データを格納するクラスの作成
-
-まず最初に、保存したいデータを保持するためのクラスを作成する。
+まず最初に、保存したいデータを保持するためのクラスを作成する。この工程は必須ではないが、クラスを作成しておくと管理が楽になると思われる。
 
 ```csharp
 // user stateで保持するデータ。ユーザー名などが相当する。
@@ -50,45 +48,79 @@ public class UserProfile
 // conversation state で保存するデータ。
 public class ConversationData
 {
-    // The time-stamp of the most recent incoming message.
     public string Timestamp { get; set; }
 
-    // The ID of the user's channel.
     public string ChannelId { get; set; }
 
-    // Track whether we have already asked the user's name
     public bool PromptedUserForName { get; set; } = false;
 }
 ```
 
-### storageクラスなどの準備
-次に、`Startup.cs` の `ConfigureServices` メソッドに、下記の処理を追加する。今回はローカルでのテスト用の `MemoryStorage` を使用する。
-Azure Blob Storage などは別のクラスを使う。
+### Storageクラスなどの準備
+次に、`Startup.cs` の `ConfigureServices` メソッドに下記の処理を追加して、ストレージやStateをDIに登録する。今サンプルではテスト用の `MemoryStorage` を使用する。
+MemoryStorage はデータをただのメモリに保持するだけなので、アプリが再起動すると消えてしまう。
+本番環境では必ず Azure Blob Storage などを使うこと。
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    // Bot States
-    var storage = new MemoryStorage();
-
-    services.AddSingleton(new UserState(storage));
-    services.AddSingleton(new ConversationState(storage));
+    services.AddSingleton<IStorage, MemoryStorage>();
+    services.AddSingleton<UserState>();
+    services.AddSingleton<ConversationState>();
 }
 ```
 
-### ボットクラスでデータを扱う
+### TurnContext に登録する
+BotAdapter クラス (AdapterWithErrorHandler.cs) のコンストラクタに下記を追加し、TurnContext に各StateクラスとStorageクラスを登録する。
+こうすると、State を DI で注入してもらわなくても、TurnContext さえあれば State などを使用できるようになる。  
+※ この手順は Adaptive Dialog を使えるようにする手順と重複しているため、そちらが済んでいるのなら改めて実装する必要はない。
+
+```cs {hl_lines=[4,7,8,9]}
+public class AdapterWithErrorHandler : BotFrameworkHttpAdapter
+{
+    public AdapterWithErrorHandler(IConfiguration configuration, ILogger<BotFrameworkHttpAdapter> logger
+        , IStorage storage, UserState userState, ConversationState conversationState)
+        : base(configuration, logger)
+    {
+        this.UseStorage(storage);
+        this.UseBotState(userState);
+        this.UseBotState(conversationState);
+
+        OnTurnError = async (turnContext, exception) =>
+        {
+            // 略
+        };
+    }
+}
+```
+
+#### TurnContext から取得する
+Bot クラス等からStateを使いたい場合は、下記のように記述する。
+
+```cs {hl_lines=[9,10]}
+using Microsoft.Bot.Builder;
+using System.Threading;
+using System.Threading.Tasks;
+
+public class EmptyBot : ActivityHandler
+{
+    public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
+    {
+        var storage = turnContext.TurnState.Get<IStorage>(nameof(IStorage));
+        var userState = turnContext.TurnState.Get<UserState>(typeof(UserState).FullName);
+    }
+}
+```
+
+Storage クラスは `nameof(IStorage)` がキーになっているが、各 State クラスは `typeof(UserState).FullName` と、名前空間も含めたクラス名がキーになっている点に注意。
+
+### State を読み書きする
+State クラスへデータを読み書きするには、`IStatePropertyAccessor` インターフェイスを経由して行う。
 ボットクラスのサンプルは以下の通り。
 
 ```csharp
 private BotState _conversationState;
 private BotState _userState;
-
-public StateManagementBot(ConversationState conversationState, UserState userState)
-{
-    // コンストラクタで、各stateごとのオブジェクトを引数で受け取る。
-    _conversationState = conversationState;
-    _userState = userState;
-}
 
 protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
 {
@@ -116,6 +148,12 @@ public override async Task OnTurnAsync(ITurnContext turnContext, CancellationTok
     await _userState.SaveChangesAsync(turnContext, false, cancellationToken);
 }
 ```
+
+State はターンが終わるまでにデータを保存しないといけない。
+DialogManager クラスを使用している場合は、ConversationState と UserState に限り自動的に保存される。
+それ以外の場合は、`AutoSaveStateMiddleware` というミドルウェアの使用を検討すると良い。
+このミドルウェアはコンストラクタに指定した BotState をターンの最後に自動で保存してくれる。
+ミドルウェアの使い方については、[こちらの記事]({{<ref "azure/azure-bot-service/middleware/index.md">}}) を参照。
 
 ## Azure Blob Storage を使う
 
