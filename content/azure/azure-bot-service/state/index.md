@@ -2,7 +2,7 @@
 title: "記憶の管理 (State)"
 date: 2020-10-02T12:04:50+09:00
 lastMod: 2021-02-09T15:32:26+09:00
-weight: 6
+weight: 7
 ---
 
 ## Stateの保存場所
