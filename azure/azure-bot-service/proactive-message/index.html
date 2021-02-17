@@ -1,137 +1,121 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>ボットからメッセージを送る (プロアクティブなメッセージ) - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#前提条件>前提条件</a></li><li><a href=#ボット側からメッセージを送る>ボット側からメッセージを送る</a></li><li><a href=#conversationreference-を保存>ConversationReference を保存</a><ul><li><a href=#startupcs>Startup.cs</a></li><li><a href=#ボット-activehandler>ボット (ActiveHandler)</a></li><li><a href=#テストする>テストする</a></li></ul></li><li><a href=#メッセージの受け口を作る>メッセージの受け口を作る</a><ul><li><a href=#controller-を追加>Controller を追加</a></li><li><a href=#テストする-1>テストする</a></li></ul></li><li><a href=#メッセージ送信制限に気を付ける>メッセージ送信制限に気を付ける</a></li></ul></nav></aside></div><div class=main><article><h1>ボットからメッセージを送る (プロアクティブなメッセージ)</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>ボットからメッセージを送る (プロアクティブなメッセージ) - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Bot Service</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#前提条件>前提条件</a></li><li><a href=#ボット側からメッセージを送る>ボット側からメッセージを送る</a></li><li><a href=#conversationreference-を保存>ConversationReference を保存</a><ul><li><ul><li><a href=#conversationreference-の削除>ConversationReference の削除</a></li></ul></li></ul></li><li><a href=#メッセージの受け口を作る>メッセージの受け口を作る</a><ul><li><a href=#controller-を追加>Controller を追加</a></li><li><a href=#テストする>テストする</a></li></ul></li><li><a href=#メッセージ送信制限に気を付ける>メッセージ送信制限に気を付ける</a></li></ul></nav></aside></div><div class=main><article><h1>ボットからメッセージを送る (プロアクティブなメッセージ)</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
 <time datetime="2020-12-17 15:42:46 +0900 +0900" itemprop=datePublished>2020-12-17</time></div><div></div></div><h2 id=前提条件>前提条件</h2><ul><li>Windows 10</li><li>Bot Framework SDK v4</li><li>.NET Core C#</li></ul><h2 id=ボット側からメッセージを送る>ボット側からメッセージを送る</h2><p>チャットボットは、基本的にユーザーから会話が始まりボットは返事をするだけだが、ボット側からメッセージを送ることもできる。
 ボットから話しかけることを、「プロアクティブな」メッセージという。</p><p>基本的には、ボットに接続したことのあるユーザーにしか話しかけることができない。
 ただし、Teamsの場合、組織単位でボットをアプリとして許可していれば、組織内の一度も会話したことのないユーザーへ話しかけられるらしい。
-その際は、Graph API を使ってユーザー情報を取得するらしい。</p><p>参考：</p><ul><li><a href="https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-proactive-message?view=azure-bot-service-4.0&tabs=csharp" target=_blank rel=noopener>Send proactive notifications to users - Bot Service | Microsoft Docs</a></li><li><a href="https://docs.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/send-proactive-messages?tabs=dotnet" target=_blank rel=noopener>Send proactive messages - Teams | Microsoft Docs</a></li></ul><h2 id=conversationreference-を保存>ConversationReference を保存</h2><p>ユーザーがボットに接続すると、<code>ConversationReference</code> という情報が作られる。これを保存しておけば、接続済みのユーザーに対してメッセージを送れる。</p><p>本サンプルでは、ユーザーが会話に参加した時点で <code>ConversationReference</code> を保存する。</p><h3 id=startupcs>Startup.cs</h3><p>まず、<code>ConversationReference</code> を保存するオブジェクトをDIに登録する。
-サンプルでは、ユーザーごとに振られるIDをキーとして、Dictionary型で保持するようにしている。</p><p>実運用の際は、オブジェクトをただDIに登録するのではなく、追加でストレージに保存した方が良いと思う。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>namespace</span> <span style=color:#111>ProactiveBot</span>
+その際は、Graph API を使ってユーザー情報を取得するらしい。</p><p>参考：</p><ul><li><a href="https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-proactive-message?view=azure-bot-service-4.0&tabs=csharp" target=_blank rel=noopener>Send proactive notifications to users - Bot Service | Microsoft Docs</a></li><li><a href="https://docs.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/send-proactive-messages?tabs=dotnet" target=_blank rel=noopener>Send proactive messages - Teams | Microsoft Docs</a></li></ul><h2 id=conversationreference-を保存>ConversationReference を保存</h2><p>ユーザーがボットに接続すると、<code>ConversationReference</code> という情報が作られる。これを保存しておけば、接続済みのユーザーに対してメッセージを送れる。
+保存する際は IStorage クラスを保管場所にしておくといい。ストレージにDBなどを使っていれば、一緒に永続化される。</p><p>下記サンプルでは、保存の処理をAdaptive Dialog の CodeAction のメソッドとして定義している。
+このメソッドをユーザーが会話に参加したときに実行するとよい。
+なお、このサンプルはボットのチャネルはTeamsであることを大前提としている。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>private</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span><span style=color:#111>&lt;</span><span style=color:#111>DialogTurnResult</span><span style=color:#111>&gt;</span> <span style=color:#111>SaveConversationReference</span><span style=color:#111>(</span><span style=color:#111>DialogContext</span> <span style=color:#111>dc</span><span style=color:#111>,</span> <span style=color:#00a8c8>object</span> <span style=color:#111>options</span><span style=color:#111>)</span>
 <span style=color:#111>{</span>
-    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>Startup</span>
+    <span style=color:#00a8c8>var</span> <span style=color:#111>member</span> <span style=color:#111>=</span> <span style=color:#00a8c8>await</span> <span style=color:#111>TeamsInfo</span><span style=color:#111>.</span><span style=color:#111>GetMemberAsync</span><span style=color:#111>(</span><span style=color:#111>dc</span><span style=color:#111>.</span><span style=color:#111>Context</span><span style=color:#111>,</span> <span style=color:#111>dc</span><span style=color:#111>.</span><span style=color:#111>Context</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>From</span><span style=color:#111>.</span><span style=color:#111>Id</span><span style=color:#111>,</span> <span style=color:#00a8c8>default</span><span style=color:#111>);</span>
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>member</span> <span style=color:#111>!=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
     <span style=color:#111>{</span>
-        <span style=color:#75715e>// 略
-</span><span style=color:#75715e></span>        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>ConfigureServices</span><span style=color:#111>(</span><span style=color:#111>IServiceCollection</span> <span style=color:#111>services</span><span style=color:#111>)</span>
+        <span style=color:#00a8c8>var</span> <span style=color:#111>email</span> <span style=color:#111>=</span> <span style=color:#111>member</span><span style=color:#111>.</span><span style=color:#111>Email</span><span style=color:#111>;</span>
+        <span style=color:#00a8c8>var</span> <span style=color:#00a8c8>value</span> <span style=color:#111>=</span> <span style=color:#111>dc</span><span style=color:#111>.</span><span style=color:#111>Context</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>GetConversationReference</span><span style=color:#111>();</span>
+
+        <span style=color:#00a8c8>var</span> <span style=color:#111>storage</span> <span style=color:#111>=</span> <span style=color:#111>dc</span><span style=color:#111>.</span><span style=color:#111>Context</span><span style=color:#111>.</span><span style=color:#111>TurnState</span><span style=color:#111>.</span><span style=color:#111>Get</span><span style=color:#111>&lt;</span><span style=color:#111>IStorage</span><span style=color:#111>&gt;();</span>
+        <span style=color:#111>IDictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#00a8c8>object</span><span style=color:#111>&gt;</span> <span style=color:#111>changes</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Dictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#00a8c8>object</span><span style=color:#111>&gt;</span>
         <span style=color:#111>{</span>
-            <span style=color:#75715e>// 略
-</span><span style=color:#75715e></span>
-            <span style=color:#75715e>// ConversationReferenceを保存しておくオブジェクト
-</span><span style=color:#75715e></span>            <span style=color:#75715e>// (実際はどこかStorageに保存したほうが良い)
-</span><span style=color:#75715e></span>            <span style=color:#111>services</span><span style=color:#111>.</span><span style=color:#111>AddSingleton</span><span style=color:#111>&lt;</span><span style=color:#111>ConcurrentDictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#111>ConversationReference</span><span style=color:#111>&gt;&gt;();</span>
-        <span style=color:#111>}</span>
+            <span style=color:#111>{</span> <span style=color:#d88200>$&#34;ConversationReference_{email}&#34;</span><span style=color:#111>,</span> <span style=color:#00a8c8>value</span> <span style=color:#111>}</span>
+        <span style=color:#111>};</span>
 
-        <span style=color:#75715e>// 略
-</span><span style=color:#75715e></span>    <span style=color:#111>}</span>
-<span style=color:#111>}</span>
-</code></pre></div><h3 id=ボット-activehandler>ボット (ActiveHandler)</h3><p>サンプルでは、ユーザーがボットに接続したときに <code>ConversationReference</code> を保存し、ユーザーがボットから離れたときに <code>ConversationReference</code> を削除する。
-ただ、<code>OnMembersAddedAsync</code>, <code>OnMembersRemovedAsync</code> の両メソッドが呼び出されるかどうかはチャネルによって違うため、
-環境によっては保存した <code>ConversationReference</code> が削除されずにずっと残るかもしれない。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Schema</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Logging</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Concurrent</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
-
-<span style=color:#00a8c8>namespace</span> <span style=color:#111>ProactiveBot.Bots</span>
-<span style=color:#111>{</span>
-    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>EchoBot</span> <span style=color:#111>:</span> <span style=color:#111>ActivityHandler</span>
-    <span style=color:#111>{</span>
-        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>ConcurrentDictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#111>ConversationReference</span><span style=color:#111>&gt;</span> <span style=color:#111>_references</span><span style=color:#111>;</span>
-        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>EchoBot</span><span style=color:#111>&gt;</span> <span style=color:#111>_logger</span><span style=color:#111>;</span>
-
-        <span style=color:#00a8c8>public</span> <span style=color:#111>EchoBot</span><span style=color:#111>(</span><span style=color:#111>ConcurrentDictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#111>ConversationReference</span><span style=color:#111>&gt;</span> <span style=color:#111>references</span><span style=color:#111>,</span> <span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>EchoBot</span><span style=color:#111>&gt;</span> <span style=color:#111>logger</span><span style=color:#111>)</span>
-        <span style=color:#111>{</span>
-            <span style=color:#111>_references</span> <span style=color:#111>=</span> <span style=color:#111>references</span><span style=color:#111>;</span>
-            <span style=color:#111>_logger</span> <span style=color:#111>=</span> <span style=color:#111>logger</span><span style=color:#111>;</span>
-        <span style=color:#111>}</span>
-
-        <span style=color:#00a8c8>protected</span> <span style=color:#00a8c8>override</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>OnMembersAddedAsync</span><span style=color:#111>(</span><span style=color:#111>IList</span><span style=color:#111>&lt;</span><span style=color:#111>ChannelAccount</span><span style=color:#111>&gt;</span> <span style=color:#111>membersAdded</span><span style=color:#111>,</span> <span style=color:#111>ITurnContext</span><span style=color:#111>&lt;</span><span style=color:#111>IConversationUpdateActivity</span><span style=color:#111>&gt;</span> <span style=color:#111>turnContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
-        <span style=color:#111>{</span>
-            <span style=color:#00a8c8>var</span> <span style=color:#111>welcomeText</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;Hello and welcome!&#34;</span><span style=color:#111>;</span>
-
-            <span style=color:#00a8c8>foreach</span> <span style=color:#111>(</span><span style=color:#00a8c8>var</span> <span style=color:#111>member</span> <span style=color:#00a8c8>in</span> <span style=color:#111>membersAdded</span><span style=color:#111>)</span>
-            <span style=color:#111>{</span>
-                <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>member</span><span style=color:#111>.</span><span style=color:#111>Id</span> <span style=color:#111>!=</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>Recipient</span><span style=color:#111>.</span><span style=color:#111>Id</span><span style=color:#111>)</span>
-                <span style=color:#111>{</span>
-                    <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Text</span><span style=color:#111>(</span><span style=color:#111>welcomeText</span><span style=color:#111>,</span> <span style=color:#111>welcomeText</span><span style=color:#111>),</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
-
-                    <span style=color:#75715e>// 追加されたメンバーのConversationReference を保存
-</span><span style=color:#75715e></span>                    <span style=color:#00a8c8>var</span> <span style=color:#111>reference</span> <span style=color:#111>=</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>GetConversationReference</span><span style=color:#111>();</span>
-                    <span style=color:#111>_references</span><span style=color:#111>.</span><span style=color:#111>AddOrUpdate</span><span style=color:#111>(</span><span style=color:#111>member</span><span style=color:#111>.</span><span style=color:#111>Id</span><span style=color:#111>,</span> <span style=color:#111>reference</span><span style=color:#111>,(</span><span style=color:#111>key</span><span style=color:#111>,</span> <span style=color:#111>oldValue</span><span style=color:#111>)</span> <span style=color:#111>=&gt;</span> <span style=color:#111>reference</span> <span style=color:#111>);</span>
-
-                    <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Text</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;member added. count={_references.Count} id={member.Id}&#34;</span><span style=color:#111>),</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
-                <span style=color:#111>}</span>
-            <span style=color:#111>}</span>
-        <span style=color:#111>}</span>
-
-        <span style=color:#00a8c8>protected</span> <span style=color:#00a8c8>override</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>OnMembersRemovedAsync</span><span style=color:#111>(</span><span style=color:#111>IList</span><span style=color:#111>&lt;</span><span style=color:#111>ChannelAccount</span><span style=color:#111>&gt;</span> <span style=color:#111>membersRemoved</span><span style=color:#111>,</span> <span style=color:#111>ITurnContext</span><span style=color:#111>&lt;</span><span style=color:#111>IConversationUpdateActivity</span><span style=color:#111>&gt;</span> <span style=color:#111>turnContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
-        <span style=color:#111>{</span>
-            <span style=color:#00a8c8>foreach</span> <span style=color:#111>(</span><span style=color:#00a8c8>var</span> <span style=color:#111>member</span> <span style=color:#00a8c8>in</span> <span style=color:#111>membersRemoved</span><span style=color:#111>)</span>
-            <span style=color:#111>{</span>
-                <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>member</span><span style=color:#111>.</span><span style=color:#111>Id</span> <span style=color:#111>!=</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>Activity</span><span style=color:#111>.</span><span style=color:#111>Recipient</span><span style=color:#111>.</span><span style=color:#111>Id</span><span style=color:#111>)</span>
-                <span style=color:#111>{</span>
-                    <span style=color:#75715e>// いなくなったメンバーのConversationReference を削除
-</span><span style=color:#75715e></span>                    <span style=color:#111>_references</span><span style=color:#111>.</span><span style=color:#111>TryRemove</span><span style=color:#111>(</span><span style=color:#111>member</span><span style=color:#111>.</span><span style=color:#111>Id</span><span style=color:#111>,</span> <span style=color:#00a8c8>out</span> <span style=color:#00a8c8>var</span> <span style=color:#111>removedValue</span><span style=color:#111>);</span>
-
-                    <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#111>MessageFactory</span><span style=color:#111>.</span><span style=color:#111>Text</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;member removed. id={member.Id}&#34;</span><span style=color:#111>),</span> <span style=color:#111>cancellationToken</span><span style=color:#111>);</span>
-
-                    <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogInformation</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;member removed. count={_references.Count} id={member.Id}&#34;</span><span style=color:#111>);</span>
-                <span style=color:#111>}</span>
-            <span style=color:#111>}</span>
-        <span style=color:#111>}</span>
-
+        <span style=color:#00a8c8>await</span> <span style=color:#111>storage</span><span style=color:#111>.</span><span style=color:#111>WriteAsync</span><span style=color:#111>(</span><span style=color:#111>changes</span><span style=color:#111>);</span>
     <span style=color:#111>}</span>
+
+    <span style=color:#00a8c8>return</span> <span style=color:#00a8c8>await</span> <span style=color:#111>dc</span><span style=color:#111>.</span><span style=color:#111>EndDialogAsync</span><span style=color:#111>(</span><span style=color:#111>options</span><span style=color:#111>);</span>
 <span style=color:#111>}</span>
-</code></pre></div><h3 id=テストする>テストする</h3><p>ここまで実装したボットを Bot Framework Emulator でテストすると、ボットに接続した後に下記のようなメッセージが表示される。</p><p><img src=2020-12-17-15-27-54.png alt></p><p>ここに書かれている <code>id=</code> 以降の文字列がユーザーのIDとなる。</p><h2 id=メッセージの受け口を作る>メッセージの受け口を作る</h2><p>次に、プロアクティブなメッセージを受け付ける場所を作る。
+</code></pre></div><p>このサンプルでは、保存のキーにメールアドレスを使用している。
+特定の個人に宛ててプロアクティブなメッセージを送りたいので、個人ごとにキーを分けていて、なおかつ外部から指定のしやすいメールアドレスを採用した。
+対して、例えばボットに接続しているユーザー全員に、通知のようなイメージでプロアクティブなメッセージを送りたい場合は、
+自動で振られるユーザーIDをキーとしてもいい。</p><h4 id=conversationreference-の削除>ConversationReference の削除</h4><p>メンバーがボットから切断したら ConversationReference を削除するのが順当だが、<code>OnMembersRemovedAsync</code> のイベントが呼び出されるかどうかはチャネルによって違うため、
+環境によっては保存した ConversationReference が削除されずにずっと残るかもしれない。</p><h2 id=メッセージの受け口を作る>メッセージの受け口を作る</h2><p>次に、プロアクティブなメッセージを受け付ける場所を作る。
 ボットから発言するといっても、実態はWebアプリなので勝手には動き出さない。
-トリガーは外部にあるため、メッセージを受け付けるためのURLをボットに用意する。</p><h3 id=controller-を追加>Controller を追加</h3><p>サンプルでは、URL <code>api/proactive</code> を追加して、パラメータでメッセージ送信先のユーザーIDを受け取る。
-IDに一致する <code>ConversationReference</code> がある場合、そのユーザーに対してメッセージを送っている。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.AspNetCore.Mvc</span><span style=color:#111>;</span>
+トリガーは外部にあるため、メッセージを受け付けるための Controller をボットに用意する。</p><h3 id=controller-を追加>Controller を追加</h3><p>サンプルでは、URL <code>api/proactive</code> を追加して、パラメータでメッセージ送信先のメールアドレスを受け取る。
+メールアドレスに一致する ConversationReference がある場合、そのユーザーに対してメッセージを送るなどの処理を行う。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>DemoBot1.Models</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.AspNetCore.Http</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.AspNetCore.Mvc</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Builder.Integration.AspNet.Core</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Bot.Schema</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Configuration</span><span style=color:#111>;</span>
-<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Concurrent</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Logging</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Extensions.Primitives</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Net.Mime</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
 
-<span style=color:#00a8c8>namespace</span> <span style=color:#111>ProactiveBot.Controllers</span>
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>DemoBot1.Controllers</span>
 <span style=color:#111>{</span>
 <span style=color:#75af00>    [Route(&#34;api/proactive&#34;)]</span>
 <span style=color:#75af00>    [ApiController]</span>
     <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>ProactiveController</span> <span style=color:#111>:</span> <span style=color:#111>ControllerBase</span>
     <span style=color:#111>{</span>
         <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>IBotFrameworkHttpAdapter</span> <span style=color:#111>_adapter</span><span style=color:#111>;</span>
-        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>ConcurrentDictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#111>ConversationReference</span><span style=color:#111>&gt;</span> <span style=color:#111>_references</span><span style=color:#111>;</span>
         <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#00a8c8>string</span> <span style=color:#111>_appId</span><span style=color:#111>;</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>ILogger</span> <span style=color:#111>_logger</span><span style=color:#111>;</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>IStorage</span> <span style=color:#111>_storage</span><span style=color:#111>;</span>
 
-        <span style=color:#00a8c8>public</span> <span style=color:#111>ProactiveController</span><span style=color:#111>(</span><span style=color:#111>IBotFrameworkHttpAdapter</span> <span style=color:#111>adapter</span><span style=color:#111>,</span><span style=color:#111>ConcurrentDictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#111>ConversationReference</span><span style=color:#111>&gt;</span> <span style=color:#111>references</span><span style=color:#111>,</span> <span style=color:#111>IConfiguration</span> <span style=color:#111>config</span><span style=color:#111>)</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#111>ProactiveController</span><span style=color:#111>(</span>
+            <span style=color:#111>IBotFrameworkHttpAdapter</span> <span style=color:#111>adapter</span><span style=color:#111>,</span>
+            <span style=color:#111>IConfiguration</span> <span style=color:#111>config</span><span style=color:#111>,</span>
+            <span style=color:#111>ILogger</span><span style=color:#111>&lt;</span><span style=color:#111>ProactiveController</span><span style=color:#111>&gt;</span> <span style=color:#111>logger</span><span style=color:#111>,</span> 
+            <span style=color:#111>IStorage</span> <span style=color:#111>storage</span><span style=color:#111>)</span>
         <span style=color:#111>{</span>
             <span style=color:#111>_adapter</span> <span style=color:#111>=</span> <span style=color:#111>adapter</span><span style=color:#111>;</span>
-            <span style=color:#111>_references</span> <span style=color:#111>=</span> <span style=color:#111>references</span><span style=color:#111>;</span>
             <span style=color:#111>_appId</span> <span style=color:#111>=</span> <span style=color:#111>config</span><span style=color:#111>[</span><span style=color:#d88200>&#34;MicrosoftAppId&#34;</span><span style=color:#111>];</span>
+            <span style=color:#111>_logger</span> <span style=color:#111>=</span> <span style=color:#111>logger</span><span style=color:#111>;</span>
+            <span style=color:#111>_storage</span> <span style=color:#111>=</span> <span style=color:#111>storage</span><span style=color:#111>;</span>
         <span style=color:#111>}</span>
 <span style=color:#75af00>
-</span><span style=color:#75af00>        [HttpPost, HttpGet]</span>
-        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>PostAsync</span><span style=color:#111>()</span>
+</span><span style=color:#75af00>        [HttpPost]</span>
+<span style=color:#75af00>        [Consumes(MediaTypeNames.Application.Json)]</span>
+<span style=color:#75af00>        [ProducesResponseType(StatusCodes.Status400BadRequest)]</span>
+<span style=color:#75af00>        [ProducesResponseType(StatusCodes.Status404NotFound)]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span><span style=color:#111>&lt;</span><span style=color:#111>IActionResult</span><span style=color:#111>&gt;</span> <span style=color:#111>PostAsync</span><span style=color:#111>(</span><span style=color:#111>ProactiveParam</span> <span style=color:#111>param</span><span style=color:#111>)</span>
         <span style=color:#111>{</span>
-            <span style=color:#00a8c8>var</span> <span style=color:#111>memberId</span> <span style=color:#111>=</span> <span style=color:#111>Request</span><span style=color:#111>.</span><span style=color:#111>Query</span><span style=color:#111>[</span><span style=color:#d88200>&#34;memberId&#34;</span><span style=color:#111>];</span>
-            <span style=color:#111>_references</span><span style=color:#111>.</span><span style=color:#111>TryGetValue</span><span style=color:#111>(</span><span style=color:#111>memberId</span><span style=color:#111>,</span> <span style=color:#00a8c8>out</span> <span style=color:#111>ConversationReference</span> <span style=color:#111>reference</span><span style=color:#111>);</span>
-
-            <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>reference</span> <span style=color:#111>!=</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+            <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>StringValues</span><span style=color:#111>.</span><span style=color:#111>IsNullOrEmpty</span><span style=color:#111>(</span><span style=color:#111>param</span><span style=color:#111>.</span><span style=color:#111>Email</span><span style=color:#111>))</span>
             <span style=color:#111>{</span>
-                <span style=color:#00a8c8>await</span> <span style=color:#111>((</span><span style=color:#111>BotAdapter</span><span style=color:#111>)</span><span style=color:#111>_adapter</span><span style=color:#111>).</span><span style=color:#111>ContinueConversationAsync</span><span style=color:#111>(</span><span style=color:#111>_appId</span><span style=color:#111>,</span> <span style=color:#111>reference</span><span style=color:#111>,</span> <span style=color:#111>BotCallback</span><span style=color:#111>,</span> <span style=color:#00a8c8>default</span><span style=color:#111>);</span>
+                <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogWarning</span><span style=color:#111>(</span><span style=color:#d88200>&#34;クエリパラメータの email が指定されていません。&#34;</span><span style=color:#111>);</span>
+                <span style=color:#00a8c8>return</span> <span style=color:#111>BadRequest</span><span style=color:#111>();</span>
             <span style=color:#111>}</span>
 
+            <span style=color:#00a8c8>string</span> <span style=color:#111>key</span> <span style=color:#111>=</span> <span style=color:#d88200>$&#34;ConversationReference_{param.Email}&#34;</span><span style=color:#111>;</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>values</span> <span style=color:#111>=</span> <span style=color:#00a8c8>await</span> <span style=color:#111>_storage</span><span style=color:#111>.</span><span style=color:#111>ReadAsync</span><span style=color:#111>(</span><span style=color:#00a8c8>new</span><span style=color:#111>[]</span> <span style=color:#111>{</span> <span style=color:#111>key</span> <span style=color:#111>});</span>
+            <span style=color:#111>ConversationReference</span> <span style=color:#00a8c8>value</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>;</span>
+            <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#111>values</span><span style=color:#111>.</span><span style=color:#111>ContainsKey</span><span style=color:#111>(</span><span style=color:#111>key</span><span style=color:#111>))</span>
+            <span style=color:#111>{</span>
+                <span style=color:#00a8c8>value</span> <span style=color:#111>=</span> <span style=color:#111>(</span><span style=color:#111>ConversationReference</span><span style=color:#111>)</span> <span style=color:#111>values</span><span style=color:#111>[</span><span style=color:#111>key</span><span style=color:#111>];</span>
+            <span style=color:#111>}</span>
+
+            <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#00a8c8>value</span> <span style=color:#111>==</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>_logger</span><span style=color:#111>.</span><span style=color:#111>LogWarning</span><span style=color:#111>(</span><span style=color:#d88200>$&#34;{param.Email} の ConversationReference は保存されていません。&#34;</span><span style=color:#111>);</span>
+                <span style=color:#00a8c8>return</span> <span style=color:#111>NotFound</span><span style=color:#111>();</span>
+            <span style=color:#111>}</span>
+
+            <span style=color:#00a8c8>await</span> <span style=color:#111>((</span><span style=color:#111>BotAdapter</span><span style=color:#111>)</span><span style=color:#111>_adapter</span><span style=color:#111>).</span><span style=color:#111>ContinueConversationAsync</span><span style=color:#111>(</span><span style=color:#111>_appId</span><span style=color:#111>,</span> <span style=color:#00a8c8>value</span><span style=color:#111>,</span> <span style=color:#111>BotCallback</span><span style=color:#111>,</span> <span style=color:#00a8c8>default</span><span style=color:#111>);</span>
+
+            <span style=color:#00a8c8>return</span> <span style=color:#111>Ok</span><span style=color:#111>();</span>
         <span style=color:#111>}</span>
 
-        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>BotCallback</span><span style=color:#111>(</span><span style=color:#111>ITurnContext</span> <span style=color:#111>turnContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#111>Task</span> <span style=color:#111>BotCallback</span><span style=color:#111>(</span><span style=color:#111>ITurnContext</span> <span style=color:#111>turnContext</span><span style=color:#111>,</span> <span style=color:#111>CancellationToken</span> <span style=color:#111>cancellationToken</span><span style=color:#111>)</span>
         <span style=color:#111>{</span>
-            <span style=color:#00a8c8>await</span> <span style=color:#111>turnContext</span><span style=color:#111>.</span><span style=color:#111>SendActivityAsync</span><span style=color:#111>(</span><span style=color:#d88200>&#34;proactive hello&#34;</span><span style=color:#111>);</span>
+            <span style=color:#75715e>// 何か処理をする
+</span><span style=color:#75715e></span>            <span style=color:#00a8c8>throw</span> <span style=color:#00a8c8>new</span> <span style=color:#111>NotImplementedException</span><span style=color:#111>();</span>
         <span style=color:#111>}</span>
     <span style=color:#111>}</span>
 <span style=color:#111>}</span>
-</code></pre></div><h3 id=テストする-1>テストする</h3><p>ボットを起動し、Bot Framework Emulator で接続する。Welcomeメッセージとともに自分のIDをボットが発言するので、IDをコピーする。
-そしてブラウザなどで <code>http://localhost:3978/api/proactive?memberId=[ユーザーのID]</code> を実行する。
-ブラウザには何も表示されないが、Bot Framework Emulator を見ると「proactive hello」とボットが発言する。</p><p><img src=2020-12-17-15-40-11.png alt></p><h2 id=メッセージ送信制限に気を付ける>メッセージ送信制限に気を付ける</h2><p>外部からのリクエストに応じるプロアクティブなメッセージの場合、一度に大量のリクエストが送られるとボットからのメッセージも大量になる。
+</code></pre></div><h3 id=テストする>テストする</h3><p>ボットを起動し、Teams で接続する。ConversationReference が保存されたはずなので、PowerShell で下記サンプルを実行してメッセージを送ってみる。
+200 OK が返ってきて、ボットが何かメッセージを発言したりすれば実装が上手くいっている。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ps data-lang=ps><span style=color:#75af00>$url</span> <span style=color:#75af00>=</span> <span style=color:#75af00>&#34;http:</span><span style=color:#960050;background-color:#1e0010>/</span><span style=color:#111>/localhost:3978/api/proactive&#34;</span>
+<span style=color:#75af00>$body</span> <span style=color:#75af00>=</span> <span style=color:#75af00>@</span><span style=color:#111>{</span>
+    <span style=color:#75af00>&#34;Email&#34;</span> <span style=color:#75af00>=</span> <span style=color:#75af00>&#34;xxx@example.com&#34;</span>
+<span style=color:#111>}</span>
+<span style=color:#75af00>$bodyStr</span> <span style=color:#75af00>=</span> <span style=color:#75af00>ConvertTo-Json</span> <span style=color:#75af00>$body</span>
+<span style=color:#75af00>$bodyBytes</span> <span style=color:#75af00>=</span> <span style=color:#111>[</span><span style=color:#75af00>Text.Encoding</span><span style=color:#111>]</span><span style=color:#75af00>::UTF8.GetBytes</span><span style=color:#d88200>($bodyStr)</span>
+
+<span style=color:#75af00>Invoke-WebRequest</span> <span style=color:#75af00>$url</span> <span style=color:#75af00>-Body</span> <span style=color:#75af00>$bodyBytes</span> <span style=color:#75af00>-Method</span> <span style=color:#75af00>&#34;Post&#34;</span> <span style=color:#75af00>-ContentType</span> <span style=color:#75af00>&#34;application</span><span style=color:#111>/json&#34;</span>
+</code></pre></div><h2 id=メッセージ送信制限に気を付ける>メッセージ送信制限に気を付ける</h2><p>外部からのリクエストに応じるプロアクティブなメッセージの場合、一度に大量のリクエストが送られるとボットからのメッセージも大量になる。
 ボットのチャネルは、それぞれ一定時間に送れるメッセージ量を制限していることがある。
 下記に Teams での制限に対してどのように実装したらよいかのサンプルが載っている。</p><p><a href=https://docs.microsoft.com/en-us/microsoftteams/platform/bots/how-to/rate-limit target=_blank rel=noopener>Rate limiting - Teams | Microsoft Docs</a></p><p>一定時間待機してからリトライ、という感じ。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
