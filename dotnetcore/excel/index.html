@@ -1,0 +1,42 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>COM 参照で Excel を読み書きする - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#com参照の追加>COM参照の追加</a></li><li><a href=#csprojファイルの編集>csprojファイルの編集</a></li><li><a href=#サンプルコード>サンプルコード</a></li></ul></nav></aside></div><div class=main><article><h1>COM 参照で Excel を読み書きする</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-02-19 09:37:53 +0900 +0900" itemprop=datePublished>2021-02-19</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>.NET Core のコンソールアプリで、COM経由でExcelを操作できるようにする。</p><p>前提条件：</p><ul><li>Visual Studio 2019</li></ul><p>参考：</p><ul><li><a href=https://stackoverflow.com/questions/58130446/net-core-3-0-and-ms-office-interop#answer-58130770 target=_blank rel=noopener>.NET core 3.0 and MS Office Interop - Stack Overflow</a><ul><li>.NET Core で COM 参照を追加する方法が回答されている</li></ul></li><li><a href=https://github.com/dotnet/project-system/issues/5735 target=_blank rel=noopener>Incorrect COMReference entry when using Office interop · Issue #5735 · dotnet/project-system</a><ul><li>csprojファイルの編集内容が書かれている</li></ul></li></ul><h2 id=com参照の追加>COM参照の追加</h2><p>ソリューションエクスプローラーのプロジェクト名で右クリック → 「COM 参照の追加」をクリック。</p><p><img src=2021-02-19-09-51-40.png alt></p><p>参照マネージャーのウィンドウが開く。検索欄に「excel」と入力し、表示された「Microsoft Excel xx.x Object Library」のチェックを入れる。その後、OKボタンをクリック。</p><p><img src=2021-02-19-10-35-16.png alt></p><p>ソリューションエクスプローラーの「依存関係」の中に「COM」が追加され、Excelがあるのを確認する。</p><p><img src=2021-02-19-10-36-57.png alt></p><p>この時点でコーディングは可能だが、実行すると下記エラーになる。</p><pre><code>System.IO.FileNotFoundException
+  HResult=0x80070002
+  Message=Could not load file or assembly 'office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c'. 指定されたファイルが見つかりません。
+</code></pre><h2 id=csprojファイルの編集>csprojファイルの編集</h2><p>ソリューションエクスプローラーの「依存関係」の中にある「Interop.Microsoft.Office.Interop.Excel」をクリックする。プロパティウィンドウに表示される内容を、下記の通り変更する。</p><p><img src=2021-02-19-10-41-28.png alt></p><p>参考サイトでは、<code>WrappingTool</code> は <code>primary</code> にすると書かれているが、それだと一部の機能が動作しないらしい。<code>tlbimp</code> ならOK。</p><h2 id=サンプルコード>サンプルコード</h2><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>Microsoft.Office.Interop.Excel</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Range</span> <span style=color:#111>=</span> <span style=color:#111>Microsoft</span><span style=color:#111>.</span><span style=color:#111>Office</span><span style=color:#111>.</span><span style=color:#111>Interop</span><span style=color:#111>.</span><span style=color:#111>Excel</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>Test</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>class</span> <span style=color:#75af00>Program</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>readonly</span> <span style=color:#00a8c8>string</span> <span style=color:#111>FILE_NAME</span> <span style=color:#111>=</span> <span style=color:#d88200>&#34;C:/test/xxx.xlsx&#34;</span><span style=color:#111>;</span>
+
+        <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>Main</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span><span style=color:#111>[]</span> <span style=color:#111>args</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>excel</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Application</span><span style=color:#111>();</span>
+            <span style=color:#00a8c8>try</span>
+            <span style=color:#111>{</span>
+                <span style=color:#00a8c8>var</span> <span style=color:#111>book</span> <span style=color:#111>=</span> <span style=color:#111>excel</span><span style=color:#111>.</span><span style=color:#111>Workbooks</span><span style=color:#111>.</span><span style=color:#111>Open</span><span style=color:#111>(</span><span style=color:#111>FILE_NAME</span><span style=color:#111>,</span> <span style=color:#00a8c8>true</span><span style=color:#111>,</span> <span style=color:#00a8c8>true</span><span style=color:#111>);</span>
+                <span style=color:#00a8c8>try</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#75715e>// シートなどのインデックスは1から始まる
+</span><span style=color:#75715e></span>                    <span style=color:#111>Worksheet</span> <span style=color:#111>sheet</span> <span style=color:#111>=</span> <span style=color:#111>(</span><span style=color:#111>Worksheet</span><span style=color:#111>)</span><span style=color:#111>book</span><span style=color:#111>.</span><span style=color:#111>Worksheets</span><span style=color:#111>[</span><span style=color:#ae81ff>1</span><span style=color:#111>];</span>
+                    <span style=color:#111>Range</span> <span style=color:#111>cell</span> <span style=color:#111>=</span> <span style=color:#111>sheet</span><span style=color:#111>.</span><span style=color:#111>Cells</span><span style=color:#111>[</span><span style=color:#ae81ff>1</span><span style=color:#111>,</span><span style=color:#ae81ff>2</span><span style=color:#111>];</span>
+                    <span style=color:#111>Console</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>((</span><span style=color:#00a8c8>string</span><span style=color:#111>)</span><span style=color:#111>cell</span><span style=color:#111>.</span><span style=color:#111>Value</span><span style=color:#111>);</span>
+                <span style=color:#111>}</span>
+                <span style=color:#00a8c8>finally</span>
+                <span style=color:#111>{</span>
+                    <span style=color:#111>book</span><span style=color:#111>.</span><span style=color:#111>Close</span><span style=color:#111>();</span>
+                <span style=color:#111>}</span>
+            <span style=color:#111>}</span>
+            <span style=color:#00a8c8>finally</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>excel</span><span style=color:#111>.</span><span style=color:#111>Quit</span><span style=color:#111>();</span>
+            <span style=color:#111>}</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
