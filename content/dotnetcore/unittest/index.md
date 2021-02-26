@@ -9,6 +9,8 @@ date: 2021-02-25T10:35:53+09:00
 前提条件：
 
 * Visual Studio 2019 Community 版
+* xUnit v2.4.1
+* .NET Core 3.1
 * C#
 
 ## コードからテストメソッドを生成する
@@ -32,24 +34,82 @@ date: 2021-02-25T10:35:53+09:00
 
 ただし、自分でテストプロジェクトやコードを作成するのであれば、いずれのテストフレームワークを使うにしても拡張機能のインストールは必須ではない。
 
-## テストプロジェクトを作成する
+## Get Started
+### テストプロジェクトを作成する
 xUnit を使ったテストプロジェクトの作成手順を記載する。
 
-新しいプロジェクトの作成時に、テンプレートで「xUnit テスト プロジェクト」を選択してプロジェクトを作成する。
+新しいプロジェクトを作成するときのダイアログで、カテゴリを「C#」→「テスト」で抽出すると、「xUnit テスト プロジェクト」が表示されるので、それを選択してプロジェクトを作成する。
 
-![](2021-02-25-14-28-11.png)
+![](2021-02-26-09-58-43.png)
+
+作成されたプロジェクトを確認すると、空のテストが1つだけ記述された `UnitTest1.cs` も一緒に作成されている。
+
+```cs
+using System;
+using Xunit;
+
+namespace ClassLibrary1Test
+{
+    public class UnitTest1
+    {
+        [Fact]
+        public void Test1()
+        {
+
+        }
+    }
+}
+```
+
+`Test1` メソッドに `[Fact]` という属性が付いていて、これが1つのテストの単位である。
+
+この状態でソリューション全体をビルドする。
+
+### テストを実行する
+ビルドが成功したあと、メニューの「テスト」→「テスト エクスプローラー」をクリック。
+テストエクスプローラーが表示され、先ほど作成されたテストが表示されているのが分かる。
+
+![](2021-02-26-10-05-21.png)
+
+テストエクスプローラーの ![](2021-02-26-10-19-02.png) ボタンを押すと、エクスプローラーに表示されているすべてのテストが実行される。
+実行後は、結果がエクスプローラーに表示される。
+
+![](2021-02-26-10-20-28.png)
+
+これがテストプロジェクト作成～実行のざっくりとした流れになる。
 
 ## テストを作成する
-テストプロジェクトに新しいクラスを作成し、public で引数、戻り値なしのメソッドを定義する。
+テストプロジェクトにクラスを作成し、public で引数、戻り値なしのメソッドを定義する。
 そのメソッドに `[Fact]` という属性を付けると、テスト時に実行するメソッドになる。
 
 ```cs
-public class UnitTest1
+using ClassLibrary1;
+using System;
+using Xunit;
+
+namespace ClassLibrary1Test
 {
-    [Fact]
-    public void Test1()
+    public class UnitTest1
     {
-        Assert.Equal(3, (1 + 2));
+        [Fact]
+        public void Test1()
+        {
+            Class1 library = new Class1();
+            var actual = library.Add(1, 2);
+            var expected = 3;
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void Test2()
+        {
+            Class1 library = new Class1();
+            var actual = library.Add(2, 3);
+            var expected = 5;
+
+            Assert.Equal(expected, actual);
+        }
     }
 }
 ```
@@ -59,12 +119,14 @@ public class UnitTest1
 
 ```cs
 [Theory]
-[InlineData(1, 2, 3)]
-[InlineData(2, 3, 5)]
 [InlineData(3, 4, 7)]
-public void Test2(int a, int b, int expected)
+[InlineData(4, 5, 9)]
+public void Test3(int a, int b, int expected)
 {
-    Assert.Equal(expected, (a + b));
+    Class1 library = new Class1();
+    var actual = library.Add(a, b);
+
+    Assert.Equal(expected, actual);
 }
 ```
 
@@ -82,9 +144,128 @@ public class TestClass
 
     [Theory]
     [MemberData(nameof(param))]
-    public void Test2(int a, int b, int expected)
+    public void Test4(int a, int b, int expected)
     {
         Assert.Equal(expected, (a + b));
+    }
+}
+```
+
+## 初期処理と終了処理
+テストメソッドに初期処理を実装する場合、テストクラスのコンストラクタを定義してそこに初期処理を記述する。
+終了処理を実装する場合は、テストクラスに `IDisposable` インターフェイスを実装して `Dispose` メソッドに記述する。
+この初期処理＆終了処理は、テストメソッドが実行される度に実行される。
+
+```cs
+using ClassLibrary1;
+using System;
+using Xunit;
+
+namespace ClassLibrary1Test
+{
+    public class UnitTest1 : IDisposable
+    {
+        private Class1 library = null;
+
+        public UnitTest1()
+        {
+            library = new Class1();
+        }
+
+        public void Dispose()
+        {
+            library = null;
+        }
+
+        [Fact]
+        public void Test1()
+        {
+            var actual = library.Add(1, 2);
+            var expected = 3;
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void Test2()
+        {
+            var actual = library.Add(2, 3);
+            var expected = 5;
+
+            Assert.Equal(expected, actual);
+        }
+    }
+}
+```
+
+これに対し、テストクラス1つに対して最初の1回だけ初期処理＆終了処理を実行させたい場合は、 `IClassFixture<T>` インターフェイスを使う。
+
+まず、Fixture クラスを作る。Fixture クラスのコンストラクタが初期処理となり、Disposeメソッドが終了処理となる。
+
+```cs
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ClassLibrary1Test
+{
+    public class UnitTest1Fixture : IDisposable
+    {
+        public List<string> list { get; set; }
+
+        public UnitTest1Fixture()
+        {
+            list = new List<string>();
+            list.Add("test1");
+            list.Add("test2");
+            list.Add("test3");
+        }
+
+        public void Dispose()
+        {
+            list = null;
+        }
+    }
+}
+```
+
+テストクラスの方では、`IClassFixture<T>` インターフェイス を実装する。
+`<T>` は Fixture クラスを指定する。もしテストクラスで Fixture クラスのインスタンスが必要な場合は、コンストラクタの引数に Fixture クラスを追加する。
+
+```cs
+using ClassLibrary1;
+using System;
+using Xunit;
+
+namespace ClassLibrary1Test
+{
+    public class UnitTest1 : IClassFixture<UnitTest1Fixture>
+    {
+        private Class1 library = null;
+
+        public UnitTest1(UnitTest1Fixture fixture)
+        {
+            library = fixture.library;
+        }
+
+        [Fact]
+        public void Test1()
+        {
+            var actual = library.Add(1, 2);
+            var expected = 3;
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void Test2()
+        {
+            var actual = library.Add(2, 3);
+            var expected = 5;
+
+            Assert.Equal(expected, actual);
+        }
+
     }
 }
 ```
