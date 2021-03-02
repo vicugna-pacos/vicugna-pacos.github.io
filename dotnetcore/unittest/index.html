@@ -1,23 +1,62 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>単体テスト (xUnit) - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#コードからテストメソッドを生成する>コードからテストメソッドを生成する</a></li><li><a href=#テストプロジェクトを作成する>テストプロジェクトを作成する</a></li><li><a href=#テストを作成する>テストを作成する</a></li></ul></nav></aside></div><div class=main><article><h1>単体テスト (xUnit)</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
-<time datetime="2021-02-25 10:35:53 +0900 +0900" itemprop=datePublished>2021-02-25</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>.NET Core で単体テストをする方法について記載する。</p><p>前提条件：</p><ul><li>Visual Studio 2019 Community 版</li><li>C#</li></ul><h2 id=コードからテストメソッドを生成する>コードからテストメソッドを生成する</h2><p>参考：<a href=https://docs.microsoft.com/en-us/visualstudio/test/create-unit-tests-menu target=_blank rel=noopener>Create unit test method stubs - Visual Studio | Microsoft Docs</a></p><p>コード上のメソッド、型名、名前空間のいずれかで右クリック→「単体テストの作成」をクリック。</p><p><img src=2021-02-25-10-47-28.png alt></p><p>ダイアログが開き、どのようなテストプロジェクトやクラスを作成するか設定できる。</p><p><img src=2021-02-25-10-47-57.png alt></p><p>このときテストフレームワークを選択できるが、既定のままだと選択肢が「MSTest v2」しかない。
-それ以外のテストフレームワークを使用したい場合は、マーケットプレイスから拡張機能をインストールする必要がある。</p><ul><li><a href="https://marketplace.visualstudio.com/items?itemName=NUnitDevelopers.TestGeneratorNUnitextension" target=_blank rel=noopener>NUnit用拡張機能</a></li><li><a href="https://marketplace.visualstudio.com/items?itemName=BradWilson.xUnitnetTestExtensions" target=_blank rel=noopener>xUnit用拡張機能</a></li></ul><p>(どちらも最終更新日が2015年とか2018年で止まっているところが気になる)</p><p>ただし、自分でテストプロジェクトやコードを作成するのであれば、いずれのテストフレームワークを使うにしても拡張機能のインストールは必須ではない。</p><h2 id=テストプロジェクトを作成する>テストプロジェクトを作成する</h2><p>xUnit を使ったテストプロジェクトの作成手順を記載する。</p><p>新しいプロジェクトの作成時に、テンプレートで「xUnit テスト プロジェクト」を選択してプロジェクトを作成する。</p><p><img src=2021-02-25-14-28-11.png alt></p><h2 id=テストを作成する>テストを作成する</h2><p>テストプロジェクトに新しいクラスを作成し、public で引数、戻り値なしのメソッドを定義する。
-そのメソッドに <code>[Fact]</code> という属性を付けると、テスト時に実行するメソッドになる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>UnitTest1</span>
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>単体テスト (xUnit) - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#コードからテストメソッドを生成する>コードからテストメソッドを生成する</a></li><li><a href=#get-started>Get Started</a><ul><li><a href=#テストプロジェクトを作成する>テストプロジェクトを作成する</a></li><li><a href=#テストを実行する>テストを実行する</a></li></ul></li><li><a href=#テストを作成する>テストを作成する</a></li><li><a href=#初期処理と終了処理>初期処理と終了処理</a></li></ul></nav></aside></div><div class=main><article><h1>単体テスト (xUnit)</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-02-25 10:35:53 +0900 +0900" itemprop=datePublished>2021-02-25</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>.NET Core で単体テストをする方法について記載する。</p><p>前提条件：</p><ul><li>Visual Studio 2019 Community 版</li><li>xUnit v2.4.1</li><li>.NET Core 3.1</li><li>C#</li></ul><h2 id=コードからテストメソッドを生成する>コードからテストメソッドを生成する</h2><p>参考：<a href=https://docs.microsoft.com/en-us/visualstudio/test/create-unit-tests-menu target=_blank rel=noopener>Create unit test method stubs - Visual Studio | Microsoft Docs</a></p><p>コード上のメソッド、型名、名前空間のいずれかで右クリック→「単体テストの作成」をクリック。</p><p><img src=2021-02-25-10-47-28.png alt></p><p>ダイアログが開き、どのようなテストプロジェクトやクラスを作成するか設定できる。</p><p><img src=2021-02-25-10-47-57.png alt></p><p>このときテストフレームワークを選択できるが、既定のままだと選択肢が「MSTest v2」しかない。
+それ以外のテストフレームワークを使用したい場合は、マーケットプレイスから拡張機能をインストールする必要がある。</p><ul><li><a href="https://marketplace.visualstudio.com/items?itemName=NUnitDevelopers.TestGeneratorNUnitextension" target=_blank rel=noopener>NUnit用拡張機能</a></li><li><a href="https://marketplace.visualstudio.com/items?itemName=BradWilson.xUnitnetTestExtensions" target=_blank rel=noopener>xUnit用拡張機能</a></li></ul><p>(どちらも最終更新日が2015年とか2018年で止まっているところが気になる)</p><p>ただし、自分でテストプロジェクトやコードを作成するのであれば、いずれのテストフレームワークを使うにしても拡張機能のインストールは必須ではない。</p><h2 id=get-started>Get Started</h2><h3 id=テストプロジェクトを作成する>テストプロジェクトを作成する</h3><p>xUnit を使ったテストプロジェクトの作成手順を記載する。</p><p>新しいプロジェクトを作成するときのダイアログで、カテゴリを「C#」→「テスト」で抽出すると、「xUnit テスト プロジェクト」が表示されるので、それを選択してプロジェクトを作成する。</p><p><img src=2021-02-26-09-58-43.png alt></p><p>作成されたプロジェクトを確認すると、空のテストが1つだけ記述された <code>UnitTest1.cs</code> も一緒に作成されている。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Xunit</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ClassLibrary1Test</span>
 <span style=color:#111>{</span>
-<span style=color:#75af00>    [Fact]</span>
-    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test1</span><span style=color:#111>()</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>UnitTest1</span>
     <span style=color:#111>{</span>
-        <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#ae81ff>3</span><span style=color:#111>,</span> <span style=color:#111>(</span><span style=color:#ae81ff>1</span> <span style=color:#111>+</span> <span style=color:#ae81ff>2</span><span style=color:#111>));</span>
+<span style=color:#75af00>        [Fact]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test1</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p><code>Test1</code> メソッドに <code>[Fact]</code> という属性が付いていて、これが1つのテストの単位である。</p><p>この状態でソリューション全体をビルドする。</p><h3 id=テストを実行する>テストを実行する</h3><p>ビルドが成功したあと、メニューの「テスト」→「テスト エクスプローラー」をクリック。
+テストエクスプローラーが表示され、先ほど作成されたテストが表示されているのが分かる。</p><p><img src=2021-02-26-10-05-21.png alt></p><p>テストエクスプローラーの <img src=2021-02-26-10-19-02.png alt> ボタンを押すと、エクスプローラーに表示されているすべてのテストが実行される。
+実行後は、結果がエクスプローラーに表示される。</p><p><img src=2021-02-26-10-20-28.png alt></p><p>これがテストプロジェクト作成～実行のざっくりとした流れになる。</p><h2 id=テストを作成する>テストを作成する</h2><p>テストプロジェクトにクラスを作成し、public で引数、戻り値なしのメソッドを定義する。
+そのメソッドに <code>[Fact]</code> という属性を付けると、テスト時に実行するメソッドになる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>ClassLibrary1</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Xunit</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ClassLibrary1Test</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>UnitTest1</span>
+    <span style=color:#111>{</span>
+<span style=color:#75af00>        [Fact]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test1</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>Class1</span> <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Class1</span><span style=color:#111>();</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>actual</span> <span style=color:#111>=</span> <span style=color:#111>library</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>1</span><span style=color:#111>,</span> <span style=color:#ae81ff>2</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>expected</span> <span style=color:#111>=</span> <span style=color:#ae81ff>3</span><span style=color:#111>;</span>
+
+            <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>actual</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+<span style=color:#75af00>
+</span><span style=color:#75af00>        [Fact]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test2</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>Class1</span> <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Class1</span><span style=color:#111>();</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>actual</span> <span style=color:#111>=</span> <span style=color:#111>library</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>2</span><span style=color:#111>,</span> <span style=color:#ae81ff>3</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>expected</span> <span style=color:#111>=</span> <span style=color:#ae81ff>5</span><span style=color:#111>;</span>
+
+            <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>actual</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
     <span style=color:#111>}</span>
 <span style=color:#111>}</span>
 </code></pre></div><p>テストメソッドに付ける属性は <code>[Fact]</code> と <code>[Theory]</code> の2種類がある。
 <code>[Fact]</code> は1パターンのテストしかできないが、<code>[Theory]</code> は引数を与えて複数パターンのテストができる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#75af00>[Theory]</span>
-<span style=color:#75af00>[InlineData(1, 2, 3)]</span>
-<span style=color:#75af00>[InlineData(2, 3, 5)]</span>
 <span style=color:#75af00>[InlineData(3, 4, 7)]</span>
-<span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test2</span><span style=color:#111>(</span><span style=color:#00a8c8>int</span> <span style=color:#111>a</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>b</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>expected</span><span style=color:#111>)</span>
+<span style=color:#75af00>[InlineData(4, 5, 9)]</span>
+<span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test3</span><span style=color:#111>(</span><span style=color:#00a8c8>int</span> <span style=color:#111>a</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>b</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>expected</span><span style=color:#111>)</span>
 <span style=color:#111>{</span>
-    <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>(</span><span style=color:#111>a</span> <span style=color:#111>+</span> <span style=color:#111>b</span><span style=color:#111>));</span>
+    <span style=color:#111>Class1</span> <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Class1</span><span style=color:#111>();</span>
+    <span style=color:#00a8c8>var</span> <span style=color:#111>actual</span> <span style=color:#111>=</span> <span style=color:#111>library</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#111>a</span><span style=color:#111>,</span> <span style=color:#111>b</span><span style=color:#111>);</span>
+
+    <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>actual</span><span style=color:#111>);</span>
 <span style=color:#111>}</span>
 </code></pre></div><p>テストメソッドに引数を定義し、<code>[InlineData]</code> 属性で引数に渡す値を指定する。そうすると指定した分テストが実行される。
 値の指定方法はもう一つあって、<code>[MemberData]</code> 属性を使うと、テストクラスのメンバー変数を指定できる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>TestClass</span>
@@ -30,9 +69,110 @@ gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=genera
 <span style=color:#75af00>
 </span><span style=color:#75af00>    [Theory]</span>
 <span style=color:#75af00>    [MemberData(nameof(param))]</span>
-    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test2</span><span style=color:#111>(</span><span style=color:#00a8c8>int</span> <span style=color:#111>a</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>b</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>expected</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test4</span><span style=color:#111>(</span><span style=color:#00a8c8>int</span> <span style=color:#111>a</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>b</span><span style=color:#111>,</span> <span style=color:#00a8c8>int</span> <span style=color:#111>expected</span><span style=color:#111>)</span>
     <span style=color:#111>{</span>
         <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>(</span><span style=color:#111>a</span> <span style=color:#111>+</span> <span style=color:#111>b</span><span style=color:#111>));</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h2 id=初期処理と終了処理>初期処理と終了処理</h2><p>テストメソッドに初期処理を実装する場合、テストクラスのコンストラクタを定義してそこに初期処理を記述する。
+終了処理を実装する場合は、テストクラスに <code>IDisposable</code> インターフェイスを実装して <code>Dispose</code> メソッドに記述する。
+この初期処理＆終了処理は、テストメソッドが実行される度に実行される。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>ClassLibrary1</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Xunit</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ClassLibrary1Test</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>UnitTest1</span> <span style=color:#111>:</span> <span style=color:#111>IDisposable</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#111>Class1</span> <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>;</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#111>UnitTest1</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Class1</span><span style=color:#111>();</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Dispose</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>;</span>
+        <span style=color:#111>}</span>
+<span style=color:#75af00>
+</span><span style=color:#75af00>        [Fact]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test1</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>actual</span> <span style=color:#111>=</span> <span style=color:#111>library</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>1</span><span style=color:#111>,</span> <span style=color:#ae81ff>2</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>expected</span> <span style=color:#111>=</span> <span style=color:#ae81ff>3</span><span style=color:#111>;</span>
+
+            <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>actual</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+<span style=color:#75af00>
+</span><span style=color:#75af00>        [Fact]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test2</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>actual</span> <span style=color:#111>=</span> <span style=color:#111>library</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>2</span><span style=color:#111>,</span> <span style=color:#ae81ff>3</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>expected</span> <span style=color:#111>=</span> <span style=color:#ae81ff>5</span><span style=color:#111>;</span>
+
+            <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>actual</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>これに対し、テストクラス1つに対して最初の1回だけ初期処理＆終了処理を実行させたい場合は、 <code>IClassFixture&lt;T></code> インターフェイスを使う。</p><p>まず、Fixture クラスを作る。Fixture クラスのコンストラクタが初期処理となり、Disposeメソッドが終了処理となる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Text</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ClassLibrary1Test</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>UnitTest1Fixture</span> <span style=color:#111>:</span> <span style=color:#111>IDisposable</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>&gt;</span> <span style=color:#111>list</span> <span style=color:#111>{</span> <span style=color:#00a8c8>get</span><span style=color:#111>;</span> <span style=color:#00a8c8>set</span><span style=color:#111>;</span> <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#111>UnitTest1Fixture</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>list</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>List</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>&gt;();</span>
+            <span style=color:#111>list</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#d88200>&#34;test1&#34;</span><span style=color:#111>);</span>
+            <span style=color:#111>list</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#d88200>&#34;test2&#34;</span><span style=color:#111>);</span>
+            <span style=color:#111>list</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#d88200>&#34;test3&#34;</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Dispose</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>list</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>;</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><p>テストクラスの方では、<code>IClassFixture&lt;T></code> インターフェイス を実装する。
+<code>&lt;T></code> は Fixture クラスを指定する。もしテストクラスで Fixture クラスのインスタンスが必要な場合は、コンストラクタの引数に Fixture クラスを追加する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>ClassLibrary1</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>Xunit</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>ClassLibrary1Test</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>UnitTest1</span> <span style=color:#111>:</span> <span style=color:#111>IClassFixture</span><span style=color:#111>&lt;</span><span style=color:#111>UnitTest1Fixture</span><span style=color:#111>&gt;</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#111>Class1</span> <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#00a8c8>null</span><span style=color:#111>;</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#111>UnitTest1</span><span style=color:#111>(</span><span style=color:#111>UnitTest1Fixture</span> <span style=color:#111>fixture</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#111>library</span> <span style=color:#111>=</span> <span style=color:#111>fixture</span><span style=color:#111>.</span><span style=color:#111>library</span><span style=color:#111>;</span>
+        <span style=color:#111>}</span>
+<span style=color:#75af00>
+</span><span style=color:#75af00>        [Fact]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test1</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>actual</span> <span style=color:#111>=</span> <span style=color:#111>library</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>1</span><span style=color:#111>,</span> <span style=color:#ae81ff>2</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>expected</span> <span style=color:#111>=</span> <span style=color:#ae81ff>3</span><span style=color:#111>;</span>
+
+            <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>actual</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+<span style=color:#75af00>
+</span><span style=color:#75af00>        [Fact]</span>
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>void</span> <span style=color:#111>Test2</span><span style=color:#111>()</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>actual</span> <span style=color:#111>=</span> <span style=color:#111>library</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>(</span><span style=color:#ae81ff>2</span><span style=color:#111>,</span> <span style=color:#ae81ff>3</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>expected</span> <span style=color:#111>=</span> <span style=color:#ae81ff>5</span><span style=color:#111>;</span>
+
+            <span style=color:#111>Assert</span><span style=color:#111>.</span><span style=color:#111>Equal</span><span style=color:#111>(</span><span style=color:#111>expected</span><span style=color:#111>,</span> <span style=color:#111>actual</span><span style=color:#111>);</span>
+        <span style=color:#111>}</span>
+
     <span style=color:#111>}</span>
 <span style=color:#111>}</span>
 </code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
