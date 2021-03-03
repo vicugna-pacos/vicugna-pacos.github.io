@@ -124,8 +124,8 @@ $items = $folder.Items.Find()    # 条件に一致するItemを1件だけ返す
 $items = $folder.Items.Restrict()    # 条件に一致するItemを全件返す
 ```
 
-フィルター構文については下記参照。
-[【Outlook VBA】メールや予定をフィルターで検索する - Qiita](https://qiita.com/vicugna-pacos/items/977fd4c32ebe0486869b)
+フィルター構文については下記参照。  
+[検索やフィルターの構文]({{< ref "outlookvba/search-and-filter/index.md" >}})
 
 ## 終日の予定を作る
 「終日」の予定とは、時間指定がない予定のこと。
