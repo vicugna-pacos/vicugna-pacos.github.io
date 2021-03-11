@@ -1,0 +1,63 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>HttpClient - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>.NET Core</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#get>GET</a><ul><li><a href=#ステータスの確認方法>ステータスの確認方法</a></li></ul></li><li><a href=#post>POST</a></li></ul></nav></aside></div><div class=main><article><h1>HttpClient</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-03-08 15:49:54 +0900 +0900" itemprop=datePublished>2021-03-08</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>.NET Core (C#) で API を実行したい場合などは、<code>System.Net.Http.HttpClient</code> を使う。</p><p>HttpClient のインスタンスはアプリケーションで1つになるように定義する。
+IDisposable インターフェイスを実装しているが、自分で using 句で囲んだり Dispose メソッドを実行する必要はない。</p><h2 id=get>GET</h2><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Net.Http</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Text</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>Samples</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>Class1</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>HttpClient</span> <span style=color:#111>client</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>HttpClient</span><span style=color:#111>();</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>Sample1</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span> <span style=color:#111>url</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>response</span> <span style=color:#111>=</span> <span style=color:#00a8c8>await</span> <span style=color:#111>client</span><span style=color:#111>.</span><span style=color:#111>GetAsync</span><span style=color:#111>(</span><span style=color:#111>url</span><span style=color:#111>);</span>
+            <span style=color:#111>response</span><span style=color:#111>.</span><span style=color:#111>EnsureSuccessStatusCode</span><span style=color:#111>();</span>
+
+            <span style=color:#00a8c8>var</span> <span style=color:#111>responseContent</span> <span style=color:#111>=</span> <span style=color:#111>response</span><span style=color:#111>.</span><span style=color:#111>Content</span><span style=color:#111>.</span><span style=color:#111>ReadAsStringAsync</span><span style=color:#111>();</span>
+        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div><h3 id=ステータスの確認方法>ステータスの確認方法</h3><p>HttpClient の各メソッドを実行したとき、HTTPステータスコードがエラーになっても勝手に Exception がスローされない。
+下記のいずれかの方法でステータスコードをチェックする必要がある。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>var</span> <span style=color:#111>response</span> <span style=color:#111>=</span> <span style=color:#00a8c8>await</span> <span style=color:#111>client</span><span style=color:#111>.</span><span style=color:#111>GetAsync</span><span style=color:#111>(</span><span style=color:#111>url</span><span style=color:#111>);</span>
+<span style=color:#75715e>// ステータスコードがエラーの場合、Exception がスローされる
+</span><span style=color:#75715e></span><span style=color:#111>response</span><span style=color:#111>.</span><span style=color:#111>EnsureSuccessStatusCode</span><span style=color:#111>();</span>
+</code></pre></div><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>if</span> <span style=color:#111>(!</span><span style=color:#111>response</span><span style=color:#111>.</span><span style=color:#111>IsSuccessStatusCode</span><span style=color:#111>)</span>
+<span style=color:#111>{</span>
+    <span style=color:#75715e>// エラー時の処理
+</span><span style=color:#75715e></span><span style=color:#111>}</span>
+</code></pre></div><h2 id=post>POST</h2><p>フォームデータを送信する (application/x-www-form-urlencoded) 場合は、<code>FormUrlEncodedContent</code> クラスを使う。以下サンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-cs data-lang=cs><span style=color:#00a8c8>using</span> <span style=color:#111>System</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Collections.Generic</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Net.Http</span><span style=color:#111>;</span>
+<span style=color:#00a8c8>using</span> <span style=color:#111>System.Threading.Tasks</span><span style=color:#111>;</span>
+
+<span style=color:#00a8c8>namespace</span> <span style=color:#111>Samples</span>
+<span style=color:#111>{</span>
+    <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>class</span> <span style=color:#75af00>Class1</span>
+    <span style=color:#111>{</span>
+        <span style=color:#00a8c8>private</span> <span style=color:#00a8c8>static</span> <span style=color:#00a8c8>readonly</span> <span style=color:#111>HttpClient</span> <span style=color:#111>client</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>HttpClient</span><span style=color:#111>();</span>
+
+        <span style=color:#00a8c8>public</span> <span style=color:#00a8c8>async</span> <span style=color:#111>Task</span> <span style=color:#111>Sample1</span><span style=color:#111>(</span><span style=color:#00a8c8>string</span> <span style=color:#111>url</span><span style=color:#111>)</span>
+        <span style=color:#111>{</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>values</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>Dictionary</span><span style=color:#111>&lt;</span><span style=color:#00a8c8>string</span><span style=color:#111>,</span> <span style=color:#00a8c8>string</span><span style=color:#111>&gt;</span>
+            <span style=color:#111>{</span>
+                <span style=color:#111>{</span> <span style=color:#d88200>&#34;param1&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;value1&#34;</span> <span style=color:#111>},</span>
+                <span style=color:#111>{</span> <span style=color:#d88200>&#34;param2&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;value2&#34;</span> <span style=color:#111>}</span>
+            <span style=color:#111>};</span>
+
+            <span style=color:#111>HttpContent</span> <span style=color:#111>content</span> <span style=color:#111>=</span> <span style=color:#00a8c8>new</span> <span style=color:#111>FormUrlEncodedContent</span><span style=color:#111>(</span><span style=color:#111>values</span><span style=color:#111>);</span>
+            <span style=color:#00a8c8>var</span> <span style=color:#111>response</span> <span style=color:#111>=</span> <span style=color:#00a8c8>await</span> <span style=color:#111>client</span><span style=color:#111>.</span><span style=color:#111>PostAsync</span><span style=color:#111>(</span><span style=color:#111>url</span><span style=color:#111>,</span> <span style=color:#111>content</span><span style=color:#111>);</span>
+
+            <span style=color:#00a8c8>if</span> <span style=color:#111>(!</span><span style=color:#111>response</span><span style=color:#111>.</span><span style=color:#111>IsSuccessStatusCode</span><span style=color:#111>)</span>
+            <span style=color:#111>{</span>
+                <span style=color:#75715e>// 失敗
+</span><span style=color:#75715e></span>            <span style=color:#111>}</span>
+            <span style=color:#75715e>// 成功
+</span><span style=color:#75715e></span>        <span style=color:#111>}</span>
+    <span style=color:#111>}</span>
+<span style=color:#111>}</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
