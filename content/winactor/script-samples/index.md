@@ -114,3 +114,19 @@ End Sub
 
 CreateFolder str_folder
 ```
+
+## ファイル拡張子変換
+変更前ファイルパスの拡張子を、指定した拡張子へ変換する。
+変換後ファイル名にはパスが付いていないので注意する。
+
+```
+filePath = !変更前ファイル名!
+extension = !拡張子!
+
+Set objFS = CreateObject("Scripting.FileSystemObject")
+
+baseName = objFS.GetBaseName(filePath)
+newFileName = baseName + "." + extension
+
+SetUmsVariable $変更後ファイル名$, newFileName
+```
