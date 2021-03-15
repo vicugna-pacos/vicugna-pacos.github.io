@@ -156,3 +156,23 @@ SetUmsVariable $Tempファイル名$, tempFilePath
 
 Set FSO = Nothing
 ```
+
+## ファイル読み込み (UTF-8)
+
+```vb
+Dim stream
+Dim buf
+Dim filePath
+filePath = !読込ファイルパス!
+
+Set stream = CreateObject("ADODB.Stream")
+stream.Charset = "UTF-8"
+stream.Open
+stream.LoadFromFile filePath
+buf = stream.ReadText
+stream.Close
+Set stream = Nothing
+
+SetUmsVariable $読込データ$, buf
+
+```
