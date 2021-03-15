@@ -130,3 +130,29 @@ newFileName = baseName + "." + extension
 
 SetUmsVariable $変更後ファイル名$, newFileName
 ```
+
+## 一時ファイル作成
+拡張子を指定して、ユーザーのTempフォルダを使った一時ファイルのパスを作成する。
+実際にファイルは作成せず、パスのみを作成する。
+
+```vb
+Dim FSO
+Set FSO = CreateObject("Scripting.FileSystemObject")
+
+Dim tempFolderPath
+Dim tempFileName
+Dim tempFilePath
+Dim extension
+
+extension = !拡張子!
+
+tempFolderPath = FSO.GetSpecialFolder(2)
+tempFileName = FSO.GetTempName
+tempFileName = FSO.GetBaseName(tempFileName) & "." & extension
+
+tempFilePath = tempFolderPath & "\" & tempFileName
+
+SetUmsVariable $Tempファイル名$, tempFilePath
+
+Set FSO = Nothing
+```
