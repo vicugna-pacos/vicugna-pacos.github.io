@@ -68,6 +68,13 @@ lastMod: 2021-01-05T13:45:34+09:00
 //h1/descendant::*[contains(text(), '見出し')]
 ```
 
+↓ 複数の条件を指定したい場合、and でつなげるか、単純に2つ並べて書く。
+
+```
+//h1[contains(@class, 'head') and contains(text(), '見出し')]
+//h1[contains(@class, 'head')][contains(text(), '見出し')]
+```
+
 ## 軸 (Axis)
 軸とは、起点となるノードから相対的な位置を示すのに使える。例えば、当ノードの子、親、兄弟ノードを指定できる。
 
