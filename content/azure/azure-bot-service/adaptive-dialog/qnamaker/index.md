@@ -1,6 +1,7 @@
 ---
 title: "QnA Maker"
 date: 2021-01-08T13:27:54+09:00
+lastMod: 2021-03-17T20:48:03+09:00
 ---
 
 ## はじめに
@@ -10,9 +11,121 @@ date: 2021-01-08T13:27:54+09:00
 
 Adaptive Dialog で QnAMaker を使う方法を記載する。
 MS のドキュメントに載っているのは、ボットのソースコードと一緒に `.qna` ファイルを作成し、Q&Aのリストを管理する方法だが、
-ここに記載するのは、QnAMaker ポータルサイトに作成した Q&A のリストを使う方法である。
+ここに記載するのは、QnAMaker ポータルサイトに作成済みのナレッジベースを使う方法である。
 
-## サンプル
+## QnAMakerRecognizer の追加
+まず AdaptiveDialog の Recognizer に `QnAMakerRecognizer` を追加する。
+
+```cs
+public RootDialog(IConfiguration configuration) : base(nameof(RootDialog))
+{
+    Recognizer = new QnAMakerRecognizer()
+    {
+        HostName = configuration["qna:hostname"],
+        EndpointKey = configuration["qna:endpointKey"],
+        KnowledgeBaseId = configuration["qna:knowledgeBaseId"],
+        QnAId = "turn.qnaIdFromPrompt", // follow-up prompt を使うなら指定が必要
+        IncludeDialogNameInMetadata = false // Metadata を使わないなら必ずfalseにする
+    };
+}
+```
+
+HostName, EndpointKey, KnowledgeBaseId の3つは、QnAMaker ポータルサイトで当該ナレッジベースを選び、PUBLISH のページを開くと取得できる。
+
+## OnQnAMatch の追加
+
+### シンプルな回答をする
+次に、Triggers に QnAMaker から回答を見つけられたときの処理を追加する。トリガーのクラスは `OnQnAMatch` を使う。下記は、シンプルに一番スコアの高い回答を返す処理のサンプル。
+
+```cs
+new OnQnAMatch()
+{
+    Actions = new List<Dialog>()
+    {
+        new SendActivity()
+        {
+            Activity = new ActivityTemplate("${@answer}"),
+        }
+    }
+},
+```
+
+`${@answer}` には一番スコアの高い回答のテキストが入っている。
+
+### follow-up prompt に対応する
+follow-up prompt に対応する場合、シンプルな回答の処理に、もうひとつ `OnQnAMatch` トリガーを追加する。それぞれの Actions が何をやっているかをコメントに記載した。
+
+```cs
+// シンプルな回答を返す処理
+new OnQnAMatch()
+{
+    Actions = new List<Dialog>()
+    {
+        new SendActivity()
+        {
+            Activity = new ActivityTemplate("${@answer}"),
+        }
+    }
+},
+new OnQnAMatch()
+{
+    // follow-up prompt がある場合、こちらのトリガーが実行される
+    Condition = "count(turn.recognized.answers[0].context.prompts) > 0",
+    Actions = new List<Dialog>()
+    {
+        // follow-up prompt のリストを dialog スコープに保存する
+        new SetProperty()
+        {
+            Property = "dialog.qnaContext",
+            Value = "=turn.recognized.answers[0].context.prompts"
+        },
+        // follow-up prompt をユーザーに見せ、いずれかを選ばせる
+        new TextInput()
+        {
+            Prompt = new ActivityTemplate("${ShowMultiTurnAnswer()}"),
+            Property = "turn.qnaMultiTurnResponse",
+            AllowInterruptions = false,
+            AlwaysPrompt = true
+        },
+        // ユーザーの選んだものが follow-up prompt のリストの中にあるかどうか調べ、見つかったものを turn スコープに保存する
+        new SetProperty()
+        {
+            Property = "turn.qnaMatchFromContext",
+            Value = "=where(dialog.qnaContext, item, item.displayText == turn.qnaMultiTurnResponse)"
+        },
+        // 最初のステップで保存した follow-up prompt のリストを削除
+        new DeleteProperty()
+        {
+            Property = "dialog.qnaContext"
+        },
+        // ユーザーの選んだものがfollow-up prompt のリストにある場合
+        new IfCondition()
+        {
+            Condition = "turn.qnaMatchFromContext && count(turn.qnaMatchFromContext) > 0",
+            Actions = new List<Dialog>()
+            {
+                // 選んだ follow-up prompt の qnaId を turn スコープに保存する
+                // ここで指定する Property は Recognizer のプロパティである qnaId に指定したもの
+                new SetProperty()
+                {
+                    Property = "turn.qnaIdFromPrompt",
+                    Value = "=turn.qnaMatchFromContext[0].qnaId"
+                },
+                // ActivityReceived のイベントをもう一度発生させ、qnaId を指定した状態でもう一度 QnAMaker に問い合わせを行う。
+                // そうすると API は指定した qnaId の回答を返し、一連の処理が繰り返される。
+                new EmitEvent()
+                {
+                    EventName = DialogEvents.ActivityReceived,
+                    EventValue = "=turn.activity"
+                }
+            }
+        }
+    }
+},
+```
+
+
+## Dialog クラスのサンプル
 
 以下に RootDialog.cs のサンプルを記載する。
 
@@ -43,12 +156,11 @@ namespace AdaptiveDialogs.Dialogs
         {
             Recognizer = new QnAMakerRecognizer()
             {
-                // HostName, EndpointKey, KnowledgeBaseId は、従来の物と同じ
                 HostName = configuration["qna:hostname"],
                 EndpointKey = configuration["qna:endpointKey"],
-                KnowledgeBaseId = configuration["qna:KnowledgeBaseId"],
+                KnowledgeBaseId = configuration["qna:knowledgeBaseId"],
                 QnAId = "turn.qnaIdFromPrompt", // follow-up prompt を使うなら指定が必要
-                IncludeDialogNameInMetadata = false
+                IncludeDialogNameInMetadata = false // Metadata を使わないなら必ずfalseにする
             };
 
             Triggers = new List<OnCondition>
@@ -135,6 +247,30 @@ namespace AdaptiveDialogs.Dialogs
     SuggestedActions = ${foreach(turn.recognized.answers[0].context.prompts, x, x.displayText)}
 ]
 ```
+
+## 回答の参照
+`OnQnAMatch` トリガーが発生した後、QnAMaker から得た回答は以下で参照できる。
+
+* `{@answer}` - 一番スコアの高い回答。文字データ。
+* `turn.recognized.answers` - Microsoft.Bot.Builder.AI.QnA.QueryResult[] - QnAMaker が返した回答すべてが入っている。
+
+* QueryResult
+  * `questions` - string[]
+  * `answer` - string
+  * `score` - float
+  * `metadata` - Microsoft.Bot.Builder.AI.QnA.Metadata[]
+  * `source` - string
+  * `id` - int - QnAId
+  * `context` - Microsoft.Bot.Builder.AI.QnA.QnAResponseContext
+    * `prompts` - Microsoft.Bot.Builder.AI.QnA.QnaMakerPrompt[]
+
+* QnaMakerPrompt
+  * `displayOrder` - int
+  * `qnaId` - int
+  * `displayText` - string
+  * `qna` - object
+
+一番スコアの高い回答の「質問」を参照したい場合などは、CodeAction を使う方がいいと思う。
 
 ## 注意点
 
