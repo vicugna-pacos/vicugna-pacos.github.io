@@ -1,5 +1,5 @@
 ---
-title: "ボットをTeamsに配布する"
+title: "ボットを Teams に配布する"
 date: 2021-02-15T14:57:41+09:00
 weight: 4
 ---
