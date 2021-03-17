@@ -15,6 +15,10 @@ LUISは、ユーザーの発話から意図とデータを抽出できるよう�
 
 ## Cognitive Services の作成
 
+Azure リソースの Language Understanding を作成する。
+
+![](2021-02-10-14-20-19.png)
+
 自然言語の編集は下記ポータルサイトで行う。
 
 https://www.luis.ai/
