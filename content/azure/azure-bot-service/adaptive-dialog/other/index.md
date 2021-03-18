@@ -37,6 +37,23 @@ public class RootDialog : AdaptiveDialog
 }
 ```
 
+### State を読み書きする
+CodeAction で State にアクセスする場合は、下記のようにする。
+
+```cs
+var turnState = (JObject) dc.State["turn"];
+```
+
+メモリのスコープごとに格納されているオブジェクトの方が違う。
+
+* turn - `Newtonsoft.Json.Linq.JObject`
+* dialog - `System.Collections.Generic.Dictionary<string, object>`
+* user - `System.Collections.Generic.Dictionary<string, object>`
+* conversation - `System.Collections.Generic.Dictionary<string, object>`
+
+など。  
+大体のスコープは Dictionary 型だが、turn だけなぜか JObject で格納されている。
+
 ## Welcome メッセージを追加する
 ボットから DialogManager を呼び出す処理を `OnTurnAsync` メソッドに書いたことから分かるように、Adaptive Dialog は全てのイベント、アクティビティに対して処理できる。
 ユーザーがボットに初めて接続したときの `OnMembersAddedAsync` メソッドの処理も Adaptive Dialog へ移せる。
