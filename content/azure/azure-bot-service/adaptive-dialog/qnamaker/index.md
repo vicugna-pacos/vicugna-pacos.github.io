@@ -270,7 +270,43 @@ namespace AdaptiveDialogs.Dialogs
   * `displayText` - string
   * `qna` - object
 
-一番スコアの高い回答の「質問」を参照したい場合などは、CodeAction を使う方がいいと思う。
+型も一緒に記載したが、CodeAction などで直接 State を取り出す場合、JObject とか JArray とか、JSONの形式になっている。
+
+### 一番スコアの高い回答を取り出す
+QnAMaker から返ってきた回答の中から一番スコアの高い回答を取り出し、名前を付けてメモリに保管するサンプルを記載する。
+回答だけなら `${@answer}` で参照できるが、QnAMaker で設定した質問文もボットのメッセージに記載したい場合に使える。
+
+```cs
+/// <summary>
+/// QnAMaker から返ってきた回答のうち、一番スコアの高いものを「turn.topAnswer」に保存する
+/// </summary>
+/// <param name="dc"></param>
+/// <param name="options"></param>
+/// <returns></returns>
+private static async Task<DialogTurnResult> GetTopAnswer(DialogContext dc, object options)
+{
+    var answers = (JArray) dc.State["turn.recognized.answers"];
+    JToken topAnswer = null;
+    float topScore = 0;
+
+    foreach (var answer in answers)
+    {
+        var score = float.Parse(answer["score"].ToString());
+
+        if (topAnswer == null || topScore < score)
+        {
+            topScore = score;
+            topAnswer = answer;
+        }
+    }
+
+    var turn = (JObject) dc.State["turn"];
+    turn["topAnswer"] = topAnswer;
+
+    return await dc.EndDialogAsync(options);
+}
+```
+
 
 ## 注意点
 
