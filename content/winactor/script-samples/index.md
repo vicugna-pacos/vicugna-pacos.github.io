@@ -36,6 +36,8 @@ $FILE_PATH_TYPE の値：
 10～14 はローカルパス・UNC パスのみ許容。
 初期値は0 。
 
+相対パスの場所は、シナリオファイルが未保存の場合、「ドキュメント\WinActor」になる。
+
 ## ファイルリスト作成
 既存の「ファイルリスト作成」はサブフォルダのファイルもリストに含めるが、それを指定したフォルダ直下のファイルのみにしたもの ( dir コマンドの /S オプションを除いただけ )。
 出力される内容はファイルの絶対パスではなく、ファイル名のみになるので注意。
@@ -76,6 +78,41 @@ Set objExec = objShell.Exec(cmd)
 Do While objExec.Status = 0
   WScript.Sleep 300
 Loop
+```
+
+## フォルダ存在チェック
+指定されたフォルダが存在するかチェックする。
+
+「フォルダパス」：有無を確認したいフォルダの絶対パスか相対パス。
+「チェック結果」：確認した結果を格納する変数を指定。True：存在する、False：存在しない。
+
+※操作対象のファイルを相対パスで指定する場合、開いているシナリオのフォルダが起点となる。
+
+```vb
+Option Explicit
+
+Dim objFSO
+Dim strFolder
+Dim result
+Dim fname
+Dim absname
+Dim folderPath
+
+strFolder = !フォルダパス!
+Set objFSO = WScript.CreateObject("Scripting.FileSystemObject")
+
+SetUMSVariable "$FILE_PATH_TYPE", "14"
+SetUMSVariable "$PARSE_FILE_PATH", strFolder
+strFolder = GetUMSVariable("$PARSE_FILE_PATH")
+
+If Err.Number = 0 Then
+    result = objFSO.FolderExists(strFolder)
+Else
+  Err.Raise 1, "", "ライブラリの実行に失敗しました。"
+End If
+
+SetUMSVariable $チェック結果$, result
+Set objFSO = Nothing
 ```
 
 ## フォルダ作成 (再帰的)
