@@ -91,28 +91,27 @@ Loop
 ```vb
 Option Explicit
 
-Dim objFSO
 Dim strFolder
 Dim result
 Dim fname
-Dim absname
-Dim folderPath
 
 strFolder = !フォルダパス!
-Set objFSO = WScript.CreateObject("Scripting.FileSystemObject")
 
-SetUMSVariable "$FILE_PATH_TYPE", "14"
+SetUMSVariable "$FILE_PATH_TYPE", "13"
 SetUMSVariable "$PARSE_FILE_PATH", strFolder
 strFolder = GetUMSVariable("$PARSE_FILE_PATH")
 
 If Err.Number = 0 Then
-    result = objFSO.FolderExists(strFolder)
+    If Len(strFolder) = 0 Then
+        result = False
+    Else
+        result = True
+    End If
 Else
   Err.Raise 1, "", "ライブラリの実行に失敗しました。"
 End If
 
 SetUMSVariable $チェック結果$, result
-Set objFSO = Nothing
 ```
 
 ## フォルダ作成 (再帰的)
