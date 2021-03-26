@@ -1,5 +1,5 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>スクリプトのサンプル - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>WinActor</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</a></li><li><a href=#ファイルリスト作成>ファイルリスト作成</a></li><li><a href=#フォルダ作成-再帰的>フォルダ作成 (再帰的)</a></li><li><a href=#ファイル拡張子変換>ファイル拡張子変換</a></li><li><a href=#一時ファイル作成>一時ファイル作成</a></li><li><a href=#ファイル読み込み-utf-8>ファイル読み込み (UTF-8)</a></li></ul></nav></aside></div><div class=main><article><h1>スクリプトのサンプル</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>スクリプトのサンプル - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>WinActor</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</a></li><li><a href=#ファイルリスト作成>ファイルリスト作成</a></li><li><a href=#フォルダ存在チェック>フォルダ存在チェック</a></li><li><a href=#フォルダ作成-再帰的>フォルダ作成 (再帰的)</a></li><li><a href=#ファイル拡張子変換>ファイル拡張子変換</a></li><li><a href=#一時ファイル作成>一時ファイル作成</a></li><li><a href=#ファイル読み込み-utf-8>ファイル読み込み (UTF-8)</a></li></ul></nav></aside></div><div class=main><article><h1>スクリプトのサンプル</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
 <time datetime="2021-03-11 13:54:46 +0900 +0900" itemprop=datePublished>2021-03-11</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。
 同梱で用意されているものを少し改変しただけのものも含む。</p><p>前提条件：</p><ul><li>WinActor v7.2.0 で動作確認</li></ul><h2 id=相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</h2><p><code>$</code> で始まる変数は WinActor であらかじめ用意された特殊変数。
 <code>$PARSE_FILE_PATH</code> に相対パスを設定すると、絶対パスへ変換してくれる。
@@ -8,7 +8,7 @@ gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=genera
 <span style=color:#111>folder</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUMSVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>)</span>
 </code></pre></div><p>$FILE_PATH_TYPE の値：</p><ul><li>0, 10 - 補完なし</li><li>1, 11 - 補完あり。指定したファイルの存在を確認</li><li>2, 12 - 補完あり。指定したファイルを含むフォルダの存在を確認</li><li>3, 13 - 補完あり。指定したフォルダの存在を確認</li><li>4, 14 - 補完あり。ファイル・フォルダの存在確認なし</li></ul><p>0～4 はローカルパス・UNC パス・http/https を許容。
 10～14 はローカルパス・UNC パスのみ許容。
-初期値は0 。</p><h2 id=ファイルリスト作成>ファイルリスト作成</h2><p>既存の「ファイルリスト作成」はサブフォルダのファイルもリストに含めるが、それを指定したフォルダ直下のファイルのみにしたもの ( dir コマンドの /S オプションを除いただけ )。
+初期値は0 。</p><p>相対パスの場所は、シナリオファイルが未保存の場合、「ドキュメント\WinActor」になる。</p><h2 id=ファイルリスト作成>ファイルリスト作成</h2><p>既存の「ファイルリスト作成」はサブフォルダのファイルもリストに含めるが、それを指定したフォルダ直下のファイルのみにしたもの ( dir コマンドの /S オプションを除いただけ )。
 出力される内容はファイルの絶対パスではなく、ファイル名のみになるので注意。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#111>folder</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>フォルダ名</span><span style=color:#111>!</span>
 <span style=color:#111>outputfile</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>ファイルリスト出力先</span><span style=color:#111>!</span>
 
@@ -44,6 +44,30 @@ gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=genera
 <span style=color:#00a8c8>Do</span> <span style=color:#00a8c8>While</span> <span style=color:#111>objExec</span><span style=color:#111>.</span><span style=color:#111>Status</span> <span style=color:#f92672>=</span> <span style=color:#111>0</span>
   <span style=color:#111>WScript</span><span style=color:#111>.</span><span style=color:#111>Sleep</span> <span style=color:#111>300</span>
 <span style=color:#00a8c8>Loop</span>
+</code></pre></div><h2 id=フォルダ存在チェック>フォルダ存在チェック</h2><p>指定されたフォルダが存在するかチェックする。</p><p>「フォルダパス」：有無を確認したいフォルダの絶対パスか相対パス。
+「チェック結果」：確認した結果を格納する変数を指定。True：存在する、False：存在しない。</p><p>※操作対象のファイルを相対パスで指定する場合、開いているシナリオのフォルダが起点となる。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Option</span> <span style=color:#111>Explicit</span>
+
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>strFolder</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>result</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>fname</span>
+
+<span style=color:#111>strFolder</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>フォルダパス</span><span style=color:#111>!</span>
+
+<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$FILE_PATH_TYPE&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;13&#34;</span>
+<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>,</span> <span style=color:#111>strFolder</span>
+<span style=color:#111>strFolder</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUMSVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>)</span>
+
+<span style=color:#00a8c8>If</span> <span style=color:#111>Err</span><span style=color:#111>.</span><span style=color:#111>Number</span> <span style=color:#f92672>=</span> <span style=color:#111>0</span> <span style=color:#00a8c8>Then</span>
+    <span style=color:#00a8c8>If</span> <span style=color:#111>Len</span><span style=color:#111>(</span><span style=color:#111>strFolder</span><span style=color:#111>)</span> <span style=color:#f92672>=</span> <span style=color:#111>0</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#111>result</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>False</span>
+    <span style=color:#00a8c8>Else</span>
+        <span style=color:#111>result</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>True</span>
+    <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+<span style=color:#00a8c8>Else</span>
+  <span style=color:#111>Err</span><span style=color:#111>.</span><span style=color:#111>Raise</span> <span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;ライブラリの実行に失敗しました。&#34;</span>
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+
+<span style=color:#111>SetUMSVariable</span> <span style=color:#960050;background-color:#1e0010>$</span><span style=color:#111>チェック結果</span><span style=color:#960050;background-color:#1e0010>$</span><span style=color:#111>,</span> <span style=color:#111>result</span>
 </code></pre></div><h2 id=フォルダ作成-再帰的>フォルダ作成 (再帰的)</h2><p>同梱されているライブラリは、1階層分しかフォルダを作ってくれないので、複数階層のフォルダを作成するようにした。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#111>str_folder</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>作成フォルダ名</span><span style=color:#111>!</span>
 
 <span style=color:#00a8c8>If</span> <span style=color:#111>str_folder</span><span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span> <span style=color:#00a8c8>Then</span>
