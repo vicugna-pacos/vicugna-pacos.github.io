@@ -13,125 +13,13 @@ Adaptive Dialog で QnAMaker を使う方法を記載する。
 MS のドキュメントに載っているのは、ボットのソースコードと一緒に `.qna` ファイルを作成し、Q&Aのリストを管理する方法だが、
 ここに記載するのは、QnAMaker ポータルサイトに作成済みのナレッジベースを使う方法である。
 
-## QnAMakerRecognizer の追加
-まず AdaptiveDialog の Recognizer に `QnAMakerRecognizer` を追加する。
+## サンプル
+
+### Dialog クラスのサンプル
 
 ```cs
-public RootDialog(IConfiguration configuration) : base(nameof(RootDialog))
-{
-    Recognizer = new QnAMakerRecognizer()
-    {
-        HostName = configuration["qna:hostname"],
-        EndpointKey = configuration["qna:endpointKey"],
-        KnowledgeBaseId = configuration["qna:knowledgeBaseId"],
-        QnAId = "turn.qnaIdFromPrompt", // follow-up prompt を使うなら指定が必要
-        IncludeDialogNameInMetadata = false // Metadata を使わないなら必ずfalseにする
-    };
-}
-```
-
-HostName, EndpointKey, KnowledgeBaseId の3つは、QnAMaker ポータルサイトで当該ナレッジベースを選び、PUBLISH のページを開くと取得できる。
-
-## OnQnAMatch の追加
-
-### シンプルな回答をする
-次に、Triggers に QnAMaker から回答を見つけられたときの処理を追加する。トリガーのクラスは `OnQnAMatch` を使う。下記は、シンプルに一番スコアの高い回答を返す処理のサンプル。
-
-```cs
-new OnQnAMatch()
-{
-    Actions = new List<Dialog>()
-    {
-        new SendActivity()
-        {
-            Activity = new ActivityTemplate("${@answer}"),
-        }
-    }
-},
-```
-
-`${@answer}` には一番スコアの高い回答のテキストが入っている。
-
-### follow-up prompt に対応する
-follow-up prompt に対応する場合、シンプルな回答の処理に、もうひとつ `OnQnAMatch` トリガーを追加する。それぞれの Actions が何をやっているかをコメントに記載した。
-
-```cs
-// シンプルな回答を返す処理
-new OnQnAMatch()
-{
-    Actions = new List<Dialog>()
-    {
-        new SendActivity()
-        {
-            Activity = new ActivityTemplate("${@answer}"),
-        }
-    }
-},
-new OnQnAMatch()
-{
-    // follow-up prompt がある場合、こちらのトリガーが実行される
-    Condition = "count(turn.recognized.answers[0].context.prompts) > 0",
-    Actions = new List<Dialog>()
-    {
-        // follow-up prompt のリストを dialog スコープに保存する
-        new SetProperty()
-        {
-            Property = "dialog.qnaContext",
-            Value = "=turn.recognized.answers[0].context.prompts"
-        },
-        // follow-up prompt をユーザーに見せ、いずれかを選ばせる
-        new TextInput()
-        {
-            Prompt = new ActivityTemplate("${ShowMultiTurnAnswer()}"),
-            Property = "turn.qnaMultiTurnResponse",
-            AllowInterruptions = false,
-            AlwaysPrompt = true
-        },
-        // ユーザーの選んだものが follow-up prompt のリストの中にあるかどうか調べ、見つかったものを turn スコープに保存する
-        new SetProperty()
-        {
-            Property = "turn.qnaMatchFromContext",
-            Value = "=where(dialog.qnaContext, item, item.displayText == turn.qnaMultiTurnResponse)"
-        },
-        // 最初のステップで保存した follow-up prompt のリストを削除
-        new DeleteProperty()
-        {
-            Property = "dialog.qnaContext"
-        },
-        // ユーザーの選んだものがfollow-up prompt のリストにある場合
-        new IfCondition()
-        {
-            Condition = "turn.qnaMatchFromContext && count(turn.qnaMatchFromContext) > 0",
-            Actions = new List<Dialog>()
-            {
-                // 選んだ follow-up prompt の qnaId を turn スコープに保存する
-                // ここで指定する Property は Recognizer のプロパティである qnaId に指定したもの
-                new SetProperty()
-                {
-                    Property = "turn.qnaIdFromPrompt",
-                    Value = "=turn.qnaMatchFromContext[0].qnaId"
-                },
-                // ActivityReceived のイベントをもう一度発生させ、qnaId を指定した状態でもう一度 QnAMaker に問い合わせを行う。
-                // そうすると API は指定した qnaId の回答を返し、一連の処理が繰り返される。
-                new EmitEvent()
-                {
-                    EventName = DialogEvents.ActivityReceived,
-                    EventValue = "=turn.activity"
-                }
-            }
-        }
-    }
-},
-```
-
-
-## Dialog クラスのサンプル
-
-以下に RootDialog.cs のサンプルを記載する。
-
-```cs
-using AdaptiveExpressions.Properties;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.AI.QnA;
 using Microsoft.Bot.Builder.AI.QnA.Recognizers;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Adaptive;
@@ -142,13 +30,16 @@ using Microsoft.Bot.Builder.Dialogs.Adaptive.Input;
 using Microsoft.Bot.Builder.Dialogs.Adaptive.Templates;
 using Microsoft.Bot.Builder.LanguageGeneration;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace AdaptiveDialogs.Dialogs
+namespace FaqBotDemo.Dialogs
 {
     public class RootDialog : AdaptiveDialog
     {
@@ -159,8 +50,8 @@ namespace AdaptiveDialogs.Dialogs
                 HostName = configuration["qna:hostname"],
                 EndpointKey = configuration["qna:endpointKey"],
                 KnowledgeBaseId = configuration["qna:knowledgeBaseId"],
-                QnAId = "turn.qnaIdFromPrompt", // follow-up prompt を使うなら指定が必要
-                IncludeDialogNameInMetadata = false // Metadata を使わないなら必ずfalseにする
+                QnAId = "turn.qnaIdFromPrompt",
+                IncludeDialogNameInMetadata = false
             };
 
             Triggers = new List<OnCondition>
@@ -169,13 +60,66 @@ namespace AdaptiveDialogs.Dialogs
                 {
                     Actions = new List<Dialog>()
                     {
+                        new CodeAction(GetTopAnswer),
                         new SendActivity()
                         {
-                            Activity = new ActivityTemplate("${@answer}"),
+                            Activity = new ActivityTemplate("${SimpleAnswer()}"),
                         }
                     }
                 },
-                new OnQnAMatch() // follow-up prompt を使うならこの部分が必要。
+                // 回答が複数あるものの、最大のスコアが0.8未満のとき
+                new OnQnAMatch()
+                {
+                    Condition = "count(turn.recognized.answers) > 1 && count(where(turn.recognized.answers, answer, answer.score >= 0.8)) == 0",
+                    Actions = new List<Dialog>()
+                    {
+                        // 回答リストを保存しておく
+                        new SetProperty()
+                        {
+                            Property = "dialog.qnaAnswers",
+                            Value = "=turn.recognized.answers"
+                        },
+                        // どの回答が合っているかユーザーへ尋ねる
+                        new TextInput()
+                        {
+                            Prompt = new ActivityTemplate("${UnconfidentAnswer()}"),
+                            Property = "turn.qnaUnconfidentResponse",
+                            AllowInterruptions = false,
+                            AlwaysPrompt = true
+                        },
+                        // ユーザーが選んだ質問を使って回答を探す
+                        new SetProperty()
+                        {
+                            Property = "turn.qnaMatchFromAnswers",
+                            Value = "=where(dialog.qnaAnswers, answer, answer.questions[0] == turn.qnaUnconfidentResponse)"
+                        },
+                        // 保存しておいた回答リストを削除する
+                         new DeleteProperty()
+                        {
+                            Property = "dialog.qnaAnswers"
+                        },
+                        new IfCondition()
+                        {
+                            Condition = "turn.qnaMatchFromAnswers && count(turn.qnaMatchFromAnswers) > 0",
+                            Actions = new List<Dialog>()
+                            {
+                                new SetProperty()
+                                {
+                                    Property = "turn.topAnswer",
+                                    Value = "=turn.qnaMatchFromAnswers[0]"
+                                },
+                                new SendActivity("${SimpleAnswer()}")
+                            },
+                            // follow-up prompt で提示したもの以外が送られてきたとき
+                            ElseActions = new List<Dialog>()
+                            {
+                                new SendActivity("お答えできませんでした。改めてご質問ください。")
+                            }
+                        }
+                    }
+                },
+                // 回答に follow-up prompt が付いているとき
+                new OnQnAMatch()
                 {
                     Condition = "count(turn.recognized.answers[0].context.prompts) > 0",
                     Actions = new List<Dialog>()
@@ -187,7 +131,7 @@ namespace AdaptiveDialogs.Dialogs
                         },
                         new TextInput()
                         {
-                            Prompt = new ActivityTemplate("${ShowMultiTurnAnswer()}"),
+                            Prompt = new ActivityTemplate("${PromptAnswer()}"),
                             Property = "turn.qnaMultiTurnResponse",
                             AllowInterruptions = false,
                             AlwaysPrompt = true
@@ -216,15 +160,27 @@ namespace AdaptiveDialogs.Dialogs
                                     EventName = DialogEvents.ActivityReceived,
                                     EventValue = "=turn.activity"
                                 }
+                            },
+                            // follow-up prompt で提示したもの以外が送られてきたとき
+                            ElseActions = new List<Dialog>()
+                            {
+                                new SendActivity("お答えできませんでした。改めてご質問ください。")
                             }
                         }
+                    }
+                },
+                new OnConversationUpdateActivity()
+                {
+                    Actions =
+                    {
+                        new CodeAction(WelcomeUser)
                     }
                 },
                 new OnUnknownIntent()
                 {
                     Actions =
                     {
-                        new SendActivity("nothing!")
+                        new SendActivity("回答が見つかりませんでした。")
                     }
                 },
             };
@@ -233,20 +189,184 @@ namespace AdaptiveDialogs.Dialogs
             string fullPath = Path.Combine(paths);
 
             Generator = new TemplateEngineLanguageGenerator(Templates.ParseFile(fullPath));
+
+        }
+
+        /// <summary>
+        /// QnAMaker から返ってきた回答のうち、一番スコアの高いものを「turn.topAnswer」に保存する
+        /// </summary>
+        /// <param name="dc"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        private static async Task<DialogTurnResult> GetTopAnswer(DialogContext dc, object options)
+        {
+            var answers = (JArray) dc.State["turn.recognized.answers"];
+            JToken topAnswer = null;
+            float topScore = 0;
+
+            foreach (var answer in answers)
+            {
+                var score = float.Parse(answer["score"].ToString());
+
+                if (topAnswer == null || topScore < score)
+                {
+                    topScore = score;
+                    topAnswer = answer;
+                }
+            }
+
+            var turn = (JObject) dc.State["turn"];
+            turn["topAnswer"] = topAnswer;
+
+            return await dc.EndDialogAsync(options);
+        }
+
+        /// <summary>
+        /// 新しいユーザーが追加されたときの処理
+        /// </summary>
+        /// <param name="dc"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        private static async Task<DialogTurnResult> WelcomeUser(DialogContext dc, object options)
+        {
+            foreach (var member in dc.Context.Activity.MembersAdded)
+            {
+                if (member.Name != dc.Context.Activity.Recipient.Name)
+                {
+                    // はじめのメッセージを送信
+                    var template = new ActivityTemplate("${WelcomeUser()}");
+                    var message = await template.BindAsync(dc, dc.State);
+                    await dc.Context.SendActivityAsync(message);
+                }
+            }
+            return await dc.EndDialogAsync(options);
+        }
+
+        public override Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default)
+        {
+            // debug用
+            var debug = dc.State["turn"];
+            return base.BeginDialogAsync(dc, options, cancellationToken);
         }
     }
 }
 ```
 
-加えて、RootDialog.lg ファイルに以下の定義を追加。
+### lg ファイルのサンプル
+GitHub のサンプルでは follow-up prompt に Suggested Action を使っているが、
+Teams などでは対応していないため、Adaptive Card の Action を使っている。
 
-```md
-# ShowMultiTurnAnswer
+````md
+# SimpleAnswer
 [Activity
-    Text = ${@answer}
-    SuggestedActions = ${foreach(turn.recognized.answers[0].context.prompts, x, x.displayText)}
+    Attachments = ${json(SimpleAnswerCard())}
 ]
+
+# SimpleAnswerCard
+- ```
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.2",
+    "body": [
+        {
+            "type": "FactSet",
+            "facts": [
+                {
+                    "title": "Q :",
+                    "value": "${turn.topAnswer.questions[0]}"
+                },
+                {
+                    "title": "A :",
+                    "value": "${turn.topAnswer.answer}"
+                }
+            ]
+        }
+    ]
+}
 ```
+
+# PromptAnswer
+[Activity
+    Attachments = ${json(PromptAnswerCard())}
+]
+
+# PromptAnswerCard
+- ```
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.2",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "${@answer}",
+            "wrap": true
+        },
+        ${join(foreach(turn.recognized.answers[0].context.prompts, x, ActionButton(x.displayText)), ',')}
+    ]
+}
+```
+
+# UnconfidentAnswer
+[Activity
+    Attachments = ${json(UnconfidentAnswerCard())}
+]
+
+# UnconfidentAnswerCard
+- ```
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.2",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "以下の回答が見つかりました。",
+            "wrap": true
+        },
+        ${join(foreach(turn.recognized.answers, x, ActionButton(x.questions[0])), ',')}
+    ]
+}
+```
+
+# ActionButton (displayText)
+- IF: ${turn.activity.channelId == 'msteams'}
+    - ```
+    {
+        "type": "ActionSet",
+        "actions": [
+            {
+                "type": "Action.Submit",
+                "title": "${displayText}",
+                "data": {
+                "msteams": {
+                    "type": "imBack",
+                    "value": "${displayText}"
+                    }
+                }
+            }
+        ]
+    }
+    ```
+- ELSE:
+    - ```
+    {
+        "type": "ActionSet",
+        "actions": [
+            {
+                "type": "Action.Submit",
+                "title": "${displayText}",
+                "data": "${displayText}"
+            }
+        ]
+    }
+    ```
+# WelcomeUser
+- ```
+こんにちは。FAQチャットボットです。
+```
+````
 
 ## 回答の参照
 `OnQnAMatch` トリガーが発生した後、QnAMaker から得た回答は以下で参照できる。
@@ -272,42 +392,6 @@ namespace AdaptiveDialogs.Dialogs
 
 型も一緒に記載したが、CodeAction などで直接 State を取り出す場合、JObject とか JArray とか、JSONの形式になっている。
 
-### 一番スコアの高い回答を取り出す
-QnAMaker から返ってきた回答の中から一番スコアの高い回答を取り出し、名前を付けてメモリに保管するサンプルを記載する。
-回答だけなら `${@answer}` で参照できるが、QnAMaker で設定した質問文もボットのメッセージに記載したい場合に使える。
-
-```cs
-/// <summary>
-/// QnAMaker から返ってきた回答のうち、一番スコアの高いものを「turn.topAnswer」に保存する
-/// </summary>
-/// <param name="dc"></param>
-/// <param name="options"></param>
-/// <returns></returns>
-private static async Task<DialogTurnResult> GetTopAnswer(DialogContext dc, object options)
-{
-    var answers = (JArray) dc.State["turn.recognized.answers"];
-    JToken topAnswer = null;
-    float topScore = 0;
-
-    foreach (var answer in answers)
-    {
-        var score = float.Parse(answer["score"].ToString());
-
-        if (topAnswer == null || topScore < score)
-        {
-            topScore = score;
-            topAnswer = answer;
-        }
-    }
-
-    var turn = (JObject) dc.State["turn"];
-    turn["topAnswer"] = topAnswer;
-
-    return await dc.EndDialogAsync(options);
-}
-```
-
-
 ## 注意点
 
 `QnAMakerRecognizer` の生成時に、`IncludeDialogNameInMetadata` プロパティを `false` にしている。
@@ -319,101 +403,4 @@ AppInsights に記録されていたエラーメッセージ：
 
     Exception : Microsoft.CognitiveServices.QnAMaker.Runtime.Exceptions.AzureSearchBadStateException
     Message : Strict filter (dialogname) does not exist in the KB. Please retry with valid strict filters.
-
-## Teams
-Teams は SuggestedActions をサポートしていないので、代わりに AdaptiveCard を使う。
-やっつけ気味だが、自分がたどり着いた実装方法を下記に記載する。
-
-まず、RootDialog.cs の一部を上記サンプルから変更する。
-
-```cs {hl_lines=[32]}
-namespace AdaptiveDialogs.Dialogs
-{
-    public class RootDialog : AdaptiveDialog
-    {
-        public RootDialog(IConfiguration configuration) : base(nameof(RootDialog))
-        {
-            // 略
-            Triggers = new List<OnCondition>
-            {
-                new OnQnAMatch()
-                {
-                    Actions = new List<Dialog>()
-                    {
-                        new SendActivity()
-                        {
-                            Activity = new ActivityTemplate("Here's what I have from QnA Maker - ${@answer}"),
-                        }
-                    }
-                },
-                new OnQnAMatch()
-                {
-                    Condition = "count(turn.recognized.answers[0].context.prompts) > 0",
-                    Actions = new List<Dialog>()
-                    {
-                        new SetProperty()
-                        {
-                            Property = "dialog.qnaContext",
-                            Value = "=turn.recognized.answers[0].context.prompts"
-                        },
-                        new TextInput()
-                        {
-                            Prompt = new ActivityTemplate("${ShowMultiTurnAnswer2()}"),
-                            Property = "turn.qnaMultiTurnResponse",
-                            AllowInterruptions = false,
-                            AlwaysPrompt = true
-                        },
-                        // 略
-                    }
-                },
-                // 略
-            };
-
-            string[] paths = { ".", "Dialogs", "RootDialog.lg" };
-            string fullPath = Path.Combine(paths);
-
-            Generator = new TemplateEngineLanguageGenerator(Templates.ParseFile(fullPath));
-
-        }
-    }
-}
-```
-
-RootDialog.lg に追加したテンプレートは下記の通り。
-
-````markdown
-# ShowMultiTurnAnswer2
-[Activity
-    Text = ${@answer}
-    Attachments = ${json(ShowMultiTurnAnswer3())}
-]
-
-# ShowMultiTurnAnswer3
-- ```
-{
-  "type": "AdaptiveCard",
-  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-  "version": "1.2",
-  "actions": [
-    ${join(foreach(turn.recognized.answers[0].context.prompts, x, ActionButton(x.displayText)), ',')}
-  ]
-}
-```
-
-# ActionButton (displayText)
-- ```
-{
-    "type": "Action.Submit",
-    "title": "${displayText}",
-    "data": {
-    "msteams": {
-        "type": "imBack",
-        "value": "${displayText}"
-        }
-    }
-}
-```
-````
-
-follow-up prompt があるときだけ Adaptive Card になるのは違和感があるが、しかたなさそう。
 
