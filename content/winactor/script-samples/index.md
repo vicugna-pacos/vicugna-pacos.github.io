@@ -212,3 +212,155 @@ Set stream = Nothing
 SetUmsVariable $読込データ$, buf
 
 ```
+
+## ログ記録 (UTF-8)
+
+ログファイルの書き込み(追記)を行います。  
+その際、書き込んだ日時、指定されたラベルも記録します。  
+※「書き込みラベル」が未設定の場合、ラベルは記録されません。  
+※操作対象のファイルを相対パスで指定する場合、開いているシナリオのフォルダが起点となります。 
+
+```vb
+Dim fso
+Dim writeLabel
+Dim writeData
+Dim filePath
+Dim stream
+Dim lineData
+
+writeLabel = !書き込みラベル!
+writeData = !書き込みデータ!
+filePath = !書き込みファイルパス!
+
+SetUMSVariable "$FILE_PATH_TYPE", "14"
+SetUMSVariable "$PARSE_FILE_PATH", filePath
+filePath = GetUMSVariable("$PARSE_FILE_PATH")
+
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set stream = CreateObject("ADODB.Stream")
+stream.Type = 2
+stream.Charset = "UTF-8"
+stream.Open
+
+If fso.FileExists(filePath) Then
+	stream.LoadFromFile(filePath)
+	stream.Position = stream.Size
+End If
+
+If Len(writeLabel) = 0 Then
+	lineData = Now & " " & writeData
+Else
+	lineData = Now & " " & writeLabel & " " & writeData
+End If
+stream.WriteText lineData, 1
+
+' 先頭のBOMを除去する
+Dim binData
+
+' Position をゼロにしてバイナリモードにする
+stream.Position = 0
+stream.Type = 1
+
+' 先頭3バイトを除去して読込
+stream.Position = 3
+binData = stream.Read()
+stream.Close
+
+' バイナリデータを書き込む
+stream.Type = 1
+stream.Open
+stream.Write(binData)
+stream.SaveToFile filePath, 2
+stream.Close
+
+Set stream = Nothing
+Set fso = Nothing
+```
+
+## エラーログ記録 (UTF-8)
+
+ログファイルにエラー情報を書き込みます。  
+
+```vb
+Dim errorName
+Dim errorId
+Dim errorMessage
+Dim fso
+Dim filePath
+Dim stream
+Dim lineData
+
+filePath = !書き込みファイルパス!
+
+SetUMSVariable "$FILE_PATH_TYPE", "14"
+SetUMSVariable "$PARSE_FILE_PATH", filePath
+filePath = GetUMSVariable("$PARSE_FILE_PATH")
+
+' エラー情報取得 -------------
+' エラー発出ノード名
+errorName = GetUmsVariable("$ERROR_NODE_NAME")
+If IsNull(errorName) Then
+	errorName = ""
+End If
+
+' エラー発出ノードID
+errorId = GetUmsVariable("$ERROR_NODE_ID")
+If IsNull(errorId) Then
+	errorId = ""
+End If
+
+' エラーメッセージ
+errorMessage = GetUmsVariable("$ERROR_MESSAGE")
+If IsNull(errorMessage) Then
+	errorMessage = ""
+End If
+
+' ログファイルに書き込み -----
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set stream = CreateObject("ADODB.Stream")
+stream.Type = 2
+stream.Charset = "UTF-8"
+stream.Open
+
+If fso.FileExists(filePath) Then
+	stream.LoadFromFile(filePath)
+	stream.Position = stream.Size
+End If
+
+lineData = Now & " ERROR " & "エラーが発生したため処理を終了します。エラー情報は下記の通りです。"
+stream.WriteText lineData, 1
+
+' エラー発出ノード名
+lineData = Now & " ERROR " & "エラー発出ノード名：" & errorName
+stream.WriteText lineData, 1
+
+' エラー発出ノードID
+lineData = Now & " ERROR " & "エラー発出ノードID：" & errorId
+stream.WriteText lineData, 1
+
+' エラーメッセージ
+lineData = Now & " ERROR " & "エラーメッセージ：" & errorMessage
+stream.WriteText lineData, 1
+
+' 先頭のBOMを除去する
+Dim binData
+
+' Position をゼロにしてバイナリモードにする
+stream.Position = 0
+stream.Type = 1
+
+' 先頭3バイトを除去して読込
+stream.Position = 3
+binData = stream.Read()
+stream.Close
+
+' バイナリデータを書き込む
+stream.Type = 1
+stream.Open
+stream.Write(binData)
+stream.SaveToFile filePath, 2
+stream.Close
+
+Set stream = Nothing
+Set fso = Nothing
+```
