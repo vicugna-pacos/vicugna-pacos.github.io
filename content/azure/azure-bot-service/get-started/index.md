@@ -35,11 +35,21 @@ Adaptive Dialog では、lg ファイルなどテキストファイルを使用�
   <Content Update="appsettings.json">
     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
   </Content>
-  <Content Include="**/*.lg">
+  <Content Include="Dialogs/*.lg">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
 </ItemGroup>
 ```
+
+注意点：  
+lg ファイルの指定の仕方に `<Content Include="**/*.lg">` とも記述できるが、これは使わない方がいい。
+ビルドや発行をした際に、bin フォルダまでこの対象に含まれてしまい、lg ファイルだけが延々とネストする可能性がある。
+そして、パスが長くなりすぎてビルドエラーを招いたりする。
+
+エラーの例：
+
+    C:\xxx\bin\Release\netcoreapp3.1\bin\Debug\netcoreapp3.1\bin\Debug\netcoreapp3.1\bin\Debug\netcoreapp3.1\obj\Release\netcoreapp3.1\PubTmp\Out\bin\Release\netcoreapp3.1\Dialogs\RootDialog.lg
+    " を "bin\Release\netcoreapp3.1\bin\Release\netcoreapp3.1\bin\Debug\netcoreapp3.1\bin\Debug\netcoreapp3.1\bin\Debug\netcoreapp3.1\obj\Release\netcoreapp3.1\PubTmp\Out\bin\Release\netcoreapp3.1\Dialogs\RootDialog.lg" にコピーできません。指定されたパス、ファイル名、またはその両方が長すぎます。完全限定型名は 260 文字未満で指定し、ディレクトリ名は 248 未満で指定してください。	
 
 ### デバッグ時にブラウザを起動しない
 Web アプリケーションの場合、デバッグ時に自動的にブラウザが起動してスタートページが表示されるが、ボットアプリの場合はスタートページは必要ない。
