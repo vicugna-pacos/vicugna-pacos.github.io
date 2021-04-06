@@ -215,6 +215,8 @@ SetUmsVariable $読込データ$, buf
 
 ## ログ記録 (UTF-8)
 
+__※ 条件は分からないが、何回か実行する or 実行のタイミングによって、ファイルに書き込めなくなるエラーが出るので、実用は無理そう。__
+
 ログファイルの書き込み(追記)を行います。  
 その際、書き込んだ日時、指定されたラベルも記録します。  
 ※「書き込みラベル」が未設定の場合、ラベルは記録されません。  
@@ -225,7 +227,6 @@ Dim fso
 Dim writeLabel
 Dim writeData
 Dim filePath
-Dim stream
 Dim lineData
 
 writeLabel = !書き込みラベル!
@@ -237,14 +238,15 @@ SetUMSVariable "$PARSE_FILE_PATH", filePath
 filePath = GetUMSVariable("$PARSE_FILE_PATH")
 
 Set fso = CreateObject("Scripting.FileSystemObject")
-Set stream = CreateObject("ADODB.Stream")
-stream.Type = 2
-stream.Charset = "UTF-8"
-stream.Open
+Dim stream1
+Set stream1 = CreateObject("ADODB.Stream")
+stream1.Type = 2
+stream1.Charset = "UTF-8"
+stream1.Open
 
 If fso.FileExists(filePath) Then
-	stream.LoadFromFile(filePath)
-	stream.Position = stream.Size
+	stream1.LoadFromFile(filePath)
+	stream1.Position = stream1.Size
 End If
 
 If Len(writeLabel) = 0 Then
@@ -252,32 +254,37 @@ If Len(writeLabel) = 0 Then
 Else
 	lineData = Now & " " & writeLabel & " " & writeData
 End If
-stream.WriteText lineData, 1
+stream1.WriteText lineData, 1
 
 ' 先頭のBOMを除去する
 Dim binData
 
 ' Position をゼロにしてバイナリモードにする
-stream.Position = 0
-stream.Type = 1
+stream1.Position = 0
+stream1.Type = 1
 
 ' 先頭3バイトを除去して読込
-stream.Position = 3
+stream1.Position = 3
 binData = stream.Read()
-stream.Close
+stream1.Close
+Set stream1 = Nothing
 
 ' バイナリデータを書き込む
-stream.Type = 1
-stream.Open
-stream.Write(binData)
-stream.SaveToFile filePath, 2
-stream.Close
+Dim stream2
+Set stream2 = CreateObject("ADODB.Stream")
+stream2.Type = 1
+stream2.Open
+stream2.Write(binData)
+stream2.SaveToFile filePath, 2
+stream2.Close
+Set stream2 = Nothing
 
-Set stream = Nothing
 Set fso = Nothing
 ```
 
 ## エラーログ記録 (UTF-8)
+
+__※ 「ログ記録 (UTF-8)」が使えなさそうなので、こちらも使えない。__
 
 ログファイルにエラー情報を書き込みます。  
 
