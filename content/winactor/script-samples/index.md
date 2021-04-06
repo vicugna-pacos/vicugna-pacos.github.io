@@ -282,92 +282,85 @@ Set stream2 = Nothing
 Set fso = Nothing
 ```
 
-## エラーログ記録 (UTF-8)
+## エラーログ記録
 
-__※ 「ログ記録 (UTF-8)」が使えなさそうなので、こちらも使えない。__
-
-ログファイルにエラー情報を書き込みます。  
+エラー情報収集とログ記録を同時に行います。
 
 ```vb
+Dim objFSO
+Dim objFile
+Dim writeFilePath
+Dim fileFormat
+
 Dim errorName
 Dim errorId
 Dim errorMessage
-Dim fso
-Dim filePath
-Dim stream
-Dim lineData
 
-filePath = !書き込みファイルパス!
+writeFilePath = !書き込みファイルパス!
+fileFormat = GetFileFormat(!ファイルフォーマット|Ascii形式,Unicode形式,システム既定!)
 
-SetUMSVariable "$FILE_PATH_TYPE", "14"
-SetUMSVariable "$PARSE_FILE_PATH", filePath
-filePath = GetUMSVariable("$PARSE_FILE_PATH")
+If writeFilePath = "" Then
+  Err.Raise 1, "", "書き込みファイルパスを指定して下さい。"
+End If
 
 ' エラー情報取得 -------------
 ' エラー発出ノード名
 errorName = GetUmsVariable("$ERROR_NODE_NAME")
 If IsNull(errorName) Then
-	errorName = ""
+  errorName = ""
 End If
 
 ' エラー発出ノードID
 errorId = GetUmsVariable("$ERROR_NODE_ID")
 If IsNull(errorId) Then
-	errorId = ""
+  errorId = ""
 End If
 
 ' エラーメッセージ
 errorMessage = GetUmsVariable("$ERROR_MESSAGE")
 If IsNull(errorMessage) Then
-	errorMessage = ""
+  errorMessage = ""
 End If
 
 ' ログファイルに書き込み -----
-Set fso = CreateObject("Scripting.FileSystemObject")
-Set stream = CreateObject("ADODB.Stream")
-stream.Type = 2
-stream.Charset = "UTF-8"
-stream.Open
+'ファイルシステムオブジェクトを生成
+Set objFSO = WScript.CreateObject("Scripting.FileSystemObject")
 
-If fso.FileExists(filePath) Then
-	stream.LoadFromFile(filePath)
-	stream.Position = stream.Size
-End If
+fname = writeFilePath
+SetUMSVariable "$FILE_PATH_TYPE", "14"
+SetUMSVariable "$PARSE_FILE_PATH", fname
+writeFilePath = GetUMSVariable("$PARSE_FILE_PATH")
 
-lineData = Now & " ERROR " & "エラーが発生したため処理を終了します。エラー情報は下記の通りです。"
-stream.WriteText lineData, 1
+'ファイルをオープン
+Set objFile = objFSO.OpenTextFile(writeFilePath, 8, True, fileFormat)
+'書き込み
+objFile.WriteLine(Now & " ERROR " & "エラーが発生したためシナリオを終了します。エラー情報は下記の通りです。")
+objFile.WriteLine(Now & " ERROR " & "エラー発出ノード名：" & errorName)
+objFile.WriteLine(Now & " ERROR " & "エラー発出ノードID：" & errorId)
+objFile.WriteLine(Now & " ERROR " & "エラーメッセージ：" & errorMessage)
 
-' エラー発出ノード名
-lineData = Now & " ERROR " & "エラー発出ノード名：" & errorName
-stream.WriteText lineData, 1
+objFile.Close
 
-' エラー発出ノードID
-lineData = Now & " ERROR " & "エラー発出ノードID：" & errorId
-stream.WriteText lineData, 1
+Set objFile = Nothing
+Set objFSO = Nothing
 
-' エラーメッセージ
-lineData = Now & " ERROR " & "エラーメッセージ：" & errorMessage
-stream.WriteText lineData, 1
-
-' 先頭のBOMを除去する
-Dim binData
-
-' Position をゼロにしてバイナリモードにする
-stream.Position = 0
-stream.Type = 1
-
-' 先頭3バイトを除去して読込
-stream.Position = 3
-binData = stream.Read()
-stream.Close
-
-' バイナリデータを書き込む
-stream.Type = 1
-stream.Open
-stream.Write(binData)
-stream.SaveToFile filePath, 2
-stream.Close
-
-Set stream = Nothing
-Set fso = Nothing
+'**************************************************
+' 概要: ファイルフォーマット文字列を Tristate 定数に変換する
+' 引数: param ファイルフォーマット文字列
+' 戻値: Tristate 定数
+'**************************************************
+Function GetFileFormat(param)
+  Dim result
+  Select Case param
+  Case "Ascii形式"
+    result = 0 'TristateFalse
+  Case "Unicode形式"
+    result = -1 'TristateTrue
+  Case "システム規定"
+    result = -2 'TristateUseDefault
+  Case Else
+    result = 0 'TristateFalse
+  End Select
+  GetFileFormat = result
+End Function
 ```
