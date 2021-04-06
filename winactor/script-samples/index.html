@@ -1,5 +1,5 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>スクリプトのサンプル - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>WinActor</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</a></li><li><a href=#ファイルリスト作成>ファイルリスト作成</a></li><li><a href=#フォルダ存在チェック>フォルダ存在チェック</a></li><li><a href=#フォルダ作成-再帰的>フォルダ作成 (再帰的)</a></li><li><a href=#ファイル拡張子変換>ファイル拡張子変換</a></li><li><a href=#一時ファイル作成>一時ファイル作成</a></li><li><a href=#ファイル読み込み-utf-8>ファイル読み込み (UTF-8)</a></li><li><a href=#ログ記録-utf-8>ログ記録 (UTF-8)</a></li><li><a href=#エラーログ記録-utf-8>エラーログ記録 (UTF-8)</a></li></ul></nav></aside></div><div class=main><article><h1>スクリプトのサンプル</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>スクリプトのサンプル - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>WinActor</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</a></li><li><a href=#ファイルリスト作成>ファイルリスト作成</a></li><li><a href=#フォルダ存在チェック>フォルダ存在チェック</a></li><li><a href=#フォルダ作成-再帰的>フォルダ作成 (再帰的)</a></li><li><a href=#ファイル拡張子変換>ファイル拡張子変換</a></li><li><a href=#一時ファイル作成>一時ファイル作成</a></li><li><a href=#ファイル読み込み-utf-8>ファイル読み込み (UTF-8)</a></li><li><a href=#ログ記録-utf-8>ログ記録 (UTF-8)</a></li><li><a href=#エラーログ記録>エラーログ記録</a></li></ul></nav></aside></div><div class=main><article><h1>スクリプトのサンプル</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
 <time datetime="2021-03-11 13:54:46 +0900 +0900" itemprop=datePublished>2021-03-11</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。
 同梱で用意されているものを少し改変しただけのものも含む。</p><p>前提条件：</p><ul><li>WinActor v7.2.0 で動作確認</li></ul><h2 id=相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</h2><p><code>$</code> で始まる変数は WinActor であらかじめ用意された特殊変数。
 <code>$PARSE_FILE_PATH</code> に相対パスを設定すると、絶対パスへ変換してくれる。
@@ -201,85 +201,80 @@ SetUmsVariable $変更後ファイル名$, newFileName
 <span style=color:#00a8c8>Set</span> <span style=color:#111>stream2</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
 
 <span style=color:#00a8c8>Set</span> <span style=color:#111>fso</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
-</code></pre></div><h2 id=エラーログ記録-utf-8>エラーログ記録 (UTF-8)</h2><p><strong>※ 「ログ記録 (UTF-8)」が使えなさそうなので、こちらも使えない。</strong></p><p>ログファイルにエラー情報を書き込みます。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Dim</span> <span style=color:#111>errorName</span>
+</code></pre></div><h2 id=エラーログ記録>エラーログ記録</h2><p>エラー情報収集とログ記録を同時に行います。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Dim</span> <span style=color:#111>objFSO</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>objFile</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>writeFilePath</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>fileFormat</span>
+
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>errorName</span>
 <span style=color:#00a8c8>Dim</span> <span style=color:#111>errorId</span>
 <span style=color:#00a8c8>Dim</span> <span style=color:#111>errorMessage</span>
-<span style=color:#00a8c8>Dim</span> <span style=color:#111>fso</span>
-<span style=color:#00a8c8>Dim</span> <span style=color:#111>filePath</span>
-<span style=color:#00a8c8>Dim</span> <span style=color:#111>stream</span>
-<span style=color:#00a8c8>Dim</span> <span style=color:#111>lineData</span>
 
-<span style=color:#111>filePath</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>書き込みファイルパス</span><span style=color:#111>!</span>
+<span style=color:#111>writeFilePath</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>書き込みファイルパス</span><span style=color:#111>!</span>
+<span style=color:#111>fileFormat</span> <span style=color:#f92672>=</span> <span style=color:#111>GetFileFormat</span><span style=color:#111>(!</span><span style=color:#111>ファイルフォーマット</span><span style=color:#960050;background-color:#1e0010>|</span><span style=color:#111>Ascii形式</span><span style=color:#111>,</span><span style=color:#111>Unicode形式</span><span style=color:#111>,</span><span style=color:#111>システム既定</span><span style=color:#111>!)</span>
 
-<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$FILE_PATH_TYPE&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;14&#34;</span>
-<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>,</span> <span style=color:#111>filePath</span>
-<span style=color:#111>filePath</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUMSVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>)</span>
+<span style=color:#00a8c8>If</span> <span style=color:#111>writeFilePath</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span> <span style=color:#00a8c8>Then</span>
+  <span style=color:#111>Err</span><span style=color:#111>.</span><span style=color:#111>Raise</span> <span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;書き込みファイルパスを指定して下さい。&#34;</span>
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
 
 <span style=color:#75715e>&#39; エラー情報取得 -------------
 </span><span style=color:#75715e>&#39; エラー発出ノード名
 </span><span style=color:#75715e></span><span style=color:#111>errorName</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUmsVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$ERROR_NODE_NAME&#34;</span><span style=color:#111>)</span>
 <span style=color:#00a8c8>If</span> <span style=color:#111>IsNull</span><span style=color:#111>(</span><span style=color:#111>errorName</span><span style=color:#111>)</span> <span style=color:#00a8c8>Then</span>
-	<span style=color:#111>errorName</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
+  <span style=color:#111>errorName</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
 <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
 
 <span style=color:#75715e>&#39; エラー発出ノードID
 </span><span style=color:#75715e></span><span style=color:#111>errorId</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUmsVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$ERROR_NODE_ID&#34;</span><span style=color:#111>)</span>
 <span style=color:#00a8c8>If</span> <span style=color:#111>IsNull</span><span style=color:#111>(</span><span style=color:#111>errorId</span><span style=color:#111>)</span> <span style=color:#00a8c8>Then</span>
-	<span style=color:#111>errorId</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
+  <span style=color:#111>errorId</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
 <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
 
 <span style=color:#75715e>&#39; エラーメッセージ
 </span><span style=color:#75715e></span><span style=color:#111>errorMessage</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUmsVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$ERROR_MESSAGE&#34;</span><span style=color:#111>)</span>
 <span style=color:#00a8c8>If</span> <span style=color:#111>IsNull</span><span style=color:#111>(</span><span style=color:#111>errorMessage</span><span style=color:#111>)</span> <span style=color:#00a8c8>Then</span>
-	<span style=color:#111>errorMessage</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
+  <span style=color:#111>errorMessage</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
 <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
 
 <span style=color:#75715e>&#39; ログファイルに書き込み -----
-</span><span style=color:#75715e></span><span style=color:#00a8c8>Set</span> <span style=color:#111>fso</span> <span style=color:#f92672>=</span> <span style=color:#111>CreateObject</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Scripting.FileSystemObject&#34;</span><span style=color:#111>)</span>
-<span style=color:#00a8c8>Set</span> <span style=color:#111>stream</span> <span style=color:#f92672>=</span> <span style=color:#111>CreateObject</span><span style=color:#111>(</span><span style=color:#d88200>&#34;ADODB.Stream&#34;</span><span style=color:#111>)</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Type</span> <span style=color:#f92672>=</span> <span style=color:#111>2</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Charset</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;UTF-8&#34;</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Open</span>
+</span><span style=color:#75715e>&#39;ファイルシステムオブジェクトを生成
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Set</span> <span style=color:#111>objFSO</span> <span style=color:#f92672>=</span> <span style=color:#111>WScript</span><span style=color:#111>.</span><span style=color:#111>CreateObject</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Scripting.FileSystemObject&#34;</span><span style=color:#111>)</span>
 
-<span style=color:#00a8c8>If</span> <span style=color:#111>fso</span><span style=color:#111>.</span><span style=color:#111>FileExists</span><span style=color:#111>(</span><span style=color:#111>filePath</span><span style=color:#111>)</span> <span style=color:#00a8c8>Then</span>
-	<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>LoadFromFile</span><span style=color:#111>(</span><span style=color:#111>filePath</span><span style=color:#111>)</span>
-	<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Position</span> <span style=color:#f92672>=</span> <span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Size</span>
-<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+<span style=color:#111>fname</span> <span style=color:#f92672>=</span> <span style=color:#111>writeFilePath</span>
+<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$FILE_PATH_TYPE&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;14&#34;</span>
+<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>,</span> <span style=color:#111>fname</span>
+<span style=color:#111>writeFilePath</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUMSVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>)</span>
 
-<span style=color:#111>lineData</span> <span style=color:#f92672>=</span> <span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラーが発生したため処理を終了します。エラー情報は下記の通りです。&#34;</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>WriteText</span> <span style=color:#111>lineData</span><span style=color:#111>,</span> <span style=color:#111>1</span>
+<span style=color:#75715e>&#39;ファイルをオープン
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Set</span> <span style=color:#111>objFile</span> <span style=color:#f92672>=</span> <span style=color:#111>objFSO</span><span style=color:#111>.</span><span style=color:#111>OpenTextFile</span><span style=color:#111>(</span><span style=color:#111>writeFilePath</span><span style=color:#111>,</span> <span style=color:#111>8</span><span style=color:#111>,</span> <span style=color:#00a8c8>True</span><span style=color:#111>,</span> <span style=color:#111>fileFormat</span><span style=color:#111>)</span>
+<span style=color:#75715e>&#39;書き込み
+</span><span style=color:#75715e></span><span style=color:#111>objFile</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラーが発生したためシナリオを終了します。エラー情報は下記の通りです。&#34;</span><span style=color:#111>)</span>
+<span style=color:#111>objFile</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラー発出ノード名：&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>errorName</span><span style=color:#111>)</span>
+<span style=color:#111>objFile</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラー発出ノードID：&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>errorId</span><span style=color:#111>)</span>
+<span style=color:#111>objFile</span><span style=color:#111>.</span><span style=color:#111>WriteLine</span><span style=color:#111>(</span><span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラーメッセージ：&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>errorMessage</span><span style=color:#111>)</span>
 
-<span style=color:#75715e>&#39; エラー発出ノード名
-</span><span style=color:#75715e></span><span style=color:#111>lineData</span> <span style=color:#f92672>=</span> <span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラー発出ノード名：&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>errorName</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>WriteText</span> <span style=color:#111>lineData</span><span style=color:#111>,</span> <span style=color:#111>1</span>
+<span style=color:#111>objFile</span><span style=color:#111>.</span><span style=color:#111>Close</span>
 
-<span style=color:#75715e>&#39; エラー発出ノードID
-</span><span style=color:#75715e></span><span style=color:#111>lineData</span> <span style=color:#f92672>=</span> <span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラー発出ノードID：&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>errorId</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>WriteText</span> <span style=color:#111>lineData</span><span style=color:#111>,</span> <span style=color:#111>1</span>
+<span style=color:#00a8c8>Set</span> <span style=color:#111>objFile</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+<span style=color:#00a8c8>Set</span> <span style=color:#111>objFSO</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
 
-<span style=color:#75715e>&#39; エラーメッセージ
-</span><span style=color:#75715e></span><span style=color:#111>lineData</span> <span style=color:#f92672>=</span> <span style=color:#111>Now</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; ERROR &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;エラーメッセージ：&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>errorMessage</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>WriteText</span> <span style=color:#111>lineData</span><span style=color:#111>,</span> <span style=color:#111>1</span>
-
-<span style=color:#75715e>&#39; 先頭のBOMを除去する
-</span><span style=color:#75715e></span><span style=color:#00a8c8>Dim</span> <span style=color:#111>binData</span>
-
-<span style=color:#75715e>&#39; Position をゼロにしてバイナリモードにする
-</span><span style=color:#75715e></span><span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Position</span> <span style=color:#f92672>=</span> <span style=color:#111>0</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Type</span> <span style=color:#f92672>=</span> <span style=color:#111>1</span>
-
-<span style=color:#75715e>&#39; 先頭3バイトを除去して読込
-</span><span style=color:#75715e></span><span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Position</span> <span style=color:#f92672>=</span> <span style=color:#111>3</span>
-<span style=color:#111>binData</span> <span style=color:#f92672>=</span> <span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Read</span><span style=color:#111>()</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Close</span>
-
-<span style=color:#75715e>&#39; バイナリデータを書き込む
-</span><span style=color:#75715e></span><span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Type</span> <span style=color:#f92672>=</span> <span style=color:#111>1</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Open</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Write</span><span style=color:#111>(</span><span style=color:#111>binData</span><span style=color:#111>)</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>SaveToFile</span> <span style=color:#111>filePath</span><span style=color:#111>,</span> <span style=color:#111>2</span>
-<span style=color:#111>stream</span><span style=color:#111>.</span><span style=color:#111>Close</span>
-
-<span style=color:#00a8c8>Set</span> <span style=color:#111>stream</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
-<span style=color:#00a8c8>Set</span> <span style=color:#111>fso</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+<span style=color:#75715e>&#39;**************************************************
+</span><span style=color:#75715e>&#39; 概要: ファイルフォーマット文字列を Tristate 定数に変換する
+</span><span style=color:#75715e>&#39; 引数: param ファイルフォーマット文字列
+</span><span style=color:#75715e>&#39; 戻値: Tristate 定数
+</span><span style=color:#75715e>&#39;**************************************************
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Function</span> <span style=color:#75af00>GetFileFormat</span><span style=color:#111>(</span><span style=color:#111>param</span><span style=color:#111>)</span>
+  <span style=color:#00a8c8>Dim</span> <span style=color:#111>result</span>
+  <span style=color:#00a8c8>Select</span> <span style=color:#00a8c8>Case</span> <span style=color:#111>param</span>
+  <span style=color:#00a8c8>Case</span> <span style=color:#d88200>&#34;Ascii形式&#34;</span>
+    <span style=color:#111>result</span> <span style=color:#f92672>=</span> <span style=color:#111>0</span> <span style=color:#75715e>&#39;TristateFalse
+</span><span style=color:#75715e></span>  <span style=color:#00a8c8>Case</span> <span style=color:#d88200>&#34;Unicode形式&#34;</span>
+    <span style=color:#111>result</span> <span style=color:#f92672>=</span> <span style=color:#f92672>-</span><span style=color:#111>1</span> <span style=color:#75715e>&#39;TristateTrue
+</span><span style=color:#75715e></span>  <span style=color:#00a8c8>Case</span> <span style=color:#d88200>&#34;システム規定&#34;</span>
+    <span style=color:#111>result</span> <span style=color:#f92672>=</span> <span style=color:#f92672>-</span><span style=color:#111>2</span> <span style=color:#75715e>&#39;TristateUseDefault
+</span><span style=color:#75715e></span>  <span style=color:#00a8c8>Case</span> <span style=color:#00a8c8>Else</span>
+    <span style=color:#111>result</span> <span style=color:#f92672>=</span> <span style=color:#111>0</span> <span style=color:#75715e>&#39;TristateFalse
+</span><span style=color:#75715e></span>  <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Select</span>
+  <span style=color:#111>GetFileFormat</span> <span style=color:#f92672>=</span> <span style=color:#111>result</span>
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Function</span>
 </code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
