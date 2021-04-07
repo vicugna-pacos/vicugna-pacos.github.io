@@ -269,3 +269,97 @@ namespace ClassLibrary1Test
     }
 }
 ```
+
+## ログ出力
+テスト対象となるアプリにて、ログ出力は `Microsoft.Extensions.Logging` を使うことが多いが、
+xUnit はテスト対象クラスが出力したログ(コンソール出力)はキャプチャしてくれない (正確にはv2からキャプチャしなくなったらしい) 。
+テストクラス、もしくは Fixture など xUnit で使う他のクラスでコンソール出力する手段は用意されているが、
+xUnit 用の Logger は用意されていないので、自分で作る必要がある。
+以下に自作の Logger, ILoggerProvider のサンプルを記載する。
+
+```cs
+public class XunitLoggerProvider : ILoggerProvider
+{
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public XunitLoggerProvider(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
+    public ILogger CreateLogger(string categoryName)
+        => new XunitLogger(_testOutputHelper, categoryName);
+
+    public void Dispose()
+    { }
+}
+
+public class XunitLogger : ILogger
+{
+    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly string _categoryName;
+
+    public XunitLogger(ITestOutputHelper testOutputHelper, string categoryName)
+    {
+        _testOutputHelper = testOutputHelper;
+        _categoryName = categoryName;
+    }
+
+    public IDisposable BeginScope<TState>(TState state)
+        => NoopDisposable.Instance;
+
+    public bool IsEnabled(LogLevel logLevel)
+        => true;
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    {
+        _testOutputHelper.WriteLine($"{_categoryName} [{eventId}] {formatter(state, exception)}");
+        if (exception != null)
+            _testOutputHelper.WriteLine(exception.ToString());
+    }
+
+    private class NoopDisposable : IDisposable
+    {
+        public static NoopDisposable Instance = new NoopDisposable();
+        public void Dispose()
+        { }
+    }
+}
+```
+
+次に、Test クラスのサンプルを記載する。
+
+```cs
+using Microsoft.Extensions.Logging;
+using Xunit;
+using Xunit.Abstractions;
+
+public class Example
+{
+    private readonly ILogger<Example> _logger;
+
+    public Example(ITestOutputHelper testOutputHelper)
+    {
+        var factory = LoggerFactory.Create(builder =>
+        {
+            builder.AddProvider(new XunitLoggerProvider(testOutputHelper));
+        });
+        _logger = factory.CreateLogger<Example>();
+    }
+
+    [Fact]
+    public void Test2()
+    {
+        _logger.LogInformation("test1");
+        _logger.LogDebug("test2");
+    }
+}
+```
+
+ログは「テスト エクスプローラ」で確認する。テストエクスプローラでテストメソッドをクリックし、詳細を見ると出力を確認するリンクが出ている。
+
+![](2021-04-07-14-24-12.png)
+
+ここをクリックするとログが表示される。
+
+参考：[c# - .net core 2.0 ConfigureLogging xunit test - Stack Overflow](https://stackoverflow.com/questions/46169169/net-core-2-0-configurelogging-xunit-test)
