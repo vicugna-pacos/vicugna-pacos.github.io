@@ -84,3 +84,11 @@ namespace Test
     }
 }
 ```
+
+## COM オブジェクトの解放
+上記サンプルコードからは抜けているが、COM を扱うならオブジェクトの解放を行わなければならない。
+Excel であれば、Workbook, Sheet, Range など、触れたオブジェクト全てを明示的に開放しなければいけない。
+
+参考：[.NETを使った別プロセスのOfficeの自動化が面倒なはずがない―そう考えていた時期が俺にもありました。 - Qiita](https://qiita.com/mima_ita/items/aa811423d8c4410eca71)
+
+それらをラップしてくれるライブラリ [NetOffice](https://netoffice.io/) もあるが、2021年4月の時点では .NET Core 3.1 がサポートされていない。.NET Framework であればサポートされている。
