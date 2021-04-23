@@ -1,7 +1,7 @@
 ---
 title: "色々メモ"
 date: 2020-10-27T15:42:25+09:00
-lastMod: 2020-11-19T15:50:41+09:00
+lastMod: 2021-04-23T15:28:31+09:00
 ---
 
 ## 前提条件
@@ -14,6 +14,27 @@ lastMod: 2020-11-19T15:50:41+09:00
 $MyInvocation.MyCommand.Path
 # スクリプトのフォルダパス
 Split-Path $MyInvocation.MyCommand.Path -Parent
+```
+
+## クラスの名前空間を省略する
+参考：[about_Using - PowerShell | Microsoft Docs](https://docs.microsoft.com/ja-jp/powershell/module/microsoft.powershell.core/about/about_using?view=powershell-5.1)
+
+using namespace を使うと、.NET のクラスを呼び出すときの名前空間を省略できる。C#などでコーディングするときの using と全く同じ働きをする。
+
+```powershell
+using namespace System.Text
+using namespace System.IO
+
+[string]$string = "Hello World"
+## Valid values are "SHA1", "SHA256", "SHA384", "SHA512", "MD5"
+[string]$algorithm = "SHA256"
+
+[byte[]]$stringbytes = [UnicodeEncoding]::Unicode.GetBytes($string)
+
+[Stream]$memorystream = [MemoryStream]::new($stringbytes)
+$hashfromstream = Get-FileHash -InputStream $memorystream `
+  -Algorithm $algorithm
+$hashfromstream.Hash.ToString()
 ```
 
 ## 関数
@@ -36,11 +57,18 @@ Split-Path $MyInvocation.MyCommand.Path -Parent
 パスは `$env:PSModulePath` を参照すると分かる。
 `[ドキュメントフォルダ]\WindowsPowerShell\Modules` とか `C:\Program Files\WindowsPowerShell\Modules` が設定されている。
 
-それ以外にフォルダを追加したい場合は、単純に `$env:PSModulePath` へパスを追加すると良い。ただし、この方法はセッション内でのみ有効。
+上記以外のフォルダを追加したい場合は、単純に `$env:PSModulePath` へパスを追加すると良い。ただし、この方法はセッション内でのみ有効。
 永続的にフォルダを追加したい場合は、Windowsの環境変数に書き加える。
 
+また、個別にモジュールファイルを指定する方法もある。
+ps1 ファイルのコメントを除いた先頭に、下記を追加する。
+
+```powershell
+using module ".\module1.psm1"
+```
+
 ### モジュールを作成する
-`$env:PSModulePath` に設定したフォルダに、モジュールファイル名と同じ名前のフォルダを作成する。
+`$env:PSModulePath` に psm1 を置く場合、設定したフォルダに、モジュールファイル名と同じ名前のフォルダを作成する。
 
     hoge
     └ hoge.psm1
