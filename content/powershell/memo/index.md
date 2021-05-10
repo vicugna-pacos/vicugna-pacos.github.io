@@ -44,41 +44,6 @@ $hashfromstream.Hash.ToString()
 命名規則がある。`動詞-名詞` の形。
 動詞に使える単語は決まっている。`Get-Verb` というコマンドを実行すると一覧が表示される。
 
-
-## モジュール (psm1)
-
-参考：[PowerShell のモジュール詳解とモジュールへのコマンドレット配置手法を考える - tech.guitarrapc.cóm](https://tech.guitarrapc.com/entry/2013/12/03/014013)
-
-参考：[PSModulePath のインストールパスを変更する - PowerShell | Microsoft Docs](https://docs.microsoft.com/ja-jp/powershell/scripting/developer/module/modifying-the-psmodulepath-installation-path?view=powershell-5.1)
-
-### モジュールを読み込む
-
-モジュールは所定のフォルダへ置くと、自動で読み込まれる。
-パスは `$env:PSModulePath` を参照すると分かる。
-`[ドキュメントフォルダ]\WindowsPowerShell\Modules` とか `C:\Program Files\WindowsPowerShell\Modules` が設定されている。
-
-上記以外のフォルダを追加したい場合は、単純に `$env:PSModulePath` へパスを追加すると良い。ただし、この方法はセッション内でのみ有効。
-永続的にフォルダを追加したい場合は、Windowsの環境変数に書き加える。
-
-また、個別にモジュールファイルを指定する方法もある。
-ps1 ファイルのコメントを除いた先頭に、下記を追加する。
-
-```powershell
-using module ".\module1.psm1"
-```
-
-### モジュールを作成する
-`$env:PSModulePath` に psm1 を置く場合、設定したフォルダに、モジュールファイル名と同じ名前のフォルダを作成する。
-
-    hoge
-    └ hoge.psm1
-
-psm1 ファイルに関数を書いたら、エクスポートして外部から使えるようにする。
-
-```powershell
-Export-ModuleMember -Function hogeFunc
-```
-
 ## ドットソース
 例えば、`main.ps1` に書いたスクリプトの量が多くなり、`sub.ps1` に分割したい場合に使える。
 `main.ps1` の任意の場所に下記サンプルを挿入すると、その場所に `sub.ps1` が挿入される感じになる。
