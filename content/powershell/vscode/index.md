@@ -1,6 +1,7 @@
 ---
 title: "Visual Studio Code で開発する"
 date: 2021-04-23T16:03:28+09:00
+weight: 1
 ---
 
 ## 拡張機能の追加
