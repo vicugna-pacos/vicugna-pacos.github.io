@@ -114,11 +114,49 @@ lastMod: 2021-01-05T13:45:34+09:00
 ## 関数
 関数を使うと、「class属性に"header1"を含む」というような指定もできる。
 
-* contains(param1, param2)
-  * param1 に param2 が含まれていれば true を返す。
-  * `contains(@class, "header1")`
-* starts-with(param1, param2)
-  * param1 が param2 で始まっていればが含まれていれば true を返す。
+参考：[Functions - XPath | MDN](https://developer.mozilla.org/ja/docs/Web/XPath/Functions)
+
+### contains
+
+    contains(param1, param2)
+
+param1 に param2 が含まれていれば true を返す。
+
+例：`contains(@class, "header1")`
+
+### not
+
+    not(expression)
+
+式を真偽値として評価し、その逆の値を返す。
+例えば、`not(contains(string))` とすれば、特定の文字を含まないものを検索できる。
+
+### starts-with
+
+    starts-with(param1, param2)
+
+param1 が param2 で始まっていればが含まれていれば true を返す。
+
+### translate
+
+    translate(string, abc, XYZ)
+
+文字列の置換を行う。ただし、他の言語で見られる replace 関数などとは動作が異なる。
+置換対象となる abc の1文字目が見つかると、 XYZ の1文字目へ置き換える。
+
+例1：
+
+    translate('The quick brown fox.', 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    ↓ 出力
+    THE QUICK BROWN FOX.
+
+例2：
+
+    translate('The quick brown fox.', 'brown', 'red'
+    ↓ 出力
+    The quick red fdx.
+
+XYZ が abc より短い場合、abcで見つかった部分の文字は削除される。そのため、空白削除に使える。
 
 ## Chrome での検証方法
 1. 開発者ツールを起動する。
