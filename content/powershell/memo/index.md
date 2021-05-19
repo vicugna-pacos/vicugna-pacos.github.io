@@ -97,3 +97,13 @@ Get-Test2
 ```
 
 なので、ドットソースの読込の部分を、`Get-Test2` 関数を実行する直前に移すと、出力結果は `CONST1sub` に変わる。
+
+## WebRequest で UTF-8 を送る
+`Invoke-WebRequest` の本文の文字列を UTF-8 にして送る方法。
+
+```powershell
+$bodystr = "あいうえお"
+$body = [System.Text.Encoding]::UTF8.GetBytes($bodystr)
+
+Invoke-WebRequest -Uri "http://xxx" -Method Post -Body $body
+```
