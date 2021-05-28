@@ -149,6 +149,8 @@ Sub CreateFolder(ByVal folder)
 End Sub
 
 CreateFolder str_folder
+
+Set objFS = Nothing
 ```
 
 ## ファイル拡張子変換
@@ -188,7 +190,7 @@ tempFileName = FSO.GetBaseName(tempFileName) & "." & extension
 
 tempFilePath = tempFolderPath & "\" & tempFileName
 
-SetUmsVariable $Tempファイル名$, tempFilePath
+SetUmsVariable $ファイルパス格納先$, tempFilePath
 
 Set FSO = Nothing
 ```
