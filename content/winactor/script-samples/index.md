@@ -1,6 +1,7 @@
 ---
 title: "スクリプトのサンプル"
 date: 2021-03-11T13:54:46+09:00
+lastMod: 2021-05-28T10:21:15+09:00
 ---
 
 ## はじめに
@@ -167,6 +168,44 @@ baseName = objFS.GetBaseName(filePath)
 newFileName = baseName + "." + extension
 
 SetUmsVariable $変更後ファイル名$, newFileName
+```
+
+## ファイル拡張子変換＆結合
+
+ファイル名の拡張子を指定したものへ変換しつつ、フォルダパスと結合する。  
+例：  
+  フォルダパス：C:\test  
+  ファイル名：sample.txt  
+  拡張子：csv  
+  ↓  
+  連結結果：C:\test\sample.csv
+
+```
+Option Explicit
+
+Dim str1
+Dim str2
+Dim extension
+
+Dim baseName
+Dim newFileName
+Dim objFS
+
+str1 = !フォルダパス!
+str2 = !ファイル名!
+extension = !拡張子!
+
+Set objFS = CreateObject("Scripting.FileSystemObject")
+
+baseName = objFS.GetBaseName(str2)
+newFileName = baseName + "." + extension
+
+Set objFS = Nothing
+
+
+result = str1 & "\" & newFileName
+
+SetUmsVariable $連結結果$, result
 ```
 
 ## 一時ファイル作成
