@@ -71,7 +71,7 @@ SetUMSVariable "$FILE_PATH_TYPE", "12"
 SetUMSVariable "$PARSE_FILE_PATH", fname
 outputfile = GetUMSVariable("$PARSE_FILE_PATH")
 
-cmd = "cmd.exe /c dir /S /a-d """ & folder & """ > """ & outputfile & """"
+cmd = "cmd.exe /c dir /B /a-d """ & folder & """ > """ & outputfile & """"
 
 Set objShell = WScript.CreateObject("WScript.Shell")
 Set objExec = objShell.Exec(cmd)
