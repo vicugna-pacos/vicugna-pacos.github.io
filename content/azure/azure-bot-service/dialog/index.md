@@ -1,7 +1,7 @@
 ---
 title: "会話の実装 (Dialog)"
 date: 2020-10-02T13:55:11+09:00
-lastMod: 2020-10-15T14:49:00+09:00
+lastMod: 2021-06-23T13:12:13+09:00
 weight: 8
 ---
 
@@ -165,13 +165,14 @@ return await stepContext.PromptAsync("TextPrompt", promptOptions, cancellationTo
 return new DialogTurnResult(DialogTurnStatus.Waiting);
 
 // 当ステップを飛ばす
+// 第1引数は、次のステップへ渡すResultを指定する。
 return await stepContext.NextAsync(null, cancellationToken);
-
-// 次のステップを飛ばす
-return await stepContext.NextAsync(-1, cancellationToken);
 
 // Dialogを終わらせる。最後のステップの戻り値はこれでないといけない
 return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+
+// 現在の Dialog を終了させ、他の Dialog を開始する。
+return await stepContext.ReplaceDialogAsync(DIALOG_ID, null, cancellationToken);
 ```
 
 参考：
