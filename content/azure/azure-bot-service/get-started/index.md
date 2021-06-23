@@ -121,7 +121,7 @@ public class AdapterWithErrorHandler : BotFrameworkHttpAdapter
 }
 ```
 
-これを追加すると、turnContext から Storage と State を参照できるようになる。これがないと、DialogManager が動作しない。
+これを追加すると、turnContext から Storage と State を参照できるようになる。これがないと、Adaptive Dialog が動作しない。
 
 ## RootDialog の追加
 Adaptive Dialog となる RootDialog を作成する。例では Dialogs/RootDialog.cs に作成した。
