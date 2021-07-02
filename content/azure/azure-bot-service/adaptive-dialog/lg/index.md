@@ -1,6 +1,7 @@
 ---
 title: "Language Generator"
 date: 2021-01-08T13:27:54+09:00
+lastMod: 2021-07-02T16:08:15+09:00
 ---
 
 ## はじめに
@@ -63,16 +64,9 @@ public class RootDialog : AdaptiveDialog
 }
 ```
 
-次に Startup.cs を開き、`ConfigureServices` メソッドにコンポーネントの登録を追加する。
-(この記述がなくても動作したが…念のため)
-
-```cs
-ComponentRegistration.Add(new LanguageGenerationComponentRegistration()); // Components used for language generation features.
-```
-
 これでボットをテストすると、「nothing1!」か「nothing2!」のいずれかを返すようになる。
 
-### CodeAction 内でLGを使う
+## CodeAction 内でLGを使う
 Adaptive Dialog の Action 類からLGを使うときは `${テンプレート名()}` で良いが、自分で Action の内容を実装したときにLGを使う方法を示す。
 
 ```cs
@@ -84,7 +78,7 @@ private static async Task<DialogTurnResult> OriginalAction(DialogContext dc, obj
 }
 ```
 
-### 条件式や関数
+## 条件式や関数
 LGファイルに以下のような定義を追加し、時間帯に合わせて挨拶を変えることができたりする。
 
 ```md
@@ -104,3 +98,34 @@ Dialog の方で `${Greeting()}` を参照すれば、朝なら「おはよう�
 `Greeting` のIF文で `timeOfDay` を参照しているように、LGのあるテンプレートから他のテンプレートを参照することが可能。
 変数を定義＆参照するような感覚で使える。
 
+## Adaptive Card をつかう
+`.lg` ファイルには Adaptive Card の付いたメッセージも定義できる。
+まずカードの json をテンプレートとして定義する。
+
+````md
+# SampleCard
+- ```
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.3",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "Hello!",
+            "wrap": true
+        }
+    ]
+}
+```
+````
+
+次に、カードの json を Attachment として取り込むテンプレートを定義する。
+```markdown
+# Greeting
+[Activity
+    Attachments = ${json(SampleCard())}
+]
+```
+
+SendActivity のアクションで、このテンプレート(`Greeting`)を指定するとカードが送られる。
