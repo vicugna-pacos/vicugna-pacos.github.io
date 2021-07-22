@@ -19,3 +19,6 @@ GoogleAnalytics = "UA-143399608-2"
   [markup.tableOfContents]
     endLevel = 4
     startLevel = 2
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
