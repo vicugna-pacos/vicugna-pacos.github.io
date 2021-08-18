@@ -74,6 +74,23 @@ DASL構文のサンプル：
 * `[Start] >= '2020/06/10 0:00' AND [End] <= '2020/06/30 0:00'`
   * 予定の開始日が6/10以降 かつ 終了日が6/30以前
 
+### 予定を日付でフィルターするときの注意
+予定 (AppointmentItem) を検索する際、以下のように `IncludeRecurrences` プロパティを true にして、 `Start` プロパティでソートしてから検索する。
+
+```powershell
+$folder = $namespace.GetDefaultFolder($OlDefaultFolders::olFolderCalendar)
+
+$allItems = $folder.Items
+$allItems.IncludeRecurrences = $true
+$allItems.Sort("[Start]")
+
+$filter = "[Start] >= '2021/08/01 0:00' AND [End] <= '2021/08/01 23:59'"
+$items = $allItems.Restrict($filter)
+```
+
+こうしないと、8/1にはないはずの「繰り返しの予定」が検索されたりして、上手く検索できない。
+詳しい説明は、[MSドキュメントの IncludeRecurrences プロパティのページ](https://docs.microsoft.com/en-us/office/vba/api/outlook.items.includerecurrences) に書かれている。
+
 ## Booleanのフィルター
 
 * `[UnRead] = True`
