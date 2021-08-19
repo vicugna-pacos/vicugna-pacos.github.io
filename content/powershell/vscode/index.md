@@ -1,27 +1,53 @@
 ---
 title: "Visual Studio Code で開発する"
 date: 2021-04-23T16:03:28+09:00
+lastMod: 2021-08-19T14:40:54+09:00
 weight: 1
 ---
+
+参考：[Using Visual Studio Code for PowerShell Development - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode)
+
+## はじめに
+VS Code で PowerShell を開発する方法を記載する。
+
+Windows には PowerShell ISE というツールがあるが、ISE がサポートするのは PowerShell v5.1 以下で、それ以降のバージョンには対応していない。
+そのため、なるべく VS Code で開発することが推奨される。
+なお、ISE はバージョンアップはしないものの、セキュリティ対策などのアップデートは続けられるとのこと。
+
+前提条件：
+
+* PC に PowerShell がインストールされている
+* PC に VS Code がインストールされている
 
 ## 拡張機能の追加
 1. VSCodeでps1ファイルを開く。
 2. PowerShellの拡張機能をインストールするか聞かれるので、インストールする。
 
+または
+
+1. VS Code を起動し、`Ctrl` + `P` を押し、Quick Open を起動する。
+1.  `ext install powershell` と入力し、Enter キーを押す。
+1. サイドバーに拡張機能のビューが開く。拡張機能の一覧から、Microsoft が提供している PowerShell 拡張機能を選択し、インストールする。
+1. インストール完了後、インストールボタンが「Reload」へ変わったら、「Reload」ボタンを押す。
+1. VS Code の再起動が完了すれば、拡張機能のインストールが完了する。
+
+### 拡張機能で使う PowerShell のバージョンを指定する
+
+1. `Ctrl` + `Shift` + `P` を押し、コマンドパレットを開く。
+1. 「Session」と検索する。
+1. `PowerShell: Show Session Menu` をクリック。
+1. 使いたい PowerShell のバージョンをリストから選ぶ。
+
+上記以外にも、VS Code の画面の右下にある、緑色で PowerShell のバージョンが書かれている場所をクリックしてバージョンを選べる。
+
 ## 文字コードの設定を変更
 PowerShell ISE の既定の文字コードは UTF-8 bom付 だが、VSCodeは UTF-8。この違いが原因で日本語を出力した際などに文字化けするため、設定を変更する。
 
-`F1` または `Ctrl` + `Shift` + `P` を押してコマンドパレットを表示する。
-
-`Configure Language Specific Settings` と入力、出てきたものをクリック。  
-![](2021-04-23-16-05-58.png)
-
-`PowerShell` を選ぶ。  
-![](2021-04-23-16-06-20.png)
-
-Settings.jsonが開くので、`"files.encoding": "utf8bom"` を追記する。
-
-Settings.jsonを保存して閉じる。
+1. `F1` または `Ctrl` + `Shift` + `P` を押してコマンドパレットを表示する。
+1. `Configure Language Specific Settings` と入力、出てきたものをクリック。<br>![](2021-04-23-16-05-58.png)
+1. `PowerShell` を選ぶ。<br>![](2021-04-23-16-06-20.png)
+1. Settings.jsonが開くので、`"files.encoding": "utf8bom"` を追記する。
+1. Settings.jsonを保存して閉じる。
 
 ## デバッグの設定
 
