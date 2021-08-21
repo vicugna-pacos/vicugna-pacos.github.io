@@ -1,0 +1,128 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Wordでアンケートを作り、Excelで集計する - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Word</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#word-でアンケートを作る>Word でアンケートを作る</a><ul><li><a href=#開発タブを表示する>「開発」タブを表示する</a></li><li><a href=#アンケートを作る>アンケートを作る</a><ul><li><a href=#チェックボックスの見た目を変える>チェックボックスの見た目を変える</a></li></ul></li><li><a href=#編集を制限する>編集を制限する</a></li></ul></li><li><a href=#excel-で集計する>Excel で集計する</a></li><li><a href=#おまけ>おまけ</a></li></ul></nav></aside></div><div class=main><article><h1>Wordでアンケートを作り、Excelで集計する</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-08-20 11:18:36 +0900 +0900" itemprop=datePublished>2021-08-20</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>アンケートを集めるなら、Microsoft 365 とか Google のフォーム機能を使えばいい。
+しかし、何らかの理由でそれらを使えないときに、Word でアンケートを作って Excel で回収する例を記載する。</p><p>端的に書くと、Word のフォームコントロールで入力欄を作り、それを Excel マクロを使って集計するもの。</p><p>Office のバージョンは 365 で作っている。</p><h2 id=word-でアンケートを作る>Word でアンケートを作る</h2><h3 id=開発タブを表示する>「開発」タブを表示する</h3><p>フォームコントロールは「開発」タブから挿入するが、既定では「開発」タブは表示されていないため、その場合は設定を変更して開発タブを表示する。</p><ol><li>Wordを起動し、「ファイル」→「オプション」→「リボンのユーザー設定」とクリックする。</li><li>右側のリストにある「開発」にチェックを入れ、「OK」を押す。<br><img src=2021-08-21-13-50-29.png alt></li></ol><h3 id=アンケートを作る>アンケートを作る</h3><p>新しいファイルに設問を書いていく。入力欄は「開発」タブ→「コントロール」から選んで挿入する。</p><p><img src=2021-08-21-13-53-02.png alt></p><p>下図は、チェックボックスを挿入した様子。</p><p><img src=2021-08-21-13-53-43.png alt></p><p>コントロールを挿入したら、コントロールのプロパティを開き、タイトルを付ける。
+後の集計のために、ファイル内で一意になる名前を付けておく。</p><p><img src=2021-08-21-14-05-50.png alt></p><p>下図は一通りの設問が作り終わった様子。
+入力欄とそれ以外の区別が付きづらいため、入力欄の色を変えておくとよい。</p><p><img src=2021-08-21-14-55-35.png alt></p><p>網掛けで背景色を付けると分かりやすいが、色の付け方によって、入力欄に文字を入力したりするとスタイルがリセットされてしまう場合があるので、スタイルを設定した後に入力欄を触ってみて確認しておくと良い。</p><h4 id=チェックボックスの見た目を変える>チェックボックスの見た目を変える</h4><p>既定では、チェックボックスをクリックすると「×」がつく。これをレ点に変えたい場合などは、プロパティで変えられる。</p><p><img src=2021-08-21-14-59-01.png alt></p><p>プロパティ画面の「チェックボックスのプロパティ」で「変更」ボタンを押す。</p><p><img src=2021-08-21-15-00-58.png alt></p><p>Unicode の 2610 ～ 2612 あたりにある文字を選ぶ。</p><p><img src=2021-08-21-15-02-09.png alt></p><h3 id=編集を制限する>編集を制限する</h3><p>アンケートが出来上がったら、回答者へ配布する前にファイルを編集から保護しておく。
+こうすることで、入力欄以外を編集してしまうことを避ける。</p><ol><li>「開発」タブ → 「編集の制限」をクリック。<br><img src=2021-08-21-15-16-53.png alt></li><li>画面右側に「編集の制限」の画面が出る。「ユーザーに許可する編集の種類を指定する」にチェックを入れ、リストから「フォームへの入力」を選ぶ。そのあと、「はい、保護を開始します」をクリック。<br><img src=2021-08-21-15-17-21.png alt></li><li>パスワードを設定し、OKを押す。<br><img src=2021-08-21-15-19-00.png alt></li></ol><h2 id=excel-で集計する>Excel で集計する</h2><p>新しい Excel ファイルを作成し、下図のような表を作成する。</p><p><img src=2021-08-21-15-31-40.png alt></p><p>列名に、「ファイル名」と、Word ファイルに作った入力欄に付けたタイトルと同じ名前を付ける。</p><p>次に、マクロ編集画面 (Visual Basic for Applications) を開き、回答を集めるマクロを作る。</p><p>まず、参照設定に「Microsoft Word x.x Object Library」と「Microsoft Scripting Runtime」を追加する。</p><p>その後、下記マクロを定義する。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Option</span> <span style=color:#111>Explicit</span>
+
+<span style=color:#00a8c8>Public</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>アンケート結果集計</span><span style=color:#111>()</span>
+
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>objWord</span> <span style=color:#f92672>As</span> <span style=color:#111>Word</span><span style=color:#111>.</span><span style=color:#111>Application</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>objFso</span> <span style=color:#f92672>As</span> <span style=color:#111>FileSystemObject</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>objFolder</span> <span style=color:#f92672>As</span> <span style=color:#111>Folder</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>objFile</span> <span style=color:#f92672>As</span> <span style=color:#111>File</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>docxFolderPath</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>outputList</span> <span style=color:#f92672>As</span> <span style=color:#111>ListObject</span>
+    
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>objWord</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>New</span> <span style=color:#111>Word</span><span style=color:#111>.</span><span style=color:#111>Application</span>
+    <span style=color:#111>objWord</span><span style=color:#111>.</span><span style=color:#111>Visible</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>False</span>
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>objFso</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>New</span> <span style=color:#111>FileSystemObject</span>
+    
+    <span style=color:#75715e>&#39; 結果フォルダパスの取得
+</span><span style=color:#75715e></span>    <span style=color:#111>docxFolderPath</span> <span style=color:#f92672>=</span> <span style=color:#111>ThisWorkbook</span><span style=color:#111>.</span><span style=color:#111>Path</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;\結果&#34;</span>
+    
+    <span style=color:#75715e>&#39; 結果を集めるテーブルを取得
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Set</span> <span style=color:#111>outputList</span> <span style=color:#f92672>=</span> <span style=color:#111>Sheet1</span><span style=color:#111>.</span><span style=color:#111>ListObjects</span><span style=color:#111>(</span><span style=color:#d88200>&#34;テーブル1&#34;</span><span style=color:#111>)</span>
+    
+    <span style=color:#75715e>&#39; リストを空にする
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Do</span> <span style=color:#00a8c8>While</span> <span style=color:#111>outputList</span><span style=color:#111>.</span><span style=color:#111>ListRows</span><span style=color:#111>.</span><span style=color:#111>Count</span> <span style=color:#f92672>&gt;</span> <span style=color:#111>0</span>
+        <span style=color:#111>outputList</span><span style=color:#111>.</span><span style=color:#111>ListRows</span><span style=color:#111>(</span><span style=color:#111>1</span><span style=color:#111>).</span><span style=color:#111>Delete</span>
+    <span style=color:#00a8c8>Loop</span>
+    
+    <span style=color:#75715e>&#39; 結果フォルダにあるWordファイルを開く
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>If</span> <span style=color:#00a8c8>Not</span> <span style=color:#111>objFso</span><span style=color:#111>.</span><span style=color:#111>FolderExists</span><span style=color:#111>(</span><span style=color:#111>docxFolderPath</span><span style=color:#111>)</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#111>MsgBox</span> <span style=color:#d88200>&#34;結果フォルダがありません&#34;</span>
+        <span style=color:#111>objWord</span><span style=color:#111>.</span><span style=color:#111>Quit</span> <span style=color:#111>SaveChanges</span><span style=color:#111>:</span><span style=color:#f92672>=</span><span style=color:#00a8c8>False</span>
+        <span style=color:#00a8c8>Set</span> <span style=color:#111>objWord</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+        <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Sub</span>
+    <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>objFolder</span> <span style=color:#f92672>=</span> <span style=color:#111>objFso</span><span style=color:#111>.</span><span style=color:#111>GetFolder</span><span style=color:#111>(</span><span style=color:#111>docxFolderPath</span><span style=color:#111>)</span>
+    
+    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>objFile</span> <span style=color:#f92672>In</span> <span style=color:#111>objFolder</span><span style=color:#111>.</span><span style=color:#111>Files</span>
+        <span style=color:#00a8c8>Call</span> <span style=color:#111>ファイルごとの処理</span><span style=color:#111>(</span><span style=color:#111>objWord</span><span style=color:#111>,</span> <span style=color:#111>objFile</span><span style=color:#111>.</span><span style=color:#111>Path</span><span style=color:#111>,</span> <span style=color:#111>outputList</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Next</span>
+    
+    <span style=color:#111>objWord</span><span style=color:#111>.</span><span style=color:#111>Quit</span>
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>objWord</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+    
+    <span style=color:#111>MsgBox</span> <span style=color:#d88200>&#34;結果を集め終わりました&#34;</span><span style=color:#111>,</span> <span style=color:#111>vbInformation</span>
+
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>ファイルごとの処理</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>objWord</span> <span style=color:#f92672>As</span> <span style=color:#111>Word</span><span style=color:#111>.</span><span style=color:#111>Application</span><span style=color:#111>,</span> <span style=color:#111>filePath</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span><span style=color:#111>,</span> <span style=color:#00a8c8>ByRef</span> <span style=color:#111>outputList</span> <span style=color:#f92672>As</span> <span style=color:#111>ListObject</span><span style=color:#111>)</span>
+
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>objDoc</span> <span style=color:#f92672>As</span> <span style=color:#111>Word</span><span style=color:#111>.</span><span style=color:#111>Document</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>objControl</span> <span style=color:#f92672>As</span> <span style=color:#111>Word</span><span style=color:#111>.</span><span style=color:#111>ContentControl</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>newRow</span> <span style=color:#f92672>As</span> <span style=color:#111>ListRow</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>fileNameIndex</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span>
+    
+
+    <span style=color:#00a8c8>If</span> <span style=color:#111>LCase</span><span style=color:#111>(</span><span style=color:#111>Right</span><span style=color:#111>(</span><span style=color:#111>filePath</span><span style=color:#111>,</span> <span style=color:#111>4</span><span style=color:#111>))</span> <span style=color:#f92672>&lt;&gt;</span> <span style=color:#d88200>&#34;docx&#34;</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Sub</span>
+    <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>objDoc</span> <span style=color:#f92672>=</span> <span style=color:#111>objWord</span><span style=color:#111>.</span><span style=color:#111>Documents</span><span style=color:#111>.</span><span style=color:#111>Open</span><span style=color:#111>(</span><span style=color:#111>filePath</span><span style=color:#111>,</span> <span style=color:#00a8c8>ReadOnly</span><span style=color:#111>:</span><span style=color:#f92672>=</span><span style=color:#00a8c8>True</span><span style=color:#111>)</span>
+    
+    <span style=color:#75715e>&#39; リストに1行追加
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Set</span> <span style=color:#111>newRow</span> <span style=color:#f92672>=</span> <span style=color:#111>outputList</span><span style=color:#111>.</span><span style=color:#111>ListRows</span><span style=color:#111>.</span><span style=color:#111>Add</span><span style=color:#111>()</span>
+    
+    <span style=color:#75715e>&#39; ファイル名をリストに追加
+</span><span style=color:#75715e></span>    <span style=color:#111>fileNameIndex</span> <span style=color:#f92672>=</span> <span style=color:#111>GetColumnIndex</span><span style=color:#111>(</span><span style=color:#111>outputList</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;ファイル名&#34;</span><span style=color:#111>)</span>
+    <span style=color:#111>newRow</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>fileNameIndex</span><span style=color:#111>)</span> <span style=color:#f92672>=</span> <span style=color:#111>objDoc</span><span style=color:#111>.</span><span style=color:#111>Name</span>
+
+    <span style=color:#75715e>&#39; コントロールの値を集める
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>objControl</span> <span style=color:#f92672>In</span> <span style=color:#111>objDoc</span><span style=color:#111>.</span><span style=color:#111>ContentControls</span>
+        <span style=color:#00a8c8>Call</span> <span style=color:#111>コントロールごとの処理</span><span style=color:#111>(</span><span style=color:#111>objControl</span><span style=color:#111>,</span> <span style=color:#111>outputList</span><span style=color:#111>,</span> <span style=color:#111>newRow</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Next</span>
+
+    <span style=color:#111>objDoc</span><span style=color:#111>.</span><span style=color:#111>Close</span> <span style=color:#111>SaveChanges</span><span style=color:#111>:</span><span style=color:#f92672>=</span><span style=color:#00a8c8>False</span>
+
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>コントロールごとの処理</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>objControl</span> <span style=color:#f92672>As</span> <span style=color:#111>Word</span><span style=color:#111>.</span><span style=color:#111>ContentControl</span><span style=color:#111>,</span> <span style=color:#00a8c8>ByRef</span> <span style=color:#111>outputList</span> <span style=color:#f92672>As</span> <span style=color:#111>ListObject</span><span style=color:#111>,</span> <span style=color:#00a8c8>ByRef</span> <span style=color:#111>newRow</span> <span style=color:#f92672>As</span> <span style=color:#111>ListRow</span><span style=color:#111>)</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>columnIndex</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span>
+    
+    <span style=color:#75715e>&#39; コントロールのタイトルがリストの列にあるか調べる
+</span><span style=color:#75715e></span>    <span style=color:#111>columnIndex</span> <span style=color:#f92672>=</span> <span style=color:#111>GetColumnIndex</span><span style=color:#111>(</span><span style=color:#111>outputList</span><span style=color:#111>,</span> <span style=color:#111>objControl</span><span style=color:#111>.</span><span style=color:#111>Title</span><span style=color:#111>)</span>
+    
+    <span style=color:#00a8c8>If</span> <span style=color:#111>columnIndex</span> <span style=color:#f92672>&lt;</span> <span style=color:#111>0</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Sub</span>
+    <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#75715e>&#39; コントロールの種類に合わせて値を取得
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>If</span> <span style=color:#111>objControl</span><span style=color:#111>.</span><span style=color:#111>Type</span> <span style=color:#f92672>=</span> <span style=color:#111>wdContentControlCheckBox</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#111>newRow</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>columnIndex</span><span style=color:#111>)</span> <span style=color:#f92672>=</span> <span style=color:#111>objControl</span><span style=color:#111>.</span><span style=color:#111>Checked</span>
+    <span style=color:#00a8c8>Else</span>
+        <span style=color:#111>newRow</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>columnIndex</span><span style=color:#111>)</span> <span style=color:#f92672>=</span> <span style=color:#111>objControl</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>.</span><span style=color:#111>Text</span>
+    <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+
+<span style=color:#75715e>&#39; 列名から列インデックスを取得する
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Function</span> <span style=color:#75af00>GetColumnIndex</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>outputList</span> <span style=color:#f92672>As</span> <span style=color:#111>ListObject</span><span style=color:#111>,</span> <span style=color:#111>columnName</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span><span style=color:#111>)</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>objColumn</span> <span style=color:#f92672>As</span> <span style=color:#111>ListColumn</span>
+    
+    <span style=color:#111>GetColumnIndex</span> <span style=color:#f92672>=</span> <span style=color:#f92672>-</span><span style=color:#111>1</span>
+    
+    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>objColumn</span> <span style=color:#f92672>In</span> <span style=color:#111>outputList</span><span style=color:#111>.</span><span style=color:#111>ListColumns</span>
+        <span style=color:#00a8c8>If</span> <span style=color:#111>objColumn</span><span style=color:#111>.</span><span style=color:#111>Name</span> <span style=color:#f92672>=</span> <span style=color:#111>columnName</span> <span style=color:#00a8c8>Then</span>
+            <span style=color:#111>GetColumnIndex</span> <span style=color:#f92672>=</span> <span style=color:#111>objColumn</span><span style=color:#111>.</span><span style=color:#111>Index</span>
+            <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Function</span>
+        <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+    <span style=color:#00a8c8>Next</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Function</span>
+</code></pre></div><p>この Excel ファイルを保存したフォルダに「結果」フォルダを作成し、回答記入済みのアンケートを保存する。</p><pre><code>*
+├ マクロ.xlsm
+└ 結果
+　├ 回答1.docx
+　├ 回答2.docx
+　└ 回答3.docx
+</code></pre><p>その状態でマクロ「アンケート結果集計」を実行すると、リストに回答が集められる。</p><p><img src=2021-08-21-15-46-42.png alt></p><p>あとは、この表を集計したりして結果を分析すればよい。</p><h2 id=おまけ>おまけ</h2><p>OneDrive のファイルのパスがURLになるときの回避策。<br><a href=https://kuroihako.com/vba/onedriveurltolocalpath/ target=_blank rel=noopener>[VBA]OneDriveで同期しているファイルまたはフォルダのURLをローカルパスに変換する関数 | 黒い箱の中</a></p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
