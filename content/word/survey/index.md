@@ -1,6 +1,7 @@
 ---
 title: "Wordでアンケートを作り、Excelで集計する"
 date: 2021-08-20T11:18:36+09:00
+description: "Word のフォームコントロールで入力欄を作り、それを Excel マクロを使って集計する方法のメモ"
 ---
 
 ## はじめに
@@ -209,5 +210,6 @@ End Function
 
 ## おまけ
 
+参考情報：  
 OneDrive のファイルのパスがURLになるときの回避策。  
 [[VBA]OneDriveで同期しているファイルまたはフォルダのURLをローカルパスに変換する関数 | 黒い箱の中](https://kuroihako.com/vba/onedriveurltolocalpath/)
