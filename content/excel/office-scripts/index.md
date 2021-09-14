@@ -98,6 +98,101 @@ function convertDate(excelDateValue: number) {
 }
 ```
 
+### 土日祝日を避けて日付を加減算する
+「稼働日ベースで10日前」という感じの計算をするためのサンプル。
+スクリプトを実行するブックに、「祝日リスト」というテーブルがあることが前提。
+
+↓ 祝日リストのサンプル  
+![](2021-09-14-15-00-33.png)
+
+```typescript
+/**
+ * 日付に日数を加算する。
+ * 土日祝日は日数から除外する。つまり稼働日のみで日数を加算。
+ */
+function addDaysAndSkipHolidays(workbook: ExcelScript.Workbook, dateSerial: number, daysAdd: number) {
+
+  let table = getHolidayTable(workbook);
+  let dataRange = table.getRangeBetweenHeaderAndTotal();
+  let holidays = dataRange.getValues();
+
+  let increment = 1;
+  let count = daysAdd;
+
+  if (daysAdd < 0) {
+    increment = -1;
+    count *= -1;
+  }
+
+  let result = dateSerial;
+
+  for (let i=0; i<count; i++) {
+    result += increment;
+    // 休日のスキップ
+    result = skipHolidays(holidays, result, increment);
+  }
+
+  return result;
+}
+
+/**
+ * 引数の日付シリアル値が土日祝の場合、その分だけ日付をずらす
+ */
+function skipHolidays(holidays: (string | number | boolean)[][], dtSerial: number, increment: number) {
+  
+  let result = dtSerial;
+  let dt = convertDate(result);
+
+  // 土日祝のいずれかの場合、1日ずらして再帰呼び出し
+  if (dt.getDay() == 0 
+      || dt.getDay() == 6 
+      || isExtraHoliday(holidays, dtSerial)) {
+    result += increment;
+    result = skipHolidays(holidays, result, increment);
+  }
+
+  return result;
+}
+
+/**
+ * 引数の日付シリアル値が祝日かどうか判定する
+ */
+function isExtraHoliday(holidays: (string | number | boolean)[][], dtSerial: number) {
+  let holidayCount = holidays.length;
+
+  for (let i = 0; i < holidayCount; i++) {
+    let holidaySerial = holidays[i][0] as number;
+    if (dtSerial == holidaySerial) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * ブックから「祝日リスト」という名前のテーブルを探す
+ */
+function getHolidayTable(workbook: ExcelScript.Workbook) {
+  let worksheets = workbook.getWorksheets();
+  for (let sheet of workbook.getWorksheets()) {
+    for (let table of sheet.getTables()) {
+      if (table.getName() == "祝日リスト") {
+        return table;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * 日付シリアル値をJavaScriptの日付型へ変換する
+ */
+function convertDate(excelDateValue: number) {
+  let javaScriptDate = new Date(Math.round((excelDateValue - 25569) * 86400 * 1000));
+  return javaScriptDate;
+}
+```
+
 ### テーブルにフィルタを設定し結果を取得する
 
 ```typescript
