@@ -92,11 +92,23 @@ VS Code がベースになっているので、VS Code みたいに IntelliSense
 これを JavaScript の日付型に変換するサンプル。
 
 ```typescript
-function convertDate(excelDateValue: number) {
-    let javaScriptDate = new Date(Math.round((excelDateValue - 25569) * 86400 * 1000));
-    return javaScriptDate;
+/**
+ * 日付シリアル値をJavaScriptの日付型へ変換する
+ */
+function convertDate(dateSerial: number) {
+  let milliseconds = Math.round((dateSerial - 25569) * 86400 * 1000);
+  milliseconds -= (9 * 60 * 60 * 1000);  // タイムゾーンの調整
+  let javaScriptDate = new Date(milliseconds);
+  
+  return javaScriptDate;
 }
 ```
+
+Excel の日付シリアル値は 1900-01-01 から 1ずつ増える。対して JavaScript の `new Date(ミリ秒)` は、1970-01-01(UTC) から増えたミリ秒を指定する。
+25569 は 1900-01-01 ～ 1970-01-01 の日数。
+
+そして、JavaScript の日付は UTC であるのに対して Excel にはタイムゾーンがないため、JST を前提としていると9時間早くなってしまう。
+その差を調整するために9時間分のミリ秒を引いている。
 
 ### 土日祝日を避けて日付を加減算する
 「稼働日ベースで10日前」という感じの計算をするためのサンプル。
@@ -105,7 +117,7 @@ function convertDate(excelDateValue: number) {
 ↓ 祝日リストのサンプル  
 ![](2021-09-14-15-00-33.png)
 
-```typescript
+```js
 /**
  * 日付に日数を加算する。
  * 土日祝日は日数から除外する。つまり稼働日のみで日数を加算。
@@ -187,8 +199,11 @@ function getHolidayTable(workbook: ExcelScript.Workbook) {
 /**
  * 日付シリアル値をJavaScriptの日付型へ変換する
  */
-function convertDate(excelDateValue: number) {
-  let javaScriptDate = new Date(Math.round((excelDateValue - 25569) * 86400 * 1000));
+function convertDate(dateSerial: number) {
+  let milliseconds = Math.round((dateSerial - 25569) * 86400 * 1000);
+  milliseconds -= (9 * 60 * 60 * 1000);  // タイムゾーンの調整
+  let javaScriptDate = new Date(milliseconds);
+  
   return javaScriptDate;
 }
 ```
