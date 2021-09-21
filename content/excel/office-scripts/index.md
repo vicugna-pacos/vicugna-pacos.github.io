@@ -1,6 +1,7 @@
 ---
 title: "Office スクリプト"
 date: 2021-09-09T18:01:48+09:00
+lastMod: 2021-09-21T18:05:46+09:00
 ---
 
 ## はじめに
@@ -87,7 +88,7 @@ VS Code がベースになっているので、VS Code みたいに IntelliSense
 
 ## サンプル
 
-### 日付のシリアル値を変換する
+### 日付のシリアル値→JavaScriptの日付型の変換
 日付が格納されたセルの値を取ると、シリアル値になっている。
 これを JavaScript の日付型に変換するサンプル。
 
@@ -95,7 +96,7 @@ VS Code がベースになっているので、VS Code みたいに IntelliSense
 /**
  * 日付シリアル値をJavaScriptの日付型へ変換する
  */
-function convertDate(dateSerial: number) {
+function convertSerialToDate(dateSerial: number) {
   let milliseconds = Math.round((dateSerial - 25569) * 86400 * 1000);
   milliseconds -= (9 * 60 * 60 * 1000);  // タイムゾーンの調整
   let javaScriptDate = new Date(milliseconds);
@@ -107,8 +108,34 @@ function convertDate(dateSerial: number) {
 Excel の日付シリアル値は 1900-01-01 から 1ずつ増える。対して JavaScript の `new Date(ミリ秒)` は、1970-01-01(UTC) から増えたミリ秒を指定する。
 25569 は 1900-01-01 ～ 1970-01-01 の日数。
 
-そして、JavaScript の日付は UTC であるのに対して Excel にはタイムゾーンがないため、JST を前提としていると9時間早くなってしまう。
-その差を調整するために9時間分のミリ秒を引いている。
+そして、コンストラクタに指定するミリ秒は UTC が基準であるのに対して Excel にはタイムゾーンがないため、JST で書かれた日付のシリアル値をそのまま足すと9時間早くなってしまう。
+その差を調整するために9時間分のミリ秒を引いている。この調整は、Excel の日付がどのタイムゾーンを前提として記載されているかによって変わる。
+
+### JavaScriptの日付型→日付のシリアル値の変換
+先ほどのサンプルとは逆に、日付型からシリアル値へ変換するサンプル。
+
+```js
+/**
+ * JavaScriptの日付型を、Excelの日付シリアル値へ変換する
+ */
+function convertDateToSerial(dt: Date) {
+  let seconds = dt.getHours() * 60 * 60;
+  seconds += dt.getMinutes() * 60;
+  seconds += dt.getSeconds();
+
+  let serial = Math.round(dt.getTime() / 1000 / 86400 + 25569);
+
+  serial += seconds / 86400;
+  serial = Math.round(serial * 100000) / 100000; // 小数点以下5桁を残して四捨五入
+  
+  return serial;
+}
+```
+
+日数については、先ほどのサンプルの反対の計算を行う。
+時刻は例えば PM 0:00 の場合は 0.5 となるため、0時からの秒数 / 24時間の秒数 で求めている。
+
+JavaScript の getHours() などは実行環境のローカル時刻を返す。このサンプルではそれを意図したものとして、タイムゾーンの変換は行っていない。
 
 ### 土日祝日を避けて日付を加減算する
 「稼働日ベースで10日前」という感じの計算をするためのサンプル。
