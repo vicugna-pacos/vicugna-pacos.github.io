@@ -1,7 +1,7 @@
 ---
 title: "Office スクリプト"
 date: 2021-09-09T18:01:48+09:00
-lastMod: 2021-09-21T18:05:46+09:00
+lastMod: 2021-09-22T11:26:52+09:00
 ---
 
 ## はじめに
@@ -145,13 +145,16 @@ JavaScript の getHours() などは実行環境のローカル時刻を返す。
 ![](2021-09-14-15-00-33.png)
 
 ```js
+const SHEET_NAME = "Sheet1";
+const TABLE_NAME = "祝日リスト";
+
 /**
  * 日付に日数を加算する。
  * 土日祝日は日数から除外する。つまり稼働日のみで日数を加算。
  */
-function addDaysAndSkipHolidays(workbook: ExcelScript.Workbook, dateSerial: number, daysAdd: number) {
+function addDaysAndSkipHolidays(workbook: ExcelScript.Workbook, dt: Date, daysAdd: number) {
 
-  let table = getHolidayTable(workbook);
+  let table = workbook.getWorksheet(SHEET_NAME).getTable(TABLE_NAME);
   let dataRange = table.getRangeBetweenHeaderAndTotal();
   let holidays = dataRange.getValues();
 
@@ -163,10 +166,10 @@ function addDaysAndSkipHolidays(workbook: ExcelScript.Workbook, dateSerial: numb
     count *= -1;
   }
 
-  let result = dateSerial;
+  let result = new Date(dt);
 
-  for (let i=0; i<count; i++) {
-    result += increment;
+  for (let i = 0; i < count; i++) {
+    result.setDate(result.getDate() + increment);
     // 休日のスキップ
     result = skipHolidays(holidays, result, increment);
   }
@@ -177,16 +180,15 @@ function addDaysAndSkipHolidays(workbook: ExcelScript.Workbook, dateSerial: numb
 /**
  * 引数の日付シリアル値が土日祝の場合、その分だけ日付をずらす
  */
-function skipHolidays(holidays: (string | number | boolean)[][], dtSerial: number, increment: number) {
-  
-  let result = dtSerial;
-  let dt = convertDate(result);
+function skipHolidays(holidays: (string | number | boolean)[][], dt: Date, increment: number) {
+
+  let result = new Date(dt);
 
   // 土日祝のいずれかの場合、1日ずらして再帰呼び出し
-  if (dt.getDay() == 0 
-      || dt.getDay() == 6 
-      || isExtraHoliday(holidays, dtSerial)) {
-    result += increment;
+  if (result.getDay() == 0
+    || result.getDay() == 6
+    || isExtraHoliday(holidays, result)) {
+    result.setDate(result.getDate() + increment);
     result = skipHolidays(holidays, result, increment);
   }
 
@@ -194,9 +196,11 @@ function skipHolidays(holidays: (string | number | boolean)[][], dtSerial: numbe
 }
 
 /**
- * 引数の日付シリアル値が祝日かどうか判定する
+ * 引数の日付が祝日かどうか判定する
  */
-function isExtraHoliday(holidays: (string | number | boolean)[][], dtSerial: number) {
+function isExtraHoliday(holidays: (string | number | boolean)[][], dt: Date) {
+  // シリアル値に時刻の情報はいらないので、切り捨てる
+  let dtSerial = Math.floor(convertDateToSerial(dt));
   let holidayCount = holidays.length;
 
   for (let i = 0; i < holidayCount; i++) {
@@ -209,29 +213,19 @@ function isExtraHoliday(holidays: (string | number | boolean)[][], dtSerial: num
 }
 
 /**
- * ブックから「祝日リスト」という名前のテーブルを探す
+ * JavaScriptの日付型を、Excelの日付シリアル値へ変換する
  */
-function getHolidayTable(workbook: ExcelScript.Workbook) {
-  let worksheets = workbook.getWorksheets();
-  for (let sheet of workbook.getWorksheets()) {
-    for (let table of sheet.getTables()) {
-      if (table.getName() == "祝日リスト") {
-        return table;
-      }
-    }
-  }
-  return null;
-}
+function convertDateToSerial(dt: Date) {
+  let seconds = dt.getHours() * 60 * 60;
+  seconds += dt.getMinutes() * 60;
+  seconds += dt.getSeconds();
 
-/**
- * 日付シリアル値をJavaScriptの日付型へ変換する
- */
-function convertDate(dateSerial: number) {
-  let milliseconds = Math.round((dateSerial - 25569) * 86400 * 1000);
-  milliseconds -= (9 * 60 * 60 * 1000);  // タイムゾーンの調整
-  let javaScriptDate = new Date(milliseconds);
-  
-  return javaScriptDate;
+  let serial = Math.round(dt.getTime() / 1000 / 86400 + 25569);
+
+  serial += seconds / 86400;
+  serial = Math.round(serial * 100000) / 100000; // 小数点以下5桁を残して四捨五入
+
+  return serial;
 }
 ```
 
