@@ -105,6 +105,22 @@ Power Automate のサンプル：
 
 ![](2021-09-24-11-16-09.png)
 
+### 日付のやりとり
+Office スクリプトの戻り値が日付の場合、下記のようにして ISO8601 形式の文字列にするとよい。
+
+```js
+let dt = new Date();
+return dt.toISOString();
+```
+
+Power Automate で、この日付のタイムゾーン＆書式の変換を行える。
+
+参考：[関数 convertTimeZone のドキュメント](https://docs.microsoft.com/en-us/azure/logic-apps/workflow-definition-language-functions-reference#convertTimeZone)
+
+日本時間にするときは、JSTではなく「Tokyo Standard Time」を指定する。
+
+参考：[Default Time Zones | Microsoft Docs](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/default-time-zones)
+
 ## サンプル
 
 ### 日付のシリアル値→JavaScriptの日付型の変換
