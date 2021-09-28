@@ -154,21 +154,25 @@ Excel の日付シリアル値は 1900-01-01 から 1ずつ増える。対して
  * JavaScriptの日付型を、Excelの日付シリアル値へ変換する
  */
 function convertDateToSerial(dt: Date) {
-  let seconds = dt.getHours() * 60 * 60;
-  seconds += dt.getMinutes() * 60;
-  seconds += dt.getSeconds();
+  // // Excelに書き込む日付のタイムゾーンのオフセットを分で指定(日本時間は+9:00なので540)
+  const TIMEZONE_OFFSET = 540; 
 
-  let serial = Math.round(dt.getTime() / 1000 / 86400 + 25569);
+  let time = dt.getTime() + (TIMEZONE_OFFSET * 60 * 1000);
 
-  serial += seconds / 86400;
+  // 年月日
+  let serial = Math.floor(time / 86400000 + 25569);
+
+  // 時刻
+  serial += (time % (86400000)) / 86400000;
+
   serial = Math.round(serial * 100000) / 100000; // 小数点以下5桁を残して四捨五入
-  
+
   return serial;
 }
 ```
 
 日数については、先ほどのサンプルの反対の計算を行う。
-時刻は例えば PM 0:00 の場合は 0.5 となるため、0時からの秒数 / 24時間の秒数 で求めている。
+時刻は例えば PM 0:00 の場合シリアル値は 0.5 となるため、0時からの秒数 / 24時間の秒数 で求めている。
 
 JavaScript の getHours() などは実行環境のローカル時刻を返す。このサンプルではそれを意図したものとして、タイムゾーンの変換は行っていない。
 
