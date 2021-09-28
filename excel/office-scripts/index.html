@@ -27,19 +27,23 @@ gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="o
 </span><span style=color:#75715e> * JavaScriptの日付型を、Excelの日付シリアル値へ変換する
 </span><span style=color:#75715e> */</span>
 <span style=color:#00a8c8>function</span> <span style=color:#75af00>convertDateToSerial</span><span style=color:#111>(</span><span style=color:#75af00>dt</span><span style=color:#f92672>:</span> <span style=color:#111>Date</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-  <span style=color:#00a8c8>let</span> <span style=color:#75af00>seconds</span> <span style=color:#f92672>=</span> <span style=color:#75af00>dt</span><span style=color:#111>.</span><span style=color:#75af00>getHours</span><span style=color:#111>()</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>60</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>60</span><span style=color:#111>;</span>
-  <span style=color:#75af00>seconds</span> <span style=color:#f92672>+=</span> <span style=color:#75af00>dt</span><span style=color:#111>.</span><span style=color:#75af00>getMinutes</span><span style=color:#111>()</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>60</span><span style=color:#111>;</span>
-  <span style=color:#75af00>seconds</span> <span style=color:#f92672>+=</span> <span style=color:#75af00>dt</span><span style=color:#111>.</span><span style=color:#75af00>getSeconds</span><span style=color:#111>();</span>
+  <span style=color:#75715e>// // Excelに書き込む日付のタイムゾーンのオフセットを分で指定(日本時間は+9:00なので540)
+</span><span style=color:#75715e></span>  <span style=color:#00a8c8>const</span> <span style=color:#75af00>TIMEZONE_OFFSET</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>540</span><span style=color:#111>;</span> 
 
-  <span style=color:#00a8c8>let</span> <span style=color:#75af00>serial</span> <span style=color:#f92672>=</span> <span style=color:#111>Math</span><span style=color:#111>.</span><span style=color:#75af00>round</span><span style=color:#111>(</span><span style=color:#75af00>dt</span><span style=color:#111>.</span><span style=color:#75af00>getTime</span><span style=color:#111>()</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>1000</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>86400</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>25569</span><span style=color:#111>);</span>
+  <span style=color:#00a8c8>let</span> <span style=color:#75af00>time</span> <span style=color:#f92672>=</span> <span style=color:#75af00>dt</span><span style=color:#111>.</span><span style=color:#75af00>getTime</span><span style=color:#111>()</span> <span style=color:#f92672>+</span> <span style=color:#111>(</span><span style=color:#75af00>TIMEZONE_OFFSET</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>60</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>1000</span><span style=color:#111>);</span>
 
-  <span style=color:#75af00>serial</span> <span style=color:#f92672>+=</span> <span style=color:#75af00>seconds</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>86400</span><span style=color:#111>;</span>
+  <span style=color:#75715e>// 年月日
+</span><span style=color:#75715e></span>  <span style=color:#00a8c8>let</span> <span style=color:#75af00>serial</span> <span style=color:#f92672>=</span> <span style=color:#111>Math</span><span style=color:#111>.</span><span style=color:#75af00>floor</span><span style=color:#111>(</span><span style=color:#75af00>time</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>86400000</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>25569</span><span style=color:#111>);</span>
+
+  <span style=color:#75715e>// 時刻
+</span><span style=color:#75715e></span>  <span style=color:#75af00>serial</span> <span style=color:#f92672>+=</span> <span style=color:#111>(</span><span style=color:#75af00>time</span> <span style=color:#f92672>%</span> <span style=color:#111>(</span><span style=color:#ae81ff>86400000</span><span style=color:#111>))</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>86400000</span><span style=color:#111>;</span>
+
   <span style=color:#75af00>serial</span> <span style=color:#f92672>=</span> <span style=color:#111>Math</span><span style=color:#111>.</span><span style=color:#75af00>round</span><span style=color:#111>(</span><span style=color:#75af00>serial</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>100000</span><span style=color:#111>)</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>100000</span><span style=color:#111>;</span> <span style=color:#75715e>// 小数点以下5桁を残して四捨五入
-</span><span style=color:#75715e></span>  
+</span><span style=color:#75715e></span>
   <span style=color:#00a8c8>return</span> <span style=color:#75af00>serial</span><span style=color:#111>;</span>
 <span style=color:#111>}</span>
 </code></pre></div><p>日数については、先ほどのサンプルの反対の計算を行う。
-時刻は例えば PM 0:00 の場合は 0.5 となるため、0時からの秒数 / 24時間の秒数 で求めている。</p><p>JavaScript の getHours() などは実行環境のローカル時刻を返す。このサンプルではそれを意図したものとして、タイムゾーンの変換は行っていない。</p><h3 id=土日祝日を避けて日付を加減算する>土日祝日を避けて日付を加減算する</h3><p>「稼働日ベースで10日前」という感じの計算をするためのサンプル。
+時刻は例えば PM 0:00 の場合シリアル値は 0.5 となるため、0時からの秒数 / 24時間の秒数 で求めている。</p><p>JavaScript の getHours() などは実行環境のローカル時刻を返す。このサンプルではそれを意図したものとして、タイムゾーンの変換は行っていない。</p><h3 id=土日祝日を避けて日付を加減算する>土日祝日を避けて日付を加減算する</h3><p>「稼働日ベースで10日前」という感じの計算をするためのサンプル。
 スクリプトを実行するブックに、「祝日リスト」というテーブルがあることが前提。</p><p>↓ 祝日リストのサンプル<br><img src=2021-09-14-15-00-33.png alt></p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=color:#00a8c8>const</span> <span style=color:#75af00>SHEET_NAME</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;Sheet1&#34;</span><span style=color:#111>;</span>
 <span style=color:#00a8c8>const</span> <span style=color:#75af00>TABLE_NAME</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;祝日リスト&#34;</span><span style=color:#111>;</span>
 
