@@ -8,7 +8,8 @@ weight: 3
 ## はじめに
 Outlook VBA でメールや予定の検索を行う際、`Items.Find` や `Items.Restrict` を使用する。このメソッドの引数に指定するフィルター構文について分かった部分をまとめた。
 
-MSドキュメント：https://docs.microsoft.com/ja-jp/office/vba/outlook/how-to/search-and-filter/filtering-items
+参考：
+[Filtering Items | Microsoft Docs](https://docs.microsoft.com/en-us/office/vba/outlook/how-to/search-and-filter/filtering-items)
 
 Outlookのバージョン：Office 365
 
@@ -93,15 +94,21 @@ Debug.Print Format(Now,"Short Date") & " " & Format(Now,"Short Time")
 ### 予定を日付でフィルターするときの注意
 予定 (AppointmentItem) を検索する際、以下のように `IncludeRecurrences` プロパティを true にして、 `Start` プロパティでソートしてから検索する。
 
-```powershell
-$folder = $namespace.GetDefaultFolder($OlDefaultFolders::olFolderCalendar)
+```vb
+Dim ns As NameSpace
+Dim oFolder As Folder
+Dim oItems As Items
+Dim filter As String
 
-$allItems = $folder.Items
-$allItems.IncludeRecurrences = $true
-$allItems.Sort("[Start]")
 
-$filter = "[Start] >= '2021/08/01 0:00' AND [End] <= '2021/08/01 23:59'"
-$items = $allItems.Restrict($filter)
+Set ns = Application.GetNamespace("MAPI")
+Set oFolder = ns.GetDefaultFolder(olFolderCalendar)
+
+oFolder.Items.IncludeRecurrences = True
+oFolder.Items.Sort("[Start]")
+
+filter = "[Start] >= '2021/08/01 0:00' AND [End] <= '2021/08/01 23:59'"
+oItems = oFolder.Items.Restrict(filter)
 ```
 
 こうしないと、8/1にはないはずの「繰り返しの予定」が検索されたりして、上手く検索できない。
