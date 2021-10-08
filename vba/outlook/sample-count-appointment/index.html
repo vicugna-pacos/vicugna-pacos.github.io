@@ -1,0 +1,104 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="月初～今日までの予定の数を数える"><meta property="og:description" content="当サンプルについて 在宅勤務が始まったころ、部門のルールで、テレワークするか出勤するかを日々チャットツールに連絡することになった。 加えてテレワークの場合は、月初から何回目のテレワークかを添える必要があっ"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/vba/outlook/sample-count-appointment/"><meta property="article:published_time" content="2021-10-08T13:11:38+09:00"><meta property="article:modified_time" content="2021-10-08T13:11:38+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="月初～今日までの予定の数を数える"><meta name=twitter:description content="当サンプルについて 在宅勤務が始まったころ、部門のルールで、テレワークするか出勤するかを日々チャットツールに連絡することになった。 加えてテレワークの場合は、月初から何回目のテレワークかを添える必要があっ"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>月初～今日までの予定の数を数える - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>VBA</li><li>Outlook VBA</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#当サンプルについて>当サンプルについて</a></li><li><a href=#参照設定>参照設定</a></li><li><a href=#サンプル>サンプル</a></li></ul></nav></aside></div><div class=main><article><h1>月初～今日までの予定の数を数える</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-10-08 13:11:38 +0900 +0900" itemprop=datePublished>2021-10-08</time></div><div></div></div><h2 id=当サンプルについて>当サンプルについて</h2><p>在宅勤務が始まったころ、部門のルールで、テレワークするか出勤するかを日々チャットツールに連絡することになった。
+加えてテレワークの場合は、月初から何回目のテレワークかを添える必要があった(当時は会社がテレワーク率を把握したがっていたため)。</p><p>そこで私は、Outlook の予定表に「テレワーク」という件名で予定を登録し、それをマクロで数えるようにした。</p><p>↓予定表の例<br><img src=2021-10-08-13-21-41.png alt></p><p>毎朝、勤怠連絡するタイミングで下記サンプルマクロを実行すると、下記のような文字列がクリップボードに書き込まれる。</p><pre><code>[勤怠連絡] 10/8 テレワーク (6回目)
+</code></pre><p>これをチャットツールに貼り付けて勤怠連絡に使う。</p><h2 id=参照設定>参照設定</h2><p>クリップボードの操作に使う DataObject を使うには「Microsoft Forms 2.0 Object Library」の参照設定が必要。</p><p><img src=2021-10-08-14-00-51.png alt></p><p>手作業でこれを追加してもいいが、ユーザーフォームをマクロに追加するだけでこの参照設定が追加される。</p><p><img src=2021-10-08-14-02-24.png alt></p><p>追加したユーザーフォームは、すぐに削除(解放)して問題ない。</p><h2 id=サンプル>サンプル</h2><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Option</span> <span style=color:#111>Explicit</span>
+
+<span style=color:#75715e>&#39; 勤怠区分を表す予定の件名
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>KINTAI_LIST</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;テレワーク,通常出勤,休暇&#34;</span>
+
+<span style=color:#00a8c8>Public</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>予定を数える</span><span style=color:#111>()</span>
+
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>ns</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>NameSpace</span>
+    <span style=color:#111>Dim</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>As</span> <span style=color:#111>Folder</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>dt</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>kintai</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>teleCount</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oDo</span> <span style=color:#f92672>As</span> <span style=color:#111>DataObject</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>msg</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>ns</span> <span style=color:#f92672>=</span> <span style=color:#111>Application</span><span style=color:#111>.</span><span style=color:#111>GetNamespace</span><span style=color:#111>(</span><span style=color:#d88200>&#34;MAPI&#34;</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>=</span> <span style=color:#111>ns</span><span style=color:#111>.</span><span style=color:#111>GetDefaultFolder</span><span style=color:#111>(</span><span style=color:#111>olFolderCalendar</span><span style=color:#111>)</span>
+    
+    <span style=color:#75715e>&#39; 今日の予定を取得
+</span><span style=color:#75715e></span>    <span style=color:#111>dt</span> <span style=color:#f92672>=</span> <span style=color:#111>Now</span>
+    <span style=color:#111>kintai</span> <span style=color:#f92672>=</span> <span style=color:#111>GetTodaysKintai</span><span style=color:#111>(</span><span style=color:#111>oFolder</span><span style=color:#111>,</span> <span style=color:#111>dt</span><span style=color:#111>)</span>
+    
+    <span style=color:#111>msg</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;[勤怠連絡] &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>Format</span><span style=color:#111>(</span><span style=color:#111>dt</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;m/d&#34;</span><span style=color:#111>)</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; &#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>kintai</span>
+    
+    <span style=color:#75715e>&#39; テレワークの時だけ、月初～今日までの回数を数える
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>If</span> <span style=color:#111>kintai</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;テレワーク&#34;</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#111>teleCount</span> <span style=color:#f92672>=</span> <span style=color:#111>CountTelework</span><span style=color:#111>(</span><span style=color:#111>oFolder</span><span style=color:#111>,</span> <span style=color:#111>dt</span><span style=color:#111>,</span> <span style=color:#111>kintai</span><span style=color:#111>)</span>
+        <span style=color:#111>msg</span> <span style=color:#f92672>=</span> <span style=color:#111>msg</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; (&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>teleCount</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;回目)&#34;</span>
+    <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#75715e>&#39; クリップボードに書き込む
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Set</span> <span style=color:#111>oDo</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>New</span> <span style=color:#111>DataObject</span>
+    <span style=color:#111>oDo</span><span style=color:#111>.</span><span style=color:#111>SetText</span> <span style=color:#111>msg</span>
+    <span style=color:#111>oDo</span><span style=color:#111>.</span><span style=color:#111>PutInClipboard</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+
+<span style=color:#75715e>&#39; 今日の予定を取得
+</span><span style=color:#75715e>&#39;   終日予定のうち、勤怠区分を表す件名と一致するものを取得する
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Function</span> <span style=color:#75af00>GetTodaysKintai</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>As</span> <span style=color:#111>Folder</span><span style=color:#111>,</span> <span style=color:#111>dt</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span><span style=color:#111>)</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>filter</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>tomorrow</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItems</span> <span style=color:#f92672>As</span> <span style=color:#111>Items</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItem</span> <span style=color:#f92672>As</span> <span style=color:#111>AppointmentItem</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>kintaiList</span><span style=color:#111>()</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>kintaiItem</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Variant</span>
+    
+    
+    <span style=color:#111>kintaiList</span> <span style=color:#f92672>=</span> <span style=color:#111>Split</span><span style=color:#111>(</span><span style=color:#111>KINTAI_LIST</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;,&#34;</span><span style=color:#111>)</span>
+    
+    <span style=color:#111>tomorrow</span> <span style=color:#f92672>=</span> <span style=color:#111>DateAdd</span><span style=color:#111>(</span><span style=color:#d88200>&#34;d&#34;</span><span style=color:#111>,</span> <span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>dt</span><span style=color:#111>)</span>
+    
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;[Start] &gt;= &#39;&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>Format</span><span style=color:#111>(</span><span style=color:#111>dt</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Short Date&#34;</span><span style=color:#111>)</span> <span style=color:#f92672>+</span> <span style=color:#d88200>&#34; 00:00&#39;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; AND [End] &lt;= &#39;&#34;</span> <span style=color:#f92672>+</span> <span style=color:#111>Format</span><span style=color:#111>(</span><span style=color:#111>tomorrow</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Short Date&#34;</span><span style=color:#111>)</span> <span style=color:#f92672>+</span> <span style=color:#d88200>&#34; 00:00&#39;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; AND [AllDayEvent] = True&#34;</span>
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oItems</span> <span style=color:#f92672>=</span> <span style=color:#111>oFolder</span><span style=color:#111>.</span><span style=color:#111>Items</span><span style=color:#111>.</span><span style=color:#111>Restrict</span><span style=color:#111>(</span><span style=color:#111>filter</span><span style=color:#111>)</span>
+    
+    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>oItem</span> <span style=color:#f92672>In</span> <span style=color:#111>oItems</span>
+        <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>kintaiItem</span> <span style=color:#f92672>In</span> <span style=color:#111>kintaiList</span>
+            <span style=color:#00a8c8>If</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>Subject</span> <span style=color:#f92672>=</span> <span style=color:#111>kintaiItem</span> <span style=color:#00a8c8>Then</span>
+                <span style=color:#111>GetTodaysKintai</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>Subject</span>
+                <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Function</span>
+            <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+        <span style=color:#00a8c8>Next</span>
+    <span style=color:#00a8c8>Next</span>
+    
+    <span style=color:#111>GetTodaysKintai</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Function</span>
+
+<span style=color:#75715e>&#39; 月初～今日までのテレワークの回数を数える
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Function</span> <span style=color:#75af00>CountTelework</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>As</span> <span style=color:#111>Folder</span><span style=color:#111>,</span> <span style=color:#111>dt</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span><span style=color:#111>,</span> <span style=color:#111>kintai</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span><span style=color:#111>)</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>filter</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>firstDate</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>tomorrow</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItems</span> <span style=color:#f92672>As</span> <span style=color:#111>Items</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItem</span> <span style=color:#f92672>As</span> <span style=color:#111>AppointmentItem</span>
+    
+    
+    <span style=color:#111>firstDate</span> <span style=color:#f92672>=</span> <span style=color:#111>DateAdd</span><span style=color:#111>(</span><span style=color:#d88200>&#34;d&#34;</span><span style=color:#111>,</span> <span style=color:#111>(</span><span style=color:#111>Day</span><span style=color:#111>(</span><span style=color:#111>dt</span><span style=color:#111>)</span> <span style=color:#f92672>-</span> <span style=color:#111>1</span><span style=color:#111>)</span> <span style=color:#f92672>*</span> <span style=color:#f92672>-</span><span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>dt</span><span style=color:#111>)</span>
+    <span style=color:#111>tomorrow</span> <span style=color:#f92672>=</span> <span style=color:#111>DateAdd</span><span style=color:#111>(</span><span style=color:#d88200>&#34;d&#34;</span><span style=color:#111>,</span> <span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>dt</span><span style=color:#111>)</span>
+    
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;[Start] &gt;= &#39;&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>Format</span><span style=color:#111>(</span><span style=color:#111>firstDate</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Short Date&#34;</span><span style=color:#111>)</span> <span style=color:#f92672>+</span> <span style=color:#d88200>&#34; 00:00&#39;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; AND [End] &lt;= &#39;&#34;</span> <span style=color:#f92672>+</span> <span style=color:#111>Format</span><span style=color:#111>(</span><span style=color:#111>tomorrow</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;Short Date&#34;</span><span style=color:#111>)</span> <span style=color:#f92672>+</span> <span style=color:#d88200>&#34; 00:00&#39;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; AND [Subject] = &#39;&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>kintai</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;&#39;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; AND [AllDayEvent] = True&#34;</span>
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oItems</span> <span style=color:#f92672>=</span> <span style=color:#111>oFolder</span><span style=color:#111>.</span><span style=color:#111>Items</span><span style=color:#111>.</span><span style=color:#111>Restrict</span><span style=color:#111>(</span><span style=color:#111>filter</span><span style=color:#111>)</span>
+    
+    <span style=color:#111>CountTelework</span> <span style=color:#f92672>=</span> <span style=color:#111>oItems</span><span style=color:#111>.</span><span style=color:#111>Count</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Function</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
