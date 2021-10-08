@@ -1,6 +1,7 @@
 ---
 title: "配列"
 date: 2021-08-19T16:13:13+09:00
+draft: true
 ---
 
 [about Arrays - PowerShell | Microsoft Docs](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_arrays?view=powershell-5.1)
