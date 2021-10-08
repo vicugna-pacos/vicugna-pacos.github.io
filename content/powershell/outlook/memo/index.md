@@ -125,7 +125,7 @@ $items = $folder.Items.Restrict()    # 条件に一致するItemを全件返す
 ```
 
 フィルター構文については下記参照。  
-[検索やフィルターの構文]({{< ref "outlookvba/search-and-filter/index.md" >}})
+[検索やフィルターの構文]({{< ref "vba/outlook/search-and-filter/index.md" >}})
 
 ## 終日の予定を作る
 「終日」の予定とは、時間指定がない予定のこと。
