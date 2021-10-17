@@ -60,6 +60,31 @@ Paste Image (mushan.vscode-paste-image)
 マークダウンなどを書いているときに Ctrl + Alt + V を押すと、クリップボードにある画像を同フォルダに保存し、マークダウンファイルには画像のリンクを挿入する。
 スクリーンショットを撮って、すぐに記事に挿入できるので便利。
 
+## デバッグ
+
+### 開いているファイルをデバッグする
+Node.js でデバッグするとき、既定ではプロジェクトルートにある index.js がエントリーポイントになる。
+これを、開いているファイルから実行するように変更するには、launch.json の記述を変更する。
+下記サンプルのように、program の値を `${file}` へ変更する。
+
+```json
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "プログラムの起動",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+//			"program": "${workspaceFolder}\\index.js"
+			"program": "${file}"
+		}
+	]
+}
+```
+
 ## GitHubのリポジトリを見る
 Remote Repositories (github.remotehub)
 
