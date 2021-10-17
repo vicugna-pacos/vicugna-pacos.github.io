@@ -1,7 +1,7 @@
 ---
 title: "Puppeteer の使い方"
 date: 2019-12-14T11:54:00+09:00
-lastMod: 2021-08-30T19:58:12+09:00
+lastMod: 2021-10-17T14:05:35+09:00
 description: "Puppeteer の使い方を逆引き形式でまとめました。"
 ---
 
@@ -140,7 +140,7 @@ await page.click("#submit-button");
  * `clickCount` \<number> 既定値：`1`
  * `delay` \<number> `mousedown`と`mouseup`の間隔をミリ秒で指定する。既定値：`0`
 
-クリックでナビゲーションが発生する場合、`page.waitForNavigation()`を使ってナビゲーションが終わるまで待機する必要がある。
+クリックでナビゲーションが発生する場合、`page.waitForNavigation()` を使ってナビゲーションが終わるまで待機する必要がある。
 
 ### クリック後のページ移動を待つ
 クリックなどでナビゲーションが発生する場合、クリックした後ナビゲーションが終わるのを待つ必要がある。
@@ -152,7 +152,7 @@ const [response] = await Promise.all([
 ]);
 ```
 
-ページ移動を伴うナビゲーションであれば`waitUntil`に`domcontentloaded`などを指定すればよいが、非同期のナビゲーションであれば、`networkidle0`などを指定する。
+ページ移動を伴うナビゲーションであれば `waitUntil` に `load` や `domcontentloaded` などを指定すればよいが、非同期のナビゲーションであれば、`networkidle0` などを指定する。
 
 ```javascript
 // 定義
@@ -163,6 +163,8 @@ await page.waitForNavigation([option]);
   * `timeout` \<number> 最大待機時間をミリ秒で指定する。0を指定するとタイムアウトなしになる。既定値：30秒。既定値は`page.setDefaultNavigationTimeout(timeout)`または`page.setDefaultTimeout(timeout)`で変更可能。
   * `waitUntil` \<string|Array\<string>> どれくらい待つか指定する。既定値：`load`。複数指定した場合は、指定したすべてのイベントが終わるまで待つ。指定できる値は`page.goto()`と同じ。
 * 戻り値: \<Promise\<?Response>>
+
+waitForNavigation を使っても読み込み完了の検知がうまくいかない場合は、「ページの描画が終わるのを待つ」の章を参照。
 
 ### Ctrlキーを押しながらリンクをクリックする
 単純にリンクを新しいタブで開きたいなら、`browser.newPage()`してから指定のURLへ移動するのが最もシンプルだと思うが、Ctrlキーを押しながら`click()`を実行することでも、リンクを新しいタブで開くことができる。ただしこの場合、新しいタブに自動的にフォーカスが移らないので注意。
@@ -207,6 +209,52 @@ const text = await page.evaluate(elm => elm.textContent, ele);
 
 ## 要素が表示されるまで待つ
 `page.waitForSelector(selector, {visible:true});`
+
+## ページの描画が終わるのを待つ
+参考：[javascript - Puppeteer wait until page is completely loaded - Stack Overflow](https://stackoverflow.com/questions/52497252/puppeteer-wait-until-page-is-completely-loaded)
+
+新しいWebページを開いた後、ページが読み込まれるのを待つには `page.waitForNavigation()` などを使えばよいが、
+非同期でいろいろ読み込まれたり、読み込まれた後もスクリプトが動作していてページの描画が終わっていない場合がある。
+これを解決するために、Webページの内容が一定時間変化しないのを待つ、という方法もある。
+下記サンプルでは、WebページのHTMLの文字数をもとに、HTMLの書き換えが一定時間収まるのを待つ。
+
+```js
+async function waitTillHTMLRendered(page, timeout = 30000) {
+	const checkDurationMsecs = 1000;  // チェックする間隔(ミリ秒)
+	const minStableSizeIterations = 3;  // ○回チェックしてサイズに変化がなければOKとする
+	const maxChecks = timeout / checkDurationMsecs;
+	let lastHTMLSize = 0;
+	let checkCounts = 1;
+	let countStableSizeIterations = 0;
+  
+	while(checkCounts++ <= maxChecks){
+		let html = await page.content();
+		let currentHTMLSize = html.length; 
+
+		let bodyHTMLSize = await page.evaluate(() => document.body.innerHTML.length);
+
+		if (lastHTMLSize == currentHTMLSize) {
+			console.log('last: ', lastHTMLSize, ' == curr: ', currentHTMLSize, " body html size: ", bodyHTMLSize);
+		} else {
+			console.log('last: ', lastHTMLSize, ' <> curr: ', currentHTMLSize, " body html size: ", bodyHTMLSize);
+		}
+
+		if(lastHTMLSize != 0 && currentHTMLSize == lastHTMLSize) {
+			countStableSizeIterations++;
+		} else {
+			countStableSizeIterations = 0; //reset the counter
+		}
+
+		if(countStableSizeIterations >= minStableSizeIterations) {
+			console.log("Page rendered fully..");
+			break;
+		}
+
+		  lastHTMLSize = currentHTMLSize;
+		  await page.waitForTimeout(checkDurationMsecs);
+	}
+}
+```
 
 ## Chromeで動的に生成される要素を調べる
 一時停止(F8)を押すか、要素で右クリック→「検証」を選ぶ。
@@ -282,7 +330,8 @@ async function useCookieSample(page) {
 ## navigator.webdriver をオフにする
 
 Webサイトによっては、puppeteerでアクセスするとツールであることを判定して、通常とは異なるページを返す。Webサイト側がチェックをかけているのだが、その方法の一つとして、JavaScriptを使って簡単に判定できる。
-`navigator.webdriver`というプロパティで、puppeteerでChromeを動かしているときもこの値が`true`になっている。
+`navigator.webdriver` というプロパティで、puppeteer で Chrome を動かしているときもこの値が `true` になっている。
+
 参考：[Navigator.webdriver - Web API | MDN](https://developer.mozilla.org/ja/docs/Web/API/Navigator/webdriver)
 
 puppeteer側でこのプロパティをなくすことが可能。
