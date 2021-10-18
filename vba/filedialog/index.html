@@ -1,0 +1,33 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="ファイルを開く＆保存するダイアログ"><meta property="og:description" content="はじめに VBA でファイルを指定するダイアログを表示する方法はいくつかあるが、 一番柔軟性があるのは Application.FileDialog だと思われる。 Excel の Application オブジェクトに付いているプロパティで、Outlook の Application オブジェクトにはない。 そのため"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/vba/filedialog/"><meta property="article:published_time" content="2021-10-18T15:55:23+09:00"><meta property="article:modified_time" content="2021-10-18T15:55:23+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="ファイルを開く＆保存するダイアログ"><meta name=twitter:description content="はじめに VBA でファイルを指定するダイアログを表示する方法はいくつかあるが、 一番柔軟性があるのは Application.FileDialog だと思われる。 Excel の Application オブジェクトに付いているプロパティで、Outlook の Application オブジェクトにはない。 そのため"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>ファイルを開く＆保存するダイアログ - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>VBA</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#サンプル>サンプル</a></li></ul></nav></aside></div><div class=main><article><h1>ファイルを開く＆保存するダイアログ</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-10-18 15:55:23 +0900 +0900" itemprop=datePublished>2021-10-18</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>VBA でファイルを指定するダイアログを表示する方法はいくつかあるが、
+一番柔軟性があるのは <a href=https://docs.microsoft.com/en-us/office/vba/api/office.filedialog target=_blank rel=noopener>Application.FileDialog</a> だと思われる。</p><p>Excel の Application オブジェクトに付いているプロパティで、Outlook の Application オブジェクトにはない。
+そのため、Outlook VBA でファイル選択ダイアログを使いたい場合、Excel.Application オブジェクトを生成して使う必要がある。</p><h2 id=サンプル>サンプル</h2><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Public</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>Sample1</span><span style=color:#111>()</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oDialog</span> <span style=color:#f92672>As</span> <span style=color:#111>FileDialog</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>iAction</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span>
+    
+    <span style=color:#75715e>&#39; 実際は String 型が入る。For Eachで使う関係上 Variant で定義
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Dim</span> <span style=color:#111>vSelectedItem</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Variant</span>
+    
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oDialog</span> <span style=color:#f92672>=</span> <span style=color:#111>Application</span><span style=color:#111>.</span><span style=color:#111>FileDialog</span><span style=color:#111>(</span><span style=color:#111>msoFileDialogFilePicker</span><span style=color:#111>)</span>
+    
+    <span style=color:#111>oDialog</span><span style=color:#111>.</span><span style=color:#111>InitialFileName</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;C:\test\&#34;</span>  <span style=color:#75715e>&#39; 既定のフォルダを指定する
+</span><span style=color:#75715e></span>    
+    <span style=color:#111>iAction</span> <span style=color:#f92672>=</span> <span style=color:#111>oDialog</span><span style=color:#111>.</span><span style=color:#111>Show</span>  <span style=color:#75715e>&#39; ダイアログを表示する
+</span><span style=color:#75715e></span>    
+    <span style=color:#75715e>&#39; Showの戻り値が -1 の時がユーザーが「開く」ボタンを押したとき。
+</span><span style=color:#75715e></span>    <span style=color:#75715e>&#39;  キャンセルされた場合は 0
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>If</span> <span style=color:#111>iAction</span> <span style=color:#f92672>&lt;&gt;</span> <span style=color:#f92672>-</span><span style=color:#111>1</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#00a8c8>Set</span> <span style=color:#111>oDialog</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+        <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Sub</span>
+    <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>vSelectedItem</span> <span style=color:#f92672>In</span> <span style=color:#111>oDialog</span><span style=color:#111>.</span><span style=color:#111>SelectedItems</span>
+        <span style=color:#111>Debug</span><span style=color:#111>.</span><span style=color:#111>Print</span> <span style=color:#111>vSelectedItem</span>
+    <span style=color:#00a8c8>Next</span>
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oDialog</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
