@@ -40,6 +40,8 @@ ListRows はコレクションになっており、各要素は ListRow オブ�
 テーブルのヘッダー行と集計行を除いた部分の Range オブジェクトを取得する。
 
 ## フィルタの設定
+フィルタを設定する前に、すでに設定されているフィルタを解除しておくのが大事。
+フィルタを解除するには、列番号のみを指定して AutoFilter メソッドを実行する。
 
 ```vb
 Public Sub Sample1()
@@ -53,6 +55,47 @@ Public Sub Sample1()
     
     ' フィルタを設定
     oList.Range.AutoFilter 1, "みかん"
+    
+End Sub
+
+Private Sub ClearAutoFilter(ByRef oRange As Range)
+    Dim idx As Integer
+    
+    For idx = 1 To oRange.Columns.Count
+        oRange.AutoFilter idx
+    Next
+
+End Sub
+```
+
+### フィルタ後の結果を取得
+ListObject の Range に対して`SpecialCells(xlCellTypeVisible)` を指定して、表示されているセルを取得する。注意点としては、ListObject.Range にはタイトル行が含まれるため、フィルタに一致する結果がない場合でも、Rows.Count は 1 になるし、データ部を取得したいなら2行目以降から取得する必要がある。
+
+わざわざタイトル行の含まれる ListObject.Range を使う理由は、フィルタに一致する結果が0件の場合、SpecialCells メソッドがエラーを発生させるためである。
+
+```vb
+Public Sub Sample1()
+
+    Dim oList As ListObject
+    Dim oRange As Range
+    Dim idx As Integer
+    
+    
+    Set oList = Sheet1.ListObjects("テーブル1")
+    
+    ' フィルタのクリア
+    ClearAutoFilter oList.Range
+    
+    ' フィルタを設定
+    oList.Range.AutoFilter 1, "みかん"
+    
+    ' フィルタに一致した行を取得
+    ' (1行目にタイトル行を含む)
+    Set oRange = oList.Range.SpecialCells(xlCellTypeVisible)
+    
+    For idx = 2 To oRange.Rows.Count  ' 1行目はタイトル行なので idx は2から始める
+        
+    Next
     
 End Sub
 
