@@ -1,7 +1,7 @@
 ---
 title: "はじめの一歩"
 date: 2021-08-27T16:41:31+09:00
-lastMod: 2021-10-13T11:06:50+09:00
+lastMod: 2021-11-08T15:31:32+09:00
 weight: 1
 ---
 
@@ -120,3 +120,45 @@ Public Sub test1()
     
 End Sub
 ```
+
+## 特定のフォルダを取得
+受信トレイの中に作ったフォルダや、自分にアクセス権がある共有アカウントのフォルダを取得できる。
+
+```vb
+' ----------------------------------------
+' aaa@example.com\受信トレイ\テストフォルダ　など\区切りで指定したフォルダを取得する
+' ----------------------------------------
+Private Function GetFolder(ByRef oNs As NameSpace, folderName As String) As Folder
+    Dim names() As String
+    Dim idx1 As Integer
+    Dim idx2 As Integer
+    Dim oFolders As Folders
+    Dim oResult As Folder
+    
+    
+    names = Split(folderName, "\")
+    Set oFolders = oNs.Folders
+    Set oResult = Nothing
+
+    For idx1 = 0 To UBound(names)
+        Set oResult = Nothing
+        
+        For idx2 = 1 To oFolders.Count
+            If oFolders(idx2).Name = names(idx1) Then
+                Set oResult = oFolders(idx2)
+                Set oFolders = oFolders(idx2).Folders
+                Exit For
+            End If
+        Next
+    Next
+    
+    Set GetFolder = oResult
+    
+    Set oResult = Nothing
+    Set oFolders = Nothing
+End Function
+```
+
+共有メールボックスのフォルダを指定する場合、フォルダ名はメールアドレスではなく、Outlook の左側の画面に表示されている名前を指定する。
+
+![](2021-11-08-15-25-37.png)
