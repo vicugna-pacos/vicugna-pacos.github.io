@@ -1,12 +1,12 @@
 ---
 title: "検索やフィルターの構文"
 date: 2021-03-02T15:01:51+09:00
-lastMod: 2021-10-08T11:20:16+09:00
+lastMod: 2021-11-08T14:45:38+09:00
 weight: 3
 ---
 
 ## はじめに
-Outlook VBA でメールや予定の検索を行う際、`Items.Find` や `Items.Restrict` を使用する。このメソッドの引数に指定するフィルター構文について分かった部分をまとめた。
+Outlook VBA でメールや予定の検索を行う際、[Items.Find](https://docs.microsoft.com/en-us/office/vba/api/outlook.items.find) や [Items.Restrict](https://docs.microsoft.com/en-us/office/vba/api/outlook.items.restrict) を使用する。このメソッドの引数に指定するフィルター構文について分かった部分をまとめた。
 
 参考：
 [Filtering Items | Microsoft Docs](https://docs.microsoft.com/en-us/office/vba/outlook/how-to/search-and-filter/filtering-items)
@@ -14,7 +14,7 @@ Outlook VBA でメールや予定の検索を行う際、`Items.Find` や `Items
 Outlookのバージョン：Office 365
 
 ## 基礎知識
-フィルターに指定できる構文は、Jet 構文と DASL 構文の2種類がある。
+フィルターに指定できる構文は、Jet 構文と DASL 構文の2種類がある。どちらにも一長一短があり、
 Jet 構文は SQL の WHERE 句のような書き方ができるが、前方一致検索がなかったりする。
 DASL 構文には前方一致検索があるが、`Items.Find` と `Items.Restrict` で使用できる構文が一部異なる。
 
@@ -63,6 +63,27 @@ DASL構文のサンプル：
   * 件名が「あいう」に一致する。頭に`RE:`などが付いていたら対象外。
 * `@SQL="urn:schemas:httpmail:subject" like 'RE:%'`
   * 件名が「RE:」で始まる(前方一致)
+
+### 分類項目
+Jet 構文では、「XXという分類項目が付いているか」という指定ができる。
+
+```
+[Categories] = 'Partner'
+```
+
+上記のサンプルでは、`Partner` という分類項目がついているアイテムを検索できる。Partner と Business など、他の分類項目が一緒に付いていても検索結果に表れる。
+
+「`Partner` で始まる分類項目を持つアイテム」を検索したい場合は、DASL クエリを使用する。
+
+```
+"urn:schemas-microsoft-com:office:office#Keywords" like 'Partner%'
+```
+
+分類項目が一切ついていないアイテムを検索する方法もある。DASL クエリでのみ `IS NULL` という構文が利用できるので、それを使う。
+
+```
+"urn:schemas-microsoft-com:office:office#Keywords" is null
+```
 
 ## 日付のフィルター
 
@@ -127,26 +148,6 @@ Importance(重要度)などはVBAでは列挙型で指定するが、フィル�
 * `[Importance] = 2`
   * 重要度が「高」である
 
-## 分類項目
-Jet 構文では、「XXという分類項目が付いているか」という指定ができる。
-
-```
-[Categories] = 'Partner'
-```
-
-上記のサンプルでは、`Partner` という分類項目がついているアイテムを検索できる。Partner と Business など、他の分類項目が一緒に付いていても検索結果に表れる。
-
-「`Partner` で始まる分類項目を持つアイテム」を検索したい場合は、DASL クエリを使用する。
-
-```
-"urn:schemas-microsoft-com:office:office#Keywords" like 'Partner%'
-```
-
-分類項目が一切ついていないアイテムを検索する方法もある。DASL クエリでのみ `IS NULL` という構文が利用できるので、それを使う。
-
-```
-"urn:schemas-microsoft-com:office:office#Keywords" is null
-```
 
 ## MailItem (メール)
 検索に使いそうなプロパティを載せておく。
