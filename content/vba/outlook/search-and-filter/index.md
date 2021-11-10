@@ -1,7 +1,7 @@
 ---
 title: "検索やフィルターの構文"
 date: 2021-03-02T15:01:51+09:00
-lastMod: 2021-11-08T14:45:38+09:00
+lastMod: 2021-11-10T11:33:20+09:00
 weight: 3
 ---
 
@@ -30,6 +30,97 @@ Jet 構文で使用できる列名 (ぽいもの) は、`MailItem` などの Ite
 * `Items.Restrict`
   * `ci_` から始まる構文の制限なし。
   * 検索対象のアイテム数が多い場合、Find メソッドより実行速度が速い。
+
+## サンプル
+
+### シンプルな検索
+以下に、ごく簡単な検索を行うサンプルを記載する。受信トレイにある未読メールを検索し、件名をイミディエイトウィンドウに出力する。
+
+```vb
+Public Sub sample01()
+    Dim oNs As NameSpace
+    Dim oFolder As Folder
+    Dim oItems As Items
+    Dim oItem As Variant
+    Dim oMailItem As MailItem
+    Dim strFilter As String
+
+
+    Set oNs = Application.GetNamespace("MAPI")
+    Set oFolder = oNs.GetDefaultFolder(olFolderInbox) ' 受信トレイ
+    
+    ' 検索実行
+    strFilter = "[UnRead] = True"
+    Set oItems = oFolder.Items.Restrict(strFilter)
+    
+    ' 検索結果のループ
+    For Each oItem In oItems
+        If TypeName(oItem) = "MailItem" Then
+            Set oMailItem = oItem
+            Debug.Print oMailItem.Subject
+        End If
+    Next
+    
+    Set oMailItem = Nothing
+    Set oItem = Nothing
+    Set oItems = Nothing
+    Set oFolder = Nothing
+    Set oNs = Nothing
+End Sub
+```
+
+### 検索結果に影響を及ぼす操作をする場合
+例えば、分類項目が付いていないメールを検索し、それぞれに特定の分類項目を付けたいとする。
+検索結果に対してその結果に影響を及ぼすような操作をする場合、操作をした後 (例だと分類項目を付けた後) 再度検索し直す必要がある。
+分類項目を付けて MailItem.Save() で保存した後、検索結果を格納していた Items 変数の内容が予期せぬ結果に変わるためである。
+
+```vb
+Public Sub メール分類追加WA()
+    Dim oNs As NameSpace
+    Dim oFolder As Folder
+    Dim oItems As Items
+    Dim oMailItem As MailItem
+    Dim strFilter As String
+    Dim loopCount As Integer
+    
+    Set oNs = Application.GetNamespace("MAPI")
+    Set oFolder = oNs.GetDefaultFolder(olFolderInbox)
+    
+    ' 分類項目がついていないメールを探す
+    strFilter = "@SQL=""urn:schemas-microsoft-com:office:office#Keywords"" IS NULL"
+    
+    ' メールに分類項目を付ける
+    Set oItems = oFolder.Items.Restrict(strFilter)
+    loopCount = 0
+    
+    Do While oItems.Count > 0
+        ' 分類を付ける
+        If TypeName(oItems(1)) = "MailItem" Then
+            Set oMailItem = oItems(1)
+            oMailItem.Categories = "新しい分類項目"
+            oMailItem.Save
+        End If
+        
+        ' 無限ループ防止
+        loopCount = loopCount + 1
+        
+        If loopCount > 50 Then
+            Debug.Print "ループ回数が規定を超えました"
+            Exit Do
+        End If
+        
+        ' 検索し直し
+        Set oItems = oFolder.Items.Restrict(strFilter)
+        
+    Loop
+    
+    Set oMailItem = Nothing
+    Set oItems = Nothing
+    Set oFolder = Nothing
+    Set oNs = Nothing
+    
+End Sub
+```
 
 ## 使用できる演算子
 Jet 構文、DASL 構文 いずれも使用できる演算子は同じ。
