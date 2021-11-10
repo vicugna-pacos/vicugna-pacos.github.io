@@ -76,13 +76,13 @@ Jet 構文では、「XXという分類項目が付いているか」という�
 「`Partner` で始まる分類項目を持つアイテム」を検索したい場合は、DASL クエリを使用する。
 
 ```
-"urn:schemas-microsoft-com:office:office#Keywords" like 'Partner%'
+@SQL="urn:schemas-microsoft-com:office:office#Keywords" like 'Partner%'
 ```
 
 分類項目が一切ついていないアイテムを検索する方法もある。DASL クエリでのみ `IS NULL` という構文が利用できるので、それを使う。
 
 ```
-"urn:schemas-microsoft-com:office:office#Keywords" is null
+@SQL="urn:schemas-microsoft-com:office:office#Keywords" is null
 ```
 
 ## 日付のフィルター
