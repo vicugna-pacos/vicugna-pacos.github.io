@@ -1,0 +1,37 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="差出人のメールアドレスを取得する"><meta property="og:description" content="概要 受信したメール (MailItem) の差出人のメールアドレスを取得するには、SenderEmailAddress プロパティを参照する。 ただし、Exchange を使用してる かつ 差出人が同じ組織内のユーザーである場合は、"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/vba/outlook/sender-email-address/"><meta property="article:published_time" content="2021-11-10T09:34:55+09:00"><meta property="article:modified_time" content="2021-11-10T09:34:55+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="差出人のメールアドレスを取得する"><meta name=twitter:description content="概要 受信したメール (MailItem) の差出人のメールアドレスを取得するには、SenderEmailAddress プロパティを参照する。 ただし、Exchange を使用してる かつ 差出人が同じ組織内のユーザーである場合は、"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>差出人のメールアドレスを取得する - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>VBA</li><li>Outlook VBA</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#概要>概要</a></li><li><a href=#サンプル>サンプル</a></li></ul></nav></aside></div><div class=main><article><h1>差出人のメールアドレスを取得する</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2021-11-10 09:34:55 +0900 +0900" itemprop=datePublished>2021-11-10</time></div><div></div></div><h2 id=概要>概要</h2><p>受信したメール (MailItem) の差出人のメールアドレスを取得するには、SenderEmailAddress プロパティを参照する。
+ただし、Exchange を使用してる かつ 差出人が同じ組織内のユーザーである場合は、SenderEmailAddress からメールアドレスを取得できない。
+そのような場合は、PropertyAccessor オブジェクトを使用する必要がある。</p><p>参考：<a href=https://docs.microsoft.com/en-us/office/client-developer/outlook/pia/how-to-get-the-smtp-address-of-the-sender-of-a-mail-item target=_blank rel=noopener>Get the SMTP address of the sender of a mail item | Microsoft Docs</a></p><p>差出人の SenderEmailType が &ldquo;EX&rdquo; の場合、その人は同じ組織内の Exchange 利用者ということになる。
+下記サンプルでは、その場合に PropertyAccessor オブジェクトを使用してメールアドレスを取得する。</p><h2 id=サンプル>サンプル</h2><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#75715e>&#39; ----------------------------------------
+</span><span style=color:#75715e>&#39; 送信者のメールアドレスを取得する
+</span><span style=color:#75715e>&#39; ----------------------------------------
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Function</span> <span style=color:#75af00>GetSenderEmailAddress</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>oItem</span> <span style=color:#f92672>As</span> <span style=color:#111>MailItem</span><span style=color:#111>)</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>PR_SMTP_ADDRESS</span>  <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oSender</span> <span style=color:#f92672>As</span> <span style=color:#111>AddressEntry</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oExUser</span> <span style=color:#f92672>As</span> <span style=color:#111>ExchangeUser</span>
+    
+    
+    <span style=color:#111>PR_SMTP_ADDRESS</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;http://schemas.microsoft.com/mapi/proptag/0x39FE001E&#34;</span>
+    
+    <span style=color:#75715e>&#39; Exchange 以外
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>If</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>SenderEmailType</span> <span style=color:#f92672>&lt;&gt;</span> <span style=color:#d88200>&#34;EX&#34;</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#111>GetSenderEmailAddress</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>SenderEmailAddress</span>
+        <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Function</span>
+    <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oSender</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>Sender</span>
+    
+    <span style=color:#00a8c8>If</span> <span style=color:#111>oSender</span><span style=color:#111>.</span><span style=color:#111>AddressEntryUserType</span> <span style=color:#f92672>=</span> <span style=color:#111>olExchangeUserAddressEntry</span> _
+        <span style=color:#f92672>Or</span> <span style=color:#111>oSender</span><span style=color:#111>.</span><span style=color:#111>AddressEntryUserType</span> <span style=color:#f92672>=</span> <span style=color:#111>olExchangeRemoteUserAddressEntry</span> <span style=color:#00a8c8>Then</span>
+        
+        <span style=color:#00a8c8>Set</span> <span style=color:#111>oExUser</span> <span style=color:#f92672>=</span> <span style=color:#111>oSender</span><span style=color:#111>.</span><span style=color:#111>GetExchangeUser</span>
+        <span style=color:#111>GetSenderEmailAddress</span> <span style=color:#f92672>=</span> <span style=color:#111>oExUser</span><span style=color:#111>.</span><span style=color:#111>PrimarySmtpAddress</span>
+        <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Function</span>
+    <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#111>GetSenderEmailAddress</span> <span style=color:#f92672>=</span> <span style=color:#111>oSender</span><span style=color:#111>.</span><span style=color:#111>PropertyAccessor</span><span style=color:#111>.</span><span style=color:#111>GetProperty</span><span style=color:#111>(</span><span style=color:#111>PR_SMTP_ADDRESS</span><span style=color:#111>)</span>
+
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Function</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
