@@ -1,12 +1,12 @@
 ---
 title: "検索やフィルターの構文"
 date: 2021-03-02T15:01:51+09:00
-lastMod: 2021-10-08T11:20:16+09:00
+lastMod: 2021-11-10T11:33:20+09:00
 weight: 3
 ---
 
 ## はじめに
-Outlook VBA でメールや予定の検索を行う際、`Items.Find` や `Items.Restrict` を使用する。このメソッドの引数に指定するフィルター構文について分かった部分をまとめた。
+Outlook VBA でメールや予定の検索を行う際、[Items.Find](https://docs.microsoft.com/en-us/office/vba/api/outlook.items.find) や [Items.Restrict](https://docs.microsoft.com/en-us/office/vba/api/outlook.items.restrict) を使用する。このメソッドの引数に指定するフィルター構文について分かった部分をまとめた。
 
 参考：
 [Filtering Items | Microsoft Docs](https://docs.microsoft.com/en-us/office/vba/outlook/how-to/search-and-filter/filtering-items)
@@ -14,7 +14,7 @@ Outlook VBA でメールや予定の検索を行う際、`Items.Find` や `Items
 Outlookのバージョン：Office 365
 
 ## 基礎知識
-フィルターに指定できる構文は、Jet 構文と DASL 構文の2種類がある。
+フィルターに指定できる構文は、Jet 構文と DASL 構文の2種類がある。どちらにも一長一短があり、
 Jet 構文は SQL の WHERE 句のような書き方ができるが、前方一致検索がなかったりする。
 DASL 構文には前方一致検索があるが、`Items.Find` と `Items.Restrict` で使用できる構文が一部異なる。
 
@@ -30,6 +30,97 @@ Jet 構文で使用できる列名 (ぽいもの) は、`MailItem` などの Ite
 * `Items.Restrict`
   * `ci_` から始まる構文の制限なし。
   * 検索対象のアイテム数が多い場合、Find メソッドより実行速度が速い。
+
+## サンプル
+
+### シンプルな検索
+以下に、ごく簡単な検索を行うサンプルを記載する。受信トレイにある未読メールを検索し、件名をイミディエイトウィンドウに出力する。
+
+```vb
+Public Sub sample01()
+    Dim oNs As NameSpace
+    Dim oFolder As Folder
+    Dim oItems As Items
+    Dim oItem As Variant
+    Dim oMailItem As MailItem
+    Dim strFilter As String
+
+
+    Set oNs = Application.GetNamespace("MAPI")
+    Set oFolder = oNs.GetDefaultFolder(olFolderInbox) ' 受信トレイ
+    
+    ' 検索実行
+    strFilter = "[UnRead] = True"
+    Set oItems = oFolder.Items.Restrict(strFilter)
+    
+    ' 検索結果のループ
+    For Each oItem In oItems
+        If TypeName(oItem) = "MailItem" Then
+            Set oMailItem = oItem
+            Debug.Print oMailItem.Subject
+        End If
+    Next
+    
+    Set oMailItem = Nothing
+    Set oItem = Nothing
+    Set oItems = Nothing
+    Set oFolder = Nothing
+    Set oNs = Nothing
+End Sub
+```
+
+### 検索結果に影響を及ぼす操作をする場合
+例えば、分類項目が付いていないメールを検索し、それぞれに特定の分類項目を付けたいとする。
+検索結果に対してその結果に影響を及ぼすような操作をする場合、操作をした後 (例だと分類項目を付けた後) 再度検索し直す必要がある。
+分類項目を付けて MailItem.Save() で保存した後、検索結果を格納していた Items 変数の内容が予期せぬ結果に変わるためである。
+
+```vb
+Public Sub メール分類追加WA()
+    Dim oNs As NameSpace
+    Dim oFolder As Folder
+    Dim oItems As Items
+    Dim oMailItem As MailItem
+    Dim strFilter As String
+    Dim loopCount As Integer
+    
+    Set oNs = Application.GetNamespace("MAPI")
+    Set oFolder = oNs.GetDefaultFolder(olFolderInbox)
+    
+    ' 分類項目がついていないメールを探す
+    strFilter = "@SQL=""urn:schemas-microsoft-com:office:office#Keywords"" IS NULL"
+    
+    ' メールに分類項目を付ける
+    Set oItems = oFolder.Items.Restrict(strFilter)
+    loopCount = 0
+    
+    Do While oItems.Count > 0
+        ' 分類を付ける
+        If TypeName(oItems(1)) = "MailItem" Then
+            Set oMailItem = oItems(1)
+            oMailItem.Categories = "新しい分類項目"
+            oMailItem.Save
+        End If
+        
+        ' 無限ループ防止
+        loopCount = loopCount + 1
+        
+        If loopCount > 50 Then
+            Debug.Print "ループ回数が規定を超えました"
+            Exit Do
+        End If
+        
+        ' 検索し直し
+        Set oItems = oFolder.Items.Restrict(strFilter)
+        
+    Loop
+    
+    Set oMailItem = Nothing
+    Set oItems = Nothing
+    Set oFolder = Nothing
+    Set oNs = Nothing
+    
+End Sub
+```
 
 ## 使用できる演算子
 Jet 構文、DASL 構文 いずれも使用できる演算子は同じ。
@@ -63,6 +154,27 @@ DASL構文のサンプル：
   * 件名が「あいう」に一致する。頭に`RE:`などが付いていたら対象外。
 * `@SQL="urn:schemas:httpmail:subject" like 'RE:%'`
   * 件名が「RE:」で始まる(前方一致)
+
+### 分類項目
+Jet 構文では、「XXという分類項目が付いているか」という指定ができる。
+
+```
+[Categories] = 'Partner'
+```
+
+上記のサンプルでは、`Partner` という分類項目がついているアイテムを検索できる。Partner と Business など、他の分類項目が一緒に付いていても検索結果に表れる。
+
+「`Partner` で始まる分類項目を持つアイテム」を検索したい場合は、DASL クエリを使用する。
+
+```
+@SQL="urn:schemas-microsoft-com:office:office#Keywords" like 'Partner%'
+```
+
+分類項目が一切ついていないアイテムを検索する方法もある。DASL クエリでのみ `IS NULL` という構文が利用できるので、それを使う。
+
+```
+@SQL="urn:schemas-microsoft-com:office:office#Keywords" is null
+```
 
 ## 日付のフィルター
 
@@ -127,26 +239,6 @@ Importance(重要度)などはVBAでは列挙型で指定するが、フィル�
 * `[Importance] = 2`
   * 重要度が「高」である
 
-## 分類項目
-Jet 構文では、「XXという分類項目が付いているか」という指定ができる。
-
-```
-[Categories] = 'Partner'
-```
-
-上記のサンプルでは、`Partner` という分類項目がついているアイテムを検索できる。Partner と Business など、他の分類項目が一緒に付いていても検索結果に表れる。
-
-「`Partner` で始まる分類項目を持つアイテム」を検索したい場合は、DASL クエリを使用する。
-
-```
-"urn:schemas-microsoft-com:office:office#Keywords" like 'Partner%'
-```
-
-分類項目が一切ついていないアイテムを検索する方法もある。DASL クエリでのみ `IS NULL` という構文が利用できるので、それを使う。
-
-```
-"urn:schemas-microsoft-com:office:office#Keywords" is null
-```
 
 ## MailItem (メール)
 検索に使いそうなプロパティを載せておく。
