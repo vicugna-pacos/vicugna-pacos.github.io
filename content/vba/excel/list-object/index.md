@@ -40,6 +40,27 @@ ListRows はコレクションになっており、各要素は ListRow オブ�
 ### DataBodyRange
 テーブルのヘッダー行と集計行を除いた部分の Range オブジェクトを取得する。
 
+## 行の追加
+
+[ListRows.Add](https://docs.microsoft.com/en-us/office/vba/api/excel.listrows.add) メソッドを使う。
+引数なしで実行すると、テーブルの末尾に新しい行が追加される。
+
+```vb
+Public Sub Sample1()
+
+    Dim oList As ListObject
+    Dim oRow As ListRow
+    
+    Set oList = Sheet1.ListObjects("テーブル1")
+    Set oRow = oList.ListRows.Add()
+    
+    oRow.Range(1, 1) = "値1"
+    oRow.Range(1, 2) = "値2"
+    oRow.Range(1, 3) = "値3"
+    
+End Sub
+```
+
 ## フィルタの設定
 フィルタを設定する前に、すでに設定されているフィルタを解除しておくのが大事。
 フィルタを解除するには、列番号のみを指定して AutoFilter メソッドを実行する。
