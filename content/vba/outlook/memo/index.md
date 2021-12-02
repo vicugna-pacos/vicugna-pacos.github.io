@@ -23,3 +23,10 @@ AppointmentItem のプロパティ MeetingStatus を olMeeting に設定する�
 
 MeetingItem の GetAssociatedAppointment メソッドを使えば、MeetingItem と紐づいた AppointmentItem を取得できる。
 
+## ドキュメント
+
+検索のフィルターとかで使うメールのプロパティの仕様書。
+
+`http://schemas.microsoft.com/mapi/proptag/0x39FE001E` の場合、Property ID が `0x39FE` で、Data Type が `0x001E`。
+
+https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxprops/f6ab1613-aefe-447d-a49c-18217230b148
