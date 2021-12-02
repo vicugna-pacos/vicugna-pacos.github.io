@@ -5,8 +5,11 @@ date: 2021-11-10T09:34:55+09:00
 
 ## 概要
 受信したメール (MailItem) の差出人のメールアドレスを取得するには、SenderEmailAddress プロパティを参照する。
-ただし、Exchange を使用してる かつ 差出人が同じ組織内のユーザーである場合は、SenderEmailAddress からメールアドレスを取得できない。
-そのような場合は、PropertyAccessor オブジェクトを使用する必要がある。
+ただし、Exchange を使用してる かつ 差出人が同じ組織内のユーザーの場合は、メールアドレスの形式が DN 形式 (X500形式) になる。
+
+    例 ：/o=<組織名>/ou=<管理グループ名>/cn=Recipients/cn=<エイリアス>
+
+この場合は、PropertyAccessor オブジェクトを使用する必要がある。
 
 参考：[Get the SMTP address of the sender of a mail item | Microsoft Docs](https://docs.microsoft.com/en-us/office/client-developer/outlook/pia/how-to-get-the-smtp-address-of-the-sender-of-a-mail-item)
 
