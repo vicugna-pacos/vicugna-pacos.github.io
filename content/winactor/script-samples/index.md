@@ -397,7 +397,7 @@ Function GetFileFormat(param)
     result = 0 'TristateFalse
   Case "Unicode形式"
     result = -1 'TristateTrue
-  Case "システム規定"
+  Case "システム既定"
     result = -2 'TristateUseDefault
   Case Else
     result = 0 'TristateFalse
