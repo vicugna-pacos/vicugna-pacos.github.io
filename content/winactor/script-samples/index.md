@@ -234,6 +234,23 @@ SetUmsVariable $ファイルパス格納先$, tempFilePath
 Set FSO = Nothing
 ```
 
+## ファイルパスからフォルダパス取得
+ライブラリの「ファイルパスからフォルダパスとファイル名取得」は FileSystemObject を利用するが、
+このスクリプトではシンプルに\でパスを分割する。
+
+```vb
+filePath = !対象ファイルパス!
+result = ""
+
+idx = InStrRev(filePath, "\")
+
+If idx > 0 Then
+  result = Mid(filePath, 1, idx - 1)
+End If
+
+SetUMSVariable $フォルダパス$, result
+```
+
 ## ファイル読み込み (UTF-8)
 
 ```vb
