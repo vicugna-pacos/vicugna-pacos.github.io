@@ -38,6 +38,7 @@ PowerShell でメッセージを送るサンプルを下記に記載する。
 ```powershell
 $url = "https://xxxxx"  # Incoming Webhook の URL
 $body = "{`"text`":`"testだよ`"}"
+#$body = Get-Content -Path "C:\test\card.txt"    # テキストファイルにjsonを書いてテストする場合はこっち
 
 $bodyByte = [Text.Encoding]::UTF8.GetBytes($body)
 
