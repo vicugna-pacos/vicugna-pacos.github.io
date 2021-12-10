@@ -258,6 +258,8 @@ Shell.Application は、エクスプローラを操作するオブジェクト�
 ドキュメントでは Folder オブジェクトを取得するとあるが、実際は [Folder2 オブジェクト](https://docs.microsoft.com/en-us/windows/win32/shell/folder2-object) が返される。
 Self プロパティ は [FolderItem オブジェクト](https://docs.microsoft.com/en-us/windows/win32/shell/folderitem)。
 
+参考：[c# - C#でのCOMのShell.Applicationの利用 - スタック・オーバーフロー](https://ja.stackoverflow.com/questions/44965/c%E3%81%A7%E3%81%AEcom%E3%81%AEshell-application%E3%81%AE%E5%88%A9%E7%94%A8)
+
 ## ファイルパスからフォルダパス取得
 ライブラリの「ファイルパスからフォルダパスとファイル名取得」は FileSystemObject を利用するが、
 このスクリプトではシンプルに\でパスを分割する。
