@@ -234,6 +234,30 @@ SetUmsVariable $ファイルパス格納先$, tempFilePath
 Set FSO = Nothing
 ```
 
+## ダウンロードフォルダ取得
+ダウンロードフォルダ (C:\Users\ユーザー名\Downloads) を取得する。
+
+```vb
+Set oShell = CreateObject("Shell.Application")
+Set oFolder = oShell.Namespace("shell:Downloads")
+
+path = oFolder.Self.Path
+
+SetUMSVariable $ダウンロードフォルダ$, path
+
+Set oFolder = Nothing
+Set oShell = Nothing
+```
+
+ダウンロードフォルダは WScript.Shell の SpecialFolders では取得できない。
+`%USERPROFILE%` に `\Downloads` を連結してもよいが、ダウンロードフォルダは Windows の設定で移動できる。
+そのため、ハードコーディングしてしまうと実際のダウンロードフォルダと一致しなくなる可能性がある。
+
+Shell.Application は、エクスプローラを操作するオブジェクト。
+[Namespace プロパティ](https://docs.microsoft.com/en-us/windows/win32/shell/shell-namespace) でフォルダオブジェクトを取得する。
+ドキュメントでは Folder オブジェクトを取得するとあるが、実際は [Folder2 オブジェクト](https://docs.microsoft.com/en-us/windows/win32/shell/folder2-object) が返される。
+Self プロパティ は [FolderItem オブジェクト](https://docs.microsoft.com/en-us/windows/win32/shell/folderitem)。
+
 ## ファイルパスからフォルダパス取得
 ライブラリの「ファイルパスからフォルダパスとファイル名取得」は FileSystemObject を利用するが、
 このスクリプトではシンプルに\でパスを分割する。
