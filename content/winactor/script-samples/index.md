@@ -208,6 +208,42 @@ result = str1 & "\" & newFileName
 SetUmsVariable $連結結果$, result
 ```
 
+## ファイル削除(サブフォルダ含む)
+サブフォルダ、サブフォルダに含まれるファイルを含め、ファイルをすべて削除する。
+
+```vb
+folderPathTmp = !フォルダパス!
+
+SetUMSVariable "$FILE_PATH_TYPE", "13"
+SetUMSVariable "$PARSE_FILE_PATH", folderPathTmp
+folderPath = GetUMSVariable("$PARSE_FILE_PATH")
+
+If folderPath <> "" Then
+  Set oFso = CreateObject("Scripting.FileSystemObject")
+  Set oRootFolder = oFso.GetFolder(folderPath)
+
+  For Each oSubFolder In oRootFolder.SubFolders
+    DeleteFiles oSubFolder
+    oSubFolder.Delete True
+  Next
+
+  DeleteFiles oRootFolder
+
+  Set oRootFolder = Nothing
+  Set oFso = Nothing
+End If
+
+' ----------
+
+Sub DeleteFiles(ByRef oFolder)
+  
+  For Each oFile In oFolder.Files
+    oFile.Delete True
+  Next
+  
+End Sub
+```
+
 ## 一時ファイル作成
 拡張子を指定して、ユーザーのTempフォルダを使った一時ファイルのパスを作成する。
 実際にファイルは作成せず、パスのみを作成する。
