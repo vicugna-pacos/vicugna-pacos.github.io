@@ -1,0 +1,52 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="TO、CCなどのメールアドレスを取得する"><meta property="og:description" content="概要 メールの TO、CC、BCCを取得するときは MailItem.Recipients を参照する。 MailItem には To プロパティ もあるが、こちらは宛先の表示名しか取得できない。 加えて、差出人の場合と同じように、同じ組織内の Exchange ユーザーの場合はアドレスの"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/vba/outlook/recipient-email-address/"><meta property="article:published_time" content="2022-01-26T10:13:55+09:00"><meta property="article:modified_time" content="2022-01-26T10:13:55+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="TO、CCなどのメールアドレスを取得する"><meta name=twitter:description content="概要 メールの TO、CC、BCCを取得するときは MailItem.Recipients を参照する。 MailItem には To プロパティ もあるが、こちらは宛先の表示名しか取得できない。 加えて、差出人の場合と同じように、同じ組織内の Exchange ユーザーの場合はアドレスの"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>TO、CCなどのメールアドレスを取得する - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>VBA</li><li>Outlook VBA</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#概要>概要</a></li><li><a href=#サンプル>サンプル</a></li></ul></nav></aside></div><div class=main><article><h1>TO、CCなどのメールアドレスを取得する</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2022-01-26 10:13:55 +0900 +0900" itemprop=datePublished>2022-01-26</time></div><div></div></div><h2 id=概要>概要</h2><p>メールの TO、CC、BCCを取得するときは <a href=https://docs.microsoft.com/en-us/office/vba/api/outlook.mailitem.recipients target=_blank rel=noopener>MailItem.Recipients</a> を参照する。
+MailItem には <a href=https://docs.microsoft.com/en-us/office/vba/api/outlook.mailitem.to target=_blank rel=noopener>To プロパティ</a> もあるが、こちらは宛先の表示名しか取得できない。
+加えて、<a href=https://vicugna-pacos.github.io/vba/outlook/sender-email-address/>差出人の場合</a>と同じように、同じ組織内の Exchange ユーザーの場合はアドレスの形式が異なる。</p><h2 id=サンプル>サンプル</h2><p>下記のサンプルでは、TO のメールアドレスを取得する。
+Exchange ユーザーの場合でもメールアドレスが取得できるようにしている。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#75715e>&#39; 受信フォルダにあるメールの TO のメールアドレスを取得し、イミディエイトウィンドウに出力するサンプル
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Public</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>Sample1</span><span style=color:#111>()</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oNs</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>NameSpace</span>
+    <span style=color:#111>Dim</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>As</span> <span style=color:#111>Folder</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItem</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Variant</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oMailItem</span> <span style=color:#f92672>As</span> <span style=color:#111>MailItem</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oRecipient</span> <span style=color:#f92672>As</span> <span style=color:#111>Recipient</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>i</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span>
+    
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oNs</span> <span style=color:#f92672>=</span> <span style=color:#111>Application</span><span style=color:#111>.</span><span style=color:#111>GetNamespace</span><span style=color:#111>(</span><span style=color:#d88200>&#34;MAPI&#34;</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>=</span> <span style=color:#111>oNs</span><span style=color:#111>.</span><span style=color:#111>GetDefaultFolder</span><span style=color:#111>(</span><span style=color:#111>olFolderInbox</span><span style=color:#111>)</span>
+    
+    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>oItem</span> <span style=color:#f92672>In</span> <span style=color:#111>oFolder</span><span style=color:#111>.</span><span style=color:#111>Items</span>
+        <span style=color:#00a8c8>If</span> <span style=color:#111>TypeName</span><span style=color:#111>(</span><span style=color:#111>oItem</span><span style=color:#111>)</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;MailItem&#34;</span> <span style=color:#00a8c8>Then</span>
+            <span style=color:#00a8c8>Set</span> <span style=color:#111>oMailItem</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span>
+            <span style=color:#111>Debug</span><span style=color:#111>.</span><span style=color:#111>Print</span> <span style=color:#111>oMailItem</span><span style=color:#111>.</span><span style=color:#111>Subject</span>
+            
+            <span style=color:#00a8c8>For</span> <span style=color:#111>i</span> <span style=color:#f92672>=</span> <span style=color:#111>1</span> <span style=color:#00a8c8>To</span> <span style=color:#111>oMailItem</span><span style=color:#111>.</span><span style=color:#111>Recipients</span><span style=color:#111>.</span><span style=color:#111>Count</span>
+                <span style=color:#00a8c8>Set</span> <span style=color:#111>oRecipient</span> <span style=color:#f92672>=</span> <span style=color:#111>oMailItem</span><span style=color:#111>.</span><span style=color:#111>Recipients</span><span style=color:#111>(</span><span style=color:#111>i</span><span style=color:#111>)</span>
+                <span style=color:#00a8c8>If</span> <span style=color:#111>oRecipient</span><span style=color:#111>.</span><span style=color:#111>Type</span> <span style=color:#f92672>=</span> <span style=color:#111>OlMailRecipientType</span><span style=color:#111>.</span><span style=color:#111>olTo</span> <span style=color:#00a8c8>Then</span>
+                    <span style=color:#111>Debug</span><span style=color:#111>.</span><span style=color:#111>Print</span> <span style=color:#111>GetRecipientEmailAddress</span><span style=color:#111>(</span><span style=color:#111>oRecipient</span><span style=color:#111>.</span><span style=color:#111>AddressEntry</span><span style=color:#111>)</span>
+                <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+            <span style=color:#00a8c8>Next</span>
+        <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+    <span style=color:#00a8c8>Next</span>
+
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Function</span> <span style=color:#75af00>GetRecipientEmailAddress</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>oAddressEntry</span> <span style=color:#f92672>As</span> <span style=color:#111>AddressEntry</span><span style=color:#111>)</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oSender</span> <span style=color:#f92672>As</span> <span style=color:#111>AddressEntry</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oExUser</span> <span style=color:#f92672>As</span> <span style=color:#111>ExchangeUser</span>
+    
+    
+    <span style=color:#00a8c8>If</span> <span style=color:#111>oAddressEntry</span><span style=color:#111>.</span><span style=color:#111>AddressEntryUserType</span> <span style=color:#f92672>=</span> <span style=color:#111>olExchangeUserAddressEntry</span> _
+        <span style=color:#f92672>Or</span> <span style=color:#111>oAddressEntry</span><span style=color:#111>.</span><span style=color:#111>AddressEntryUserType</span> <span style=color:#f92672>=</span> <span style=color:#111>olExchangeRemoteUserAddressEntry</span> <span style=color:#00a8c8>Then</span>
+        
+        <span style=color:#00a8c8>Set</span> <span style=color:#111>oExUser</span> <span style=color:#f92672>=</span> <span style=color:#111>oAddressEntry</span><span style=color:#111>.</span><span style=color:#111>GetExchangeUser</span>
+        <span style=color:#111>GetRecipientEmailAddress</span> <span style=color:#f92672>=</span> <span style=color:#111>oExUser</span><span style=color:#111>.</span><span style=color:#111>PrimarySmtpAddress</span>
+        <span style=color:#00a8c8>Exit</span> <span style=color:#00a8c8>Function</span>
+    <span style=color:#75af00>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#111>GetRecipientEmailAddress</span> <span style=color:#f92672>=</span> <span style=color:#111>oAddressEntry</span><span style=color:#111>.</span><span style=color:#111>Address</span>
+
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Function</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
