@@ -1,12 +1,20 @@
 ---
-title: "Recipient Email Address"
+title: "TO、CCなどのメールアドレスを取得する"
 date: 2022-01-26T10:13:55+09:00
-draft: true
 ---
 
-TO、CC、BCC のメールアドレスを取得する。
+## 概要
+メールの TO、CC、BCCを取得するときは [MailItem.Recipients](https://docs.microsoft.com/en-us/office/vba/api/outlook.mailitem.recipients) を参照する。
+MailItem には [To プロパティ](https://docs.microsoft.com/en-us/office/vba/api/outlook.mailitem.to) もあるが、こちらは宛先の表示名しか取得できない。
+加えて、[差出人の場合]({{< ref "/vba/outlook/sender-email-address/index.md" >}})と同じように、同じ組織内の Exchange ユーザーの場合はアドレスの形式が異なる。
+
+## サンプル
+
+下記のサンプルでは、TO のメールアドレスを取得する。
+Exchange ユーザーの場合でもメールアドレスが取得できるようにしている。
 
 ```vb
+' 受信フォルダにあるメールの TO のメールアドレスを取得し、イミディエイトウィンドウに出力するサンプル
 Public Sub Sample1()
     Dim oNs As NameSpace
     Dim oFolder As Folder
