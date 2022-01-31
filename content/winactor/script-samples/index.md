@@ -154,6 +154,31 @@ CreateFolder str_folder
 Set objFS = Nothing
 ```
 
+## ファイルをすべてコピー
+指定したフォルダ内のサブフォルダも含めたファイルをすべてコピーする。
+
+```vb
+folderPathFrom = !コピー元フォルダ!
+folderPathTo = !コピー先フォルダ!
+
+' 相対パスを絶対パスへ変換
+SetUMSVariable "$FILE_PATH_TYPE", "14"
+SetUMSVariable "$PARSE_FILE_PATH", folderPathFrom
+folderPathFrom = GetUMSVariable("$PARSE_FILE_PATH")
+
+SetUMSVariable "$FILE_PATH_TYPE", "14"
+SetUMSVariable "$PARSE_FILE_PATH", folderPathTo
+folderPathTo = GetUMSVariable("$PARSE_FILE_PATH")
+
+' コピー
+Set objFS = CreateObject("Scripting.FileSystemObject")
+
+folderPathFrom = folderPathFrom & "\*"
+
+objFS.CopyFile folderPathFrom, folderPathTo, False
+objFS.CopyFolder folderPathFrom, folderPathTo, False
+```
+
 ## ファイル拡張子変換
 変更前ファイルパスの拡張子を、指定した拡張子へ変換する。
 変換後ファイル名にはパスが付いていないので注意する。
