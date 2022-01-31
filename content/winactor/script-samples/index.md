@@ -1,7 +1,7 @@
 ---
 title: "スクリプトのサンプル"
 date: 2021-03-11T13:54:46+09:00
-lastMod: 2021-05-28T10:21:15+09:00
+lastMod: 2022-01-31T18:58:33+09:00
 ---
 
 ## はじめに
@@ -155,9 +155,17 @@ Set objFS = Nothing
 ```
 
 ## ファイルをすべてコピー
-指定したフォルダ内のサブフォルダも含めたファイルをすべてコピーする。
+指定したフォルダ内の、サブフォルダも含めたファイルをすべてコピーする。
+コピー先に同名のファイルがある場合は、削除して上書きする。
+コピー先に同名のフォルダがある場合は、フォルダの内容をマージする。
 
 ```vb
+Dim oFSO
+Dim folderPathFrom
+Dim folderPathTo
+Dim oFolderFrom
+Dim oFolderTo
+
 folderPathFrom = !コピー元フォルダ!
 folderPathTo = !コピー先フォルダ!
 
@@ -170,13 +178,44 @@ SetUMSVariable "$FILE_PATH_TYPE", "14"
 SetUMSVariable "$PARSE_FILE_PATH", folderPathTo
 folderPathTo = GetUMSVariable("$PARSE_FILE_PATH")
 
-' コピー
-Set objFS = CreateObject("Scripting.FileSystemObject")
+Set oFSO = CreateObject("Scripting.FileSystemObject")
+Set oFolderFrom = oFSO.GetFolder(folderPathFrom)
+Set oFolderTo = oFSO.GetFolder(folderPathTo)
 
-folderPathFrom = folderPathFrom & "\*"
+Call CopyFiles(oFolderFrom, oFolderTo)
 
-objFS.CopyFile folderPathFrom, folderPathTo, False
-objFS.CopyFolder folderPathFrom, folderPathTo, False
+Private Sub CopyFiles(oFolderFrom, oFolderTo)
+    Dim oFileFrom
+    Dim oSubFolderFrom
+    Dim oSubFolderTo
+    Dim filePathTo
+    Dim subFolderPathTo
+    
+    ' ファイルのコピー
+    For Each oFileFrom In oFolderFrom.Files
+        filePathTo = oFolderTo.Path & "\" & oFileFrom.Name
+        
+        If oFSO.FileExists(filePathTo) Then
+            oFSO.DeleteFile filePathTo, True
+        End If
+        
+        oFSO.CopyFile oFileFrom.Path, filePathTo
+    Next
+    
+    ' サブフォルダのコピー
+    For Each oSubFolderFrom In oFolderFrom.SubFolders
+        subFolderPathTo = oFolderTo.Path & "\" & oSubFolderFrom.Name
+        
+        If oFSO.FolderExists(subFolderPathTo) Then
+            Set oSubFolderTo = oFSO.GetFolder(subFolderPathTo)
+        Else
+            Set oSubFolderTo = oFSO.CreateFolder(subFolderPathTo)
+        End If
+        
+        Call CopyFiles(oSubFolderFrom, oSubFolderTo)
+    Next
+    
+End Sub
 ```
 
 ## ファイル拡張子変換
