@@ -1,7 +1,7 @@
 ---
 title: "スクリプトのサンプル"
 date: 2021-03-11T13:54:46+09:00
-lastMod: 2022-01-31T18:58:33+09:00
+lastMod: 2022-02-09T11:02:20+09:00
 ---
 
 ## はじめに
@@ -10,7 +10,7 @@ WinActor の「スクリプト実行」で利用できるスクリプトのサ�
 
 前提条件：
 
-* WinActor v7.2.0 で動作確認
+* WinActor v7.2.0 以上で動作確認。
 
 ## 相対パスを絶対パスへ変換
 `$` で始まる変数は WinActor であらかじめ用意された特殊変数。
@@ -150,6 +150,34 @@ Sub CreateFolder(ByVal folder)
 End Sub
 
 CreateFolder str_folder
+
+Set objFS = Nothing
+```
+
+## フォルダ削除
+指定したフォルダを削除する。フォルダがない場合は、無視して処理を終了する。
+
+作成時の WinActor バージョン：v7.3.1
+
+```vb
+delete_folder = !削除フォルダ名!
+If delete_folder = "" Then
+  WScript.Quit
+End If
+
+Set objFS = CreateObject("Scripting.FileSystemObject")
+
+fname = delete_folder 
+SetUMSVariable "$FILE_PATH_TYPE", "13"
+SetUMSVariable "$PARSE_FILE_PATH", fname
+delete_folder = GetUMSVariable("$PARSE_FILE_PATH")
+
+If delete_folder = "" Then
+  WScript.Quit
+End If
+
+'ファイルを削除する
+Call objFS.DeleteFolder(delete_folder)
 
 Set objFS = Nothing
 ```
