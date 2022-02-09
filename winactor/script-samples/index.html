@@ -1,8 +1,8 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="スクリプトのサンプル"><meta property="og:description" content="はじめに WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。 同梱で用意されているものを少し改変しただけのものも含む。 前提条件： WinActor v7.2.0 で動作確認 相対パスを絶対パスへ変換 $ で始まる変数は WinActor であらかじめ"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/winactor/script-samples/"><meta property="article:published_time" content="2021-03-11T13:54:46+09:00"><meta property="article:modified_time" content="2021-05-28T10:21:15+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="スクリプトのサンプル"><meta name=twitter:description content="はじめに WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。 同梱で用意されているものを少し改変しただけのものも含む。 前提条件： WinActor v7.2.0 で動作確認 相対パスを絶対パスへ変換 $ で始まる変数は WinActor であらかじめ"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>スクリプトのサンプル - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>WinActor</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</a></li><li><a href=#ファイルリスト作成>ファイルリスト作成</a></li><li><a href=#フォルダ存在チェック>フォルダ存在チェック</a></li><li><a href=#フォルダ作成-再帰的>フォルダ作成 (再帰的)</a></li><li><a href=#ファイルをすべてコピー>ファイルをすべてコピー</a></li><li><a href=#ファイル拡張子変換>ファイル拡張子変換</a></li><li><a href=#ファイル拡張子変換結合>ファイル拡張子変換＆結合</a></li><li><a href=#ファイル削除サブフォルダ含む>ファイル削除(サブフォルダ含む)</a></li><li><a href=#一時ファイル作成>一時ファイル作成</a></li><li><a href=#ダウンロードフォルダ取得>ダウンロードフォルダ取得</a></li><li><a href=#ファイルパスからフォルダパス取得>ファイルパスからフォルダパス取得</a></li><li><a href=#ファイル読み込み-utf-8>ファイル読み込み (UTF-8)</a></li><li><a href=#ログ記録-utf-8>ログ記録 (UTF-8)</a></li><li><a href=#エラーログ記録>エラーログ記録</a></li></ul></nav></aside></div><div class=main><article><h1>スクリプトのサンプル</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="スクリプトのサンプル"><meta property="og:description" content="はじめに WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。 同梱で用意されているものを少し改変しただけのものも含む。 前提条件： WinActor v7.2.0 以上で動作確認。 相対パスを絶対パスへ変換 $ で始まる変数は WinActor であら"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/winactor/script-samples/"><meta property="article:published_time" content="2021-03-11T13:54:46+09:00"><meta property="article:modified_time" content="2022-02-09T11:02:20+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="スクリプトのサンプル"><meta name=twitter:description content="はじめに WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。 同梱で用意されているものを少し改変しただけのものも含む。 前提条件： WinActor v7.2.0 以上で動作確認。 相対パスを絶対パスへ変換 $ で始まる変数は WinActor であら"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>スクリプトのサンプル - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>WinActor</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</a></li><li><a href=#ファイルリスト作成>ファイルリスト作成</a></li><li><a href=#フォルダ存在チェック>フォルダ存在チェック</a></li><li><a href=#フォルダ作成-再帰的>フォルダ作成 (再帰的)</a></li><li><a href=#フォルダ削除>フォルダ削除</a></li><li><a href=#ファイルをすべてコピー>ファイルをすべてコピー</a></li><li><a href=#ファイル拡張子変換>ファイル拡張子変換</a></li><li><a href=#ファイル拡張子変換結合>ファイル拡張子変換＆結合</a></li><li><a href=#ファイル削除サブフォルダ含む>ファイル削除(サブフォルダ含む)</a></li><li><a href=#一時ファイル作成>一時ファイル作成</a></li><li><a href=#ダウンロードフォルダ取得>ダウンロードフォルダ取得</a></li><li><a href=#ファイルパスからフォルダパス取得>ファイルパスからフォルダパス取得</a></li><li><a href=#ファイル読み込み-utf-8>ファイル読み込み (UTF-8)</a></li><li><a href=#ログ記録-utf-8>ログ記録 (UTF-8)</a></li><li><a href=#エラーログ記録>エラーログ記録</a></li></ul></nav></aside></div><div class=main><article><h1>スクリプトのサンプル</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
 <time datetime="2021-03-11 13:54:46 +0900 +0900" itemprop=datePublished>2021-03-11</time>
-(最終更新：<time datetime="2021-05-28 10:21:15 +0900 +0900" itemprop=dateModified>2021-05-28</time>)</div><div></div></div><h2 id=はじめに>はじめに</h2><p>WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。
-同梱で用意されているものを少し改変しただけのものも含む。</p><p>前提条件：</p><ul><li>WinActor v7.2.0 で動作確認</li></ul><h2 id=相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</h2><p><code>$</code> で始まる変数は WinActor であらかじめ用意された特殊変数。
+(最終更新：<time datetime="2022-02-09 11:02:20 +0900 +0900" itemprop=dateModified>2022-02-09</time>)</div><div></div></div><h2 id=はじめに>はじめに</h2><p>WinActor の「スクリプト実行」で利用できるスクリプトのサンプル集。
+同梱で用意されているものを少し改変しただけのものも含む。</p><p>前提条件：</p><ul><li>WinActor v7.2.0 以上で動作確認。</li></ul><h2 id=相対パスを絶対パスへ変換>相対パスを絶対パスへ変換</h2><p><code>$</code> で始まる変数は WinActor であらかじめ用意された特殊変数。
 <code>$PARSE_FILE_PATH</code> に相対パスを設定すると、絶対パスへ変換してくれる。
 このとき、<code>$FILE_PATH_TYPE</code> の値によって、パスの存在チェックが行われ、存在しない場合は空文字が返却される。</p><p>特殊変数は操作マニュアルに一覧が載っている。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$FILE_PATH_TYPE&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;13&#34;</span>
 <span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>,</span> <span style=color:#111>foldername</span>
@@ -101,7 +101,35 @@ gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="o
 <span style=color:#111>CreateFolder</span> <span style=color:#111>str_folder</span>
 
 <span style=color:#00a8c8>Set</span> <span style=color:#111>objFS</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
-</code></pre></div><h2 id=ファイルをすべてコピー>ファイルをすべてコピー</h2><p>指定したフォルダ内のサブフォルダも含めたファイルをすべてコピーする。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#111>folderPathFrom</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>コピー元フォルダ</span><span style=color:#111>!</span>
+</code></pre></div><h2 id=フォルダ削除>フォルダ削除</h2><p>指定したフォルダを削除する。フォルダがない場合は、無視して処理を終了する。</p><p>作成時の WinActor バージョン：v7.3.1</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#111>delete_folder</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>削除フォルダ名</span><span style=color:#111>!</span>
+<span style=color:#00a8c8>If</span> <span style=color:#111>delete_folder</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span> <span style=color:#00a8c8>Then</span>
+  <span style=color:#111>WScript</span><span style=color:#111>.</span><span style=color:#111>Quit</span>
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+
+<span style=color:#00a8c8>Set</span> <span style=color:#111>objFS</span> <span style=color:#f92672>=</span> <span style=color:#111>CreateObject</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Scripting.FileSystemObject&#34;</span><span style=color:#111>)</span>
+
+<span style=color:#111>fname</span> <span style=color:#f92672>=</span> <span style=color:#111>delete_folder</span> 
+<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$FILE_PATH_TYPE&#34;</span><span style=color:#111>,</span> <span style=color:#d88200>&#34;13&#34;</span>
+<span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>,</span> <span style=color:#111>fname</span>
+<span style=color:#111>delete_folder</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUMSVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>)</span>
+
+<span style=color:#00a8c8>If</span> <span style=color:#111>delete_folder</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span> <span style=color:#00a8c8>Then</span>
+  <span style=color:#111>WScript</span><span style=color:#111>.</span><span style=color:#111>Quit</span>
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+
+<span style=color:#75715e>&#39;ファイルを削除する
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Call</span> <span style=color:#111>objFS</span><span style=color:#111>.</span><span style=color:#111>DeleteFolder</span><span style=color:#111>(</span><span style=color:#111>delete_folder</span><span style=color:#111>)</span>
+
+<span style=color:#00a8c8>Set</span> <span style=color:#111>objFS</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+</code></pre></div><h2 id=ファイルをすべてコピー>ファイルをすべてコピー</h2><p>指定したフォルダ内の、サブフォルダも含めたファイルをすべてコピーする。
+コピー先に同名のファイルがある場合は、削除して上書きする。
+コピー先に同名のフォルダがある場合は、フォルダの内容をマージする。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Dim</span> <span style=color:#111>oFSO</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>folderPathFrom</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>folderPathTo</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>oFolderFrom</span>
+<span style=color:#00a8c8>Dim</span> <span style=color:#111>oFolderTo</span>
+
+<span style=color:#111>folderPathFrom</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>コピー元フォルダ</span><span style=color:#111>!</span>
 <span style=color:#111>folderPathTo</span> <span style=color:#f92672>=</span> <span style=color:#111>!</span><span style=color:#111>コピー先フォルダ</span><span style=color:#111>!</span>
 
 <span style=color:#75715e>&#39; 相対パスを絶対パスへ変換
@@ -113,13 +141,44 @@ gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="o
 <span style=color:#111>SetUMSVariable</span> <span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>,</span> <span style=color:#111>folderPathTo</span>
 <span style=color:#111>folderPathTo</span> <span style=color:#f92672>=</span> <span style=color:#111>GetUMSVariable</span><span style=color:#111>(</span><span style=color:#d88200>&#34;$PARSE_FILE_PATH&#34;</span><span style=color:#111>)</span>
 
-<span style=color:#75715e>&#39; コピー
-</span><span style=color:#75715e></span><span style=color:#00a8c8>Set</span> <span style=color:#111>objFS</span> <span style=color:#f92672>=</span> <span style=color:#111>CreateObject</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Scripting.FileSystemObject&#34;</span><span style=color:#111>)</span>
+<span style=color:#00a8c8>Set</span> <span style=color:#111>oFSO</span> <span style=color:#f92672>=</span> <span style=color:#111>CreateObject</span><span style=color:#111>(</span><span style=color:#d88200>&#34;Scripting.FileSystemObject&#34;</span><span style=color:#111>)</span>
+<span style=color:#00a8c8>Set</span> <span style=color:#111>oFolderFrom</span> <span style=color:#f92672>=</span> <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>GetFolder</span><span style=color:#111>(</span><span style=color:#111>folderPathFrom</span><span style=color:#111>)</span>
+<span style=color:#00a8c8>Set</span> <span style=color:#111>oFolderTo</span> <span style=color:#f92672>=</span> <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>GetFolder</span><span style=color:#111>(</span><span style=color:#111>folderPathTo</span><span style=color:#111>)</span>
 
-<span style=color:#111>folderPathFrom</span> <span style=color:#f92672>=</span> <span style=color:#111>folderPathFrom</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;\*&#34;</span>
+<span style=color:#00a8c8>Call</span> <span style=color:#111>CopyFiles</span><span style=color:#111>(</span><span style=color:#111>oFolderFrom</span><span style=color:#111>,</span> <span style=color:#111>oFolderTo</span><span style=color:#111>)</span>
 
-<span style=color:#111>objFS</span><span style=color:#111>.</span><span style=color:#111>CopyFile</span> <span style=color:#111>folderPathFrom</span><span style=color:#111>,</span> <span style=color:#111>folderPathTo</span><span style=color:#111>,</span> <span style=color:#00a8c8>False</span>
-<span style=color:#111>objFS</span><span style=color:#111>.</span><span style=color:#111>CopyFolder</span> <span style=color:#111>folderPathFrom</span><span style=color:#111>,</span> <span style=color:#111>folderPathTo</span><span style=color:#111>,</span> <span style=color:#00a8c8>False</span>
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>CopyFiles</span><span style=color:#111>(</span><span style=color:#111>oFolderFrom</span><span style=color:#111>,</span> <span style=color:#111>oFolderTo</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oFileFrom</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oSubFolderFrom</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oSubFolderTo</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>filePathTo</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>subFolderPathTo</span>
+    
+    <span style=color:#75715e>&#39; ファイルのコピー
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>oFileFrom</span> <span style=color:#f92672>In</span> <span style=color:#111>oFolderFrom</span><span style=color:#111>.</span><span style=color:#111>Files</span>
+        <span style=color:#111>filePathTo</span> <span style=color:#f92672>=</span> <span style=color:#111>oFolderTo</span><span style=color:#111>.</span><span style=color:#111>Path</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;\&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>oFileFrom</span><span style=color:#111>.</span><span style=color:#111>Name</span>
+        
+        <span style=color:#00a8c8>If</span> <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>FileExists</span><span style=color:#111>(</span><span style=color:#111>filePathTo</span><span style=color:#111>)</span> <span style=color:#00a8c8>Then</span>
+            <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>DeleteFile</span> <span style=color:#111>filePathTo</span><span style=color:#111>,</span> <span style=color:#00a8c8>True</span>
+        <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+        
+        <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>CopyFile</span> <span style=color:#111>oFileFrom</span><span style=color:#111>.</span><span style=color:#111>Path</span><span style=color:#111>,</span> <span style=color:#111>filePathTo</span>
+    <span style=color:#00a8c8>Next</span>
+    
+    <span style=color:#75715e>&#39; サブフォルダのコピー
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>oSubFolderFrom</span> <span style=color:#f92672>In</span> <span style=color:#111>oFolderFrom</span><span style=color:#111>.</span><span style=color:#111>SubFolders</span>
+        <span style=color:#111>subFolderPathTo</span> <span style=color:#f92672>=</span> <span style=color:#111>oFolderTo</span><span style=color:#111>.</span><span style=color:#111>Path</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34;\&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>oSubFolderFrom</span><span style=color:#111>.</span><span style=color:#111>Name</span>
+        
+        <span style=color:#00a8c8>If</span> <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>FolderExists</span><span style=color:#111>(</span><span style=color:#111>subFolderPathTo</span><span style=color:#111>)</span> <span style=color:#00a8c8>Then</span>
+            <span style=color:#00a8c8>Set</span> <span style=color:#111>oSubFolderTo</span> <span style=color:#f92672>=</span> <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>GetFolder</span><span style=color:#111>(</span><span style=color:#111>subFolderPathTo</span><span style=color:#111>)</span>
+        <span style=color:#00a8c8>Else</span>
+            <span style=color:#00a8c8>Set</span> <span style=color:#111>oSubFolderTo</span> <span style=color:#f92672>=</span> <span style=color:#111>oFSO</span><span style=color:#111>.</span><span style=color:#111>CreateFolder</span><span style=color:#111>(</span><span style=color:#111>subFolderPathTo</span><span style=color:#111>)</span>
+        <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+        
+        <span style=color:#00a8c8>Call</span> <span style=color:#111>CopyFiles</span><span style=color:#111>(</span><span style=color:#111>oSubFolderFrom</span><span style=color:#111>,</span> <span style=color:#111>oSubFolderTo</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Next</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
 </code></pre></div><h2 id=ファイル拡張子変換>ファイル拡張子変換</h2><p>変更前ファイルパスの拡張子を、指定した拡張子へ変換する。
 変換後ファイル名にはパスが付いていないので注意する。</p><pre><code>filePath = !変更前ファイル名!
 extension = !拡張子!
