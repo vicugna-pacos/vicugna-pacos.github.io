@@ -1,0 +1,102 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="予定の一覧をExcelに出力する"><meta property="og:description" content="はじめに Outlook の予定表を一覧表にして Excel へ出力するサンプル。 処理の主体は Outlook の操作だが、Excel ファイルを作ってそっちに VBA を書いていく。 Excel ファイルの準備 マクロ有効ブックを作成し、以下のようなシートを作る。 B1"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/vba/outlook/sample-export-appointments/"><meta property="article:published_time" content="2022-02-11T11:25:26+09:00"><meta property="article:modified_time" content="2022-02-11T11:25:26+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="予定の一覧をExcelに出力する"><meta name=twitter:description content="はじめに Outlook の予定表を一覧表にして Excel へ出力するサンプル。 処理の主体は Outlook の操作だが、Excel ファイルを作ってそっちに VBA を書いていく。 Excel ファイルの準備 マクロ有効ブックを作成し、以下のようなシートを作る。 B1"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>予定の一覧をExcelに出力する - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>VBA</li><li>Outlook VBA</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#はじめに>はじめに</a></li><li><a href=#excel-ファイルの準備>Excel ファイルの準備</a></li><li><a href=#使い方>使い方</a></li><li><a href=#vba-サンプル>VBA サンプル</a></li></ul></nav></aside></div><div class=main><article><h1>予定の一覧をExcelに出力する</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2022-02-11 11:25:26 +0900 +0900" itemprop=datePublished>2022-02-11</time></div><div></div></div><h2 id=はじめに>はじめに</h2><p>Outlook の予定表を一覧表にして Excel へ出力するサンプル。
+処理の主体は Outlook の操作だが、Excel ファイルを作ってそっちに VBA を書いていく。</p><h2 id=excel-ファイルの準備>Excel ファイルの準備</h2><p>マクロ有効ブックを作成し、以下のようなシートを作る。</p><p><img src=2022-02-15-11-21-25.png alt></p><ul><li>B1 に名前「期間FROM」を付ける。</li><li>D1 に名前「期間TO」を付ける。</li><li>F3あたりのテーブルの名前を「テーブル1」にする。</li></ul><p>シートを作成した後、ページ最後に記載した VBA サンプルをコピーしてマクロを作成する。</p><h2 id=使い方>使い方</h2><ol><li>Outlook を起動しておく。</li><li>Excel の期間FROMと期間TOに、予定を取得したい日付の範囲を入力する。</li><li>マクロを実行する。</li><li>テーブルに予定の一覧が作成される。<br><img src=2022-02-15-11-27-01.png alt></li></ol><h2 id=vba-サンプル>VBA サンプル</h2><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-vb data-lang=vb><span style=color:#00a8c8>Option</span> <span style=color:#111>Explicit</span>
+
+<span style=color:#75715e>&#39; 必要参照設定：Microsoft Outlook Object Library
+</span><span style=color:#75715e></span>
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>COL_開始</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span> <span style=color:#f92672>=</span> <span style=color:#111>1</span>
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>COL_終了</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span> <span style=color:#f92672>=</span> <span style=color:#111>2</span>
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>COL_件名</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span> <span style=color:#f92672>=</span> <span style=color:#111>3</span>
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>COL_分類項目</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span> <span style=color:#f92672>=</span> <span style=color:#111>4</span>
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>COL_時間</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Integer</span> <span style=color:#f92672>=</span> <span style=color:#111>5</span>
+
+<span style=color:#75715e>&#39; 設定値のRange名
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>RANGE_期間FROM</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;期間FROM&#34;</span>
+<span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Const</span> <span style=color:#111>RANGE_期間TO</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;期間TO&#34;</span>
+
+
+<span style=color:#00a8c8>Public</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>予定一覧作成</span><span style=color:#111>()</span>
+
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oList</span> <span style=color:#f92672>As</span> <span style=color:#111>ListObject</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>kikanFrom</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>kikanTo</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>range時間</span> <span style=color:#f92672>As</span> <span style=color:#111>Range</span>
+    
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oList</span> <span style=color:#f92672>=</span> <span style=color:#111>Sheet1</span><span style=color:#111>.</span><span style=color:#111>ListObjects</span><span style=color:#111>(</span><span style=color:#111>1</span><span style=color:#111>)</span>
+    
+    <span style=color:#75715e>&#39; 既存データ削除
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>If</span> <span style=color:#111>oList</span><span style=color:#111>.</span><span style=color:#111>ListRows</span><span style=color:#111>.</span><span style=color:#111>Count</span> <span style=color:#f92672>&gt;</span> <span style=color:#111>0</span> <span style=color:#00a8c8>Then</span>
+        <span style=color:#111>oList</span><span style=color:#111>.</span><span style=color:#111>DataBodyRange</span><span style=color:#111>.</span><span style=color:#111>Delete</span> <span style=color:#111>xlShiftUp</span>
+    <span style=color:#00a8c8>End</span> <span style=color:#00a8c8>If</span>
+    
+    <span style=color:#75715e>&#39; 期間取得
+</span><span style=color:#75715e></span>    <span style=color:#111>kikanFrom</span> <span style=color:#f92672>=</span> <span style=color:#111>Sheet1</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>RANGE_期間FROM</span><span style=color:#111>).</span><span style=color:#111>Value</span>
+    <span style=color:#111>kikanTo</span> <span style=color:#f92672>=</span> <span style=color:#111>Sheet1</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>RANGE_期間TO</span><span style=color:#111>).</span><span style=color:#111>Value</span>
+    
+    <span style=color:#75715e>&#39; Outlookから予定を取得
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Call</span> <span style=color:#111>GetOutlookAppointments</span><span style=color:#111>(</span><span style=color:#111>oList</span><span style=color:#111>,</span> <span style=color:#111>kikanFrom</span><span style=color:#111>,</span> <span style=color:#111>kikanTo</span><span style=color:#111>)</span>
+    
+    <span style=color:#75715e>&#39; 作業時間の計算を追加
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Set</span> <span style=color:#111>range時間</span> <span style=color:#f92672>=</span> <span style=color:#111>oList</span><span style=color:#111>.</span><span style=color:#111>ListColumns</span><span style=color:#111>(</span><span style=color:#111>COL_時間</span><span style=color:#111>).</span><span style=color:#111>DataBodyRange</span>
+    <span style=color:#111>range時間</span><span style=color:#111>.</span><span style=color:#111>Value</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;=[@終了]-[@開始]&#34;</span>
+    <span style=color:#111>range時間</span><span style=color:#111>.</span><span style=color:#111>NumberFormatLocal</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;[h]:mm;@&#34;</span>
+
+    <span style=color:#111>MsgBox</span> <span style=color:#d88200>&#34;書込み完了しました&#34;</span>
+    
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+
+<span style=color:#75715e>&#39; ------------------------------
+</span><span style=color:#75715e>&#39; Outlookから指定した期間の予定を取得する
+</span><span style=color:#75715e>&#39; ------------------------------
+</span><span style=color:#75715e></span><span style=color:#00a8c8>Private</span> <span style=color:#00a8c8>Sub</span> <span style=color:#75af00>GetOutlookAppointments</span><span style=color:#111>(</span><span style=color:#00a8c8>ByRef</span> <span style=color:#111>oList</span> <span style=color:#f92672>As</span> <span style=color:#111>ListObject</span><span style=color:#111>,</span> <span style=color:#111>kikanFrom</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span><span style=color:#111>,</span> <span style=color:#111>kikanTo</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Date</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oOutlook</span> <span style=color:#f92672>As</span> <span style=color:#111>Outlook</span><span style=color:#111>.</span><span style=color:#111>Application</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oNs</span> <span style=color:#f92672>As</span> <span style=color:#111>Outlook</span><span style=color:#111>.</span><span style=color:#111>Namespace</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>As</span> <span style=color:#111>Outlook</span><span style=color:#111>.</span><span style=color:#111>Folder</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>allItems</span> <span style=color:#f92672>As</span> <span style=color:#111>Outlook</span><span style=color:#111>.</span><span style=color:#111>Items</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItems</span> <span style=color:#f92672>As</span> <span style=color:#111>Outlook</span><span style=color:#111>.</span><span style=color:#111>Items</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItemWk</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>Variant</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oItem</span> <span style=color:#f92672>As</span> <span style=color:#111>Outlook</span><span style=color:#111>.</span><span style=color:#111>AppointmentItem</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>filter</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>firstDateStr</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>lastDateStr</span> <span style=color:#f92672>As</span> <span style=color:#00a8c8>String</span>
+    
+    <span style=color:#00a8c8>Dim</span> <span style=color:#111>oRow</span> <span style=color:#f92672>As</span> <span style=color:#111>ListRow</span>
+    
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oOutlook</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>New</span> <span style=color:#111>Outlook</span><span style=color:#111>.</span><span style=color:#111>Application</span>
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oNs</span> <span style=color:#f92672>=</span> <span style=color:#111>oOutlook</span><span style=color:#111>.</span><span style=color:#111>GetNamespace</span><span style=color:#111>(</span><span style=color:#d88200>&#34;MAPI&#34;</span><span style=color:#111>)</span>
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oFolder</span> <span style=color:#f92672>=</span> <span style=color:#111>oNs</span><span style=color:#111>.</span><span style=color:#111>GetDefaultFolder</span><span style=color:#111>(</span><span style=color:#111>olFolderCalendar</span><span style=color:#111>)</span>
+    
+    <span style=color:#75715e>&#39; 当月の予定をすべて取得 (全日イベントは除外)
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>Set</span> <span style=color:#111>allItems</span> <span style=color:#f92672>=</span> <span style=color:#111>oFolder</span><span style=color:#111>.</span><span style=color:#111>Items</span>
+    <span style=color:#111>allItems</span><span style=color:#111>.</span><span style=color:#111>IncludeRecurrences</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>True</span>
+    <span style=color:#111>allItems</span><span style=color:#111>.</span><span style=color:#111>Sort</span> <span style=color:#d88200>&#34;[Start]&#34;</span>
+
+    <span style=color:#111>firstDateStr</span> <span style=color:#f92672>=</span> <span style=color:#111>FormatDateTime</span><span style=color:#111>(</span><span style=color:#111>kikanFrom</span><span style=color:#111>,</span> <span style=color:#111>vbShortDate</span><span style=color:#111>)</span>
+    <span style=color:#111>lastDateStr</span> <span style=color:#f92672>=</span> <span style=color:#111>FormatDateTime</span><span style=color:#111>(</span><span style=color:#111>DateAdd</span><span style=color:#111>(</span><span style=color:#d88200>&#34;d&#34;</span><span style=color:#111>,</span> <span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>kikanTo</span><span style=color:#111>),</span> <span style=color:#111>vbShortDate</span><span style=color:#111>)</span>
+
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;[Start] &gt;= &#39;&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>firstDateStr</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; 00:00&#39;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; AND [Start] &lt;= &#39;&#34;</span> <span style=color:#f92672>&amp;</span> <span style=color:#111>lastDateStr</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; 00:00&#39;&#34;</span>
+    <span style=color:#111>filter</span> <span style=color:#f92672>=</span> <span style=color:#111>filter</span> <span style=color:#f92672>&amp;</span> <span style=color:#d88200>&#34; AND [AllDayEvent] = False&#34;</span>
+
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oItems</span> <span style=color:#f92672>=</span> <span style=color:#111>allItems</span><span style=color:#111>.</span><span style=color:#111>Restrict</span><span style=color:#111>(</span><span style=color:#111>filter</span><span style=color:#111>)</span>
+    
+    <span style=color:#75715e>&#39; 取得した予定をExcelへ書き込む
+</span><span style=color:#75715e></span>    <span style=color:#00a8c8>For</span> <span style=color:#00a8c8>Each</span> <span style=color:#111>oItemWk</span> <span style=color:#f92672>In</span> <span style=color:#111>oItems</span>
+        <span style=color:#00a8c8>Set</span> <span style=color:#111>oItem</span> <span style=color:#f92672>=</span> <span style=color:#111>oItemWk</span>
+        <span style=color:#00a8c8>Set</span> <span style=color:#111>oRow</span> <span style=color:#f92672>=</span> <span style=color:#111>oList</span><span style=color:#111>.</span><span style=color:#111>ListRows</span><span style=color:#111>.</span><span style=color:#111>Add</span>
+        
+        <span style=color:#111>oRow</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>COL_開始</span><span style=color:#111>).</span><span style=color:#111>Value</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>Start</span>
+        <span style=color:#111>oRow</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>COL_終了</span><span style=color:#111>).</span><span style=color:#111>Value</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>End</span>
+        <span style=color:#111>oRow</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>COL_件名</span><span style=color:#111>).</span><span style=color:#111>Value</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>Subject</span>
+        <span style=color:#111>oRow</span><span style=color:#111>.</span><span style=color:#111>Range</span><span style=color:#111>(</span><span style=color:#111>1</span><span style=color:#111>,</span> <span style=color:#111>COL_分類項目</span><span style=color:#111>).</span><span style=color:#111>Value</span> <span style=color:#f92672>=</span> <span style=color:#111>oItem</span><span style=color:#111>.</span><span style=color:#111>Categories</span>
+    <span style=color:#00a8c8>Next</span>
+    
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oNs</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+    <span style=color:#00a8c8>Set</span> <span style=color:#111>oOutlook</span> <span style=color:#f92672>=</span> <span style=color:#00a8c8>Nothing</span>
+<span style=color:#00a8c8>End</span> <span style=color:#00a8c8>Sub</span>
+</code></pre></div></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
