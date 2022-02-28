@@ -290,6 +290,46 @@ function main(workbook: ExcelScript.Workbook)
 }
 ```
 
+#### 日付のフィルタを設定する
+
+```typescript
+function main(workbook: ExcelScript.Workbook)
+{
+  let sheet = workbook.getWorksheet("Sheet1");
+  let table = sheet.getTable("テーブル1");
+
+  // 日付は yyyy-MM-dd 形式にする
+  let todayStr = convertDateFormat(new Date());
+
+  // フィルタ
+  table.clearFilters();
+  let column = table.getColumnByName("列1");
+  column.getFilter().applyValuesFilter([{ date: todayStr, specificity: ExcelScript.FilterDatetimeSpecificity.day }]);
+
+  // 結果を取得
+  console.log(range.getValues());
+}
+
+/**
+ * JavaScriptの日付型を yyyy-MM-dd へ変換する
+ */
+function convertDateFormat(dt: Date) {
+  let result = "";
+  result += dt.getFullYear();
+  result += "-";
+  if (dt.getMonth() < 9) {
+    result += "0";
+  }
+  result += (dt.getMonth() + 1);
+  result += "-";
+  if (dt.getDate() < 10) {
+    result += "0";
+  }
+  result += dt.getDate();
+  return result;
+}
+```
+
 ### テーブルをJSONへ変換する
 
 ```javascript
