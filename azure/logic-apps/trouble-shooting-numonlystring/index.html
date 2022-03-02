@@ -1,0 +1,42 @@
+<!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="数字だけの文字列が数値型になってしまう"><meta property="og:description" content="発端 Power Automate のクラウドフローで、下記のような分岐を作った。 変数「タスク期限」には「2022-03」という形式で年月が入っているので、その末尾が四半期末の月かチェックしたかった。 しかし、フローを実行したら下"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/azure/logic-apps/trouble-shooting-numonlystring/"><meta property="article:published_time" content="2022-03-02T11:33:30+09:00"><meta property="article:modified_time" content="2022-03-02T11:33:30+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="数字だけの文字列が数値型になってしまう"><meta name=twitter:description content="発端 Power Automate のクラウドフローで、下記のような分岐を作った。 変数「タスク期限」には「2022-03」という形式で年月が入っているので、その末尾が四半期末の月かチェックしたかった。 しかし、フローを実行したら下"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>数字だけの文字列が数値型になってしまう - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Logic Apps (Power Automateも含む)</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#発端>発端</a></li><li><a href=#詳しく調べる方法>詳しく調べる方法</a></li><li><a href=#解決方法>解決方法</a></li></ul></nav></aside></div><div class=main><article><h1>数字だけの文字列が数値型になってしまう</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2022-03-02 11:33:30 +0900 +0900" itemprop=datePublished>2022-03-02</time></div><div></div></div><h2 id=発端>発端</h2><p>Power Automate のクラウドフローで、下記のような分岐を作った。</p><p><img src=2022-03-02-11-34-34.png alt></p><p>変数「タスク期限」には「2022-03」という形式で年月が入っているので、その末尾が四半期末の月かチェックしたかった。
+しかし、フローを実行したら下記のエラーになってしまった。</p><p><img src=2022-03-02-11-42-03.png alt></p><pre><code>行 '0'、列 '0' のアクション '四半期末である' に対するテンプレート言語式を処理できません: 'テンプレート言語関数 'endsWith' の 2 番目のパラメーターは文字列型である必要があります。指定された値は 'Integer' 型です。使用方法の詳細については、https://aka.ms/logicexpressions#endswith をご覧ください。'。
+</code></pre><p>文字として入力したつもりだけど、「03」は数字しかないので自動的に数値型になってしまった。</p><h2 id=詳しく調べる方法>詳しく調べる方法</h2><p>エラーが起きたアクションの「…」をクリック → 「クリップボードにコピー」をクリック。</p><p><img src=2022-03-02-13-19-31.png alt></p><p>すると、アクションのコードがクリップボードに入る。コードはJSON形式で、下記のようになっている。</p><pre><code>{
+    // 略
+    &quot;operationName&quot;: &quot;四半期末である&quot;,
+    &quot;operationDefinition&quot;: {
+        &quot;type&quot;: &quot;If&quot;,
+        &quot;expression&quot;: {
+            &quot;or&quot;: [
+                {
+                    &quot;endsWith&quot;: [
+                        &quot;@variables('タスク期限')&quot;,
+                        &quot;06&quot;
+                    ]
+                },
+                {
+                    &quot;endsWith&quot;: [
+                        &quot;@variables('タスク期限')&quot;,
+                        &quot;09&quot;
+                    ]
+                },
+                {
+                    &quot;endsWith&quot;: [
+                        &quot;@variables('タスク期限')&quot;,
+                        12
+                    ]
+                },
+                {
+                    &quot;endsWith&quot;: [
+                        &quot;@variables('タスク期限')&quot;,
+                        &quot;03&quot;
+                    ]
+                }
+            ]
+        }
+        // 略
+    }
+}
+</code></pre><p>よくみると、「12」だけ二重引用符で囲まれておらず、数値として扱われているように見える。</p><h2 id=解決方法>解決方法</h2><p>二重引用符を付けて入力する。下記のような感じ。</p><p><img src=2022-03-02-13-31-31.png alt></p><p>もしくは、「式の追加」をクリックし、「&lsquo;03&rsquo;」と入力してもいい。こちらの場合は一重引用符で囲む。</p><p><img src=2022-03-02-13-35-27.png alt></p><p>入力後、下記のように「undefined」が見えるが問題ない。</p><p><img src=2022-03-02-13-36-42.png alt></p><p>ただし、どちらの場合も注意点がある。
+それは、このフローの編集画面を離れ、再び編集画面に戻ってくると見た目が「03」に戻っていることである。</p><p><img src=2022-03-02-13-39-44.png alt></p><p>もう一度コードを確かめれば分かるが、これでも文字列として扱われているので問題ない。ただ、この値をもう1回編集するときは文字列になるか数値になるか分からないので、入力するときは二重引用符を付けることを習慣にするといい。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
