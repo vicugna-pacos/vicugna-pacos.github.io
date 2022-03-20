@@ -72,12 +72,25 @@ date: 2022-03-17T16:18:55+09:00
 取ってきたIDは、「カスタム項目の追加」で追加する。
 
 ### チェックリストをコピーする
-チェックリストをコピーする場合、「タスクの詳細を取得する」で取得したチェックリストを配列変数へ加工してから、更新アクションへ渡す必要がある。
+チェックリストをコピーする場合、「タスクの詳細を取得する」で取得したチェックリストを所定の形へ変換してから、更新アクションへ渡す必要がある。
 下図がその加工のサンプル。
 
-![](2022-03-18-11-33-51.png)
+![](2022-03-18-16-51-35.png)
 
-![](2022-03-18-11-34-32.png)
+連続データの構造を変えるには、[データ操作 の 選択](https://docs.microsoft.com/en-us/power-automate/data-operations#use-the-select-action) を使う。
+「開始」に「タスクの詳細を取得する」で取得したチェックリストを指定し、「マップ」をテキストモードへ切り替え、下記を直接入力する。
+
+```
+{
+  "id": @{item()?['value/orderHint']},
+  "title": @{item()?['value/title']},
+  "isChecked": "false"
+}
+```
+
+id に orderHint を使っているのは、チェックリストの並び順をコピー元と一緒にする方法がこれしかなかったためである。
+
+#### なぜ変換するか
 
 「タスクの詳細を取得する」で取得したチェックリストをそのまま更新アクションで使っても上手くいかない。
 
@@ -112,3 +125,123 @@ date: 2022-03-17T16:18:55+09:00
 ]
 ```
 
+## チェックリストの並び順
+「タスクの詳細を取得する(GetTaskDetails_V2)」で取得したチェックリストは、Planner で見た時の並び順と違う順番に並んでいることがある。
+並び順の情報は [orderHint](https://docs.microsoft.com/en-us/graph/api/resources/planner-order-hint-format?view=graph-rest-1.0) で分かるが、「タスクの詳細の更新 (UpdateTaskDetails_V2)」に orderHint を渡すことができない。
+
+ただ、新しく追加する分のチェックリストは、id の順番で orderHint も振られるようにみえる。なので、タスクをコピーするときに限っては、id に orderHint を入れるというのも手ではある。
+
+他には、取得したチェックリストを orderHint で並べ直してから、id を改めて振っていく方法が考えられる。
+並べ直す部分を Power Automate で作るのは難しいので、Azure Functions や Office スクリプトなど、スクリプトが書けるほうに任せた方がいい。
+
+### Office スクリプトのサンプル
+orderHint で並び替えるサンプル。
+Office スクリプトは Excel のブックを指定しつつ実行するが、このサンプルは Excel を使わない。
+そのため、Power Automate から実行するときは、何かダミー用の Excel ファイルを指定すると良い。
+
+```ts
+/**
+ * orderHint で a と b を比較する。
+ * 1. 先頭から1文字ずつ比較し、小さい方が前になる。
+ * 2. 同じ文字が続く場合、文字数が短い方が前になる。
+ * 
+ * inputJson: キーに orderHint を持つJsonの連続データ
+ */
+function main(workbook: ExcelScript.Workbook
+  , inputJson : string)
+{
+  let parsedJson: Array<object> = JSON.parse(inputJson);
+  let sortedJson = parsedJson.sort((a, b) => {
+    let orderHintA = a["orderHint"] as string;
+    let orderHintB = b["orderHint"] as string;
+
+    if (orderHintA == null && orderHintB == null) {
+      return 0;
+
+    } else if (orderHintA == null) {
+      return -1;
+
+    } else if (orderHintB == null) {
+      return 1;
+    }
+
+    let lengthA = orderHintA.length;
+    let lengthB = orderHintB.length;
+    let idx = 0;
+
+    while (true) {
+      if (idx >= lengthA && idx >= lengthB) {
+        return 0;
+
+      } else if (idx >= lengthA) {
+        return -1;
+
+      } else if (idx >= lengthB) {
+        return 1;
+      }
+
+      let charA = orderHintA.charAt(idx);
+      let charB = orderHintB.charAt(idx);
+
+      if (charA < charB) {
+        return -1;
+
+      } else if (charA > charB) {
+        return 1;
+      }
+
+      idx++;
+    }
+
+    return 0;
+  });
+
+  return JSON.stringify(sortedJson);
+}
+```
+
+↓ パラメータの例
+
+    [
+      {
+        "id": "1",
+        "orderHint": "8585541056016538046",
+        "title": "title1",
+        "isChecked": "false"
+      },
+      {
+        "id": "2",
+        "orderHint": "[8",
+        "title": "title2",
+        "isChecked": "false"
+      },
+      {
+        "id": "3",
+        "orderHint": "8585540Ei",
+        "title": "title3",
+        "isChecked": "false"
+      }
+    ]
+
+↓実行結果の例 (orderHint の順番になっている)
+
+    [
+      {
+        "id": "3",
+        "orderHint": "8585540Ei",
+        "title": "title3",
+        "isChecked": "false"
+      },
+      {
+        "id": "1",
+        "orderHint": "8585541056016538046",
+        "title": "title1",
+        "isChecked": "false"
+      },
+      {
+        "id": "2",
+        "orderHint": "[8",
+        "title": "title2",
+        "isChecked": "false"
+      }
+    ]
