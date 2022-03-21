@@ -1,6 +1,7 @@
 ---
 title: "Planner の操作"
 date: 2022-03-17T16:18:55+09:00
+lastMod: 2022-03-21T14:21:44+09:00
 ---
 
 [MS のドキュメント](https://docs.microsoft.com/en-us/connectors/planner/)
@@ -125,7 +126,7 @@ id に orderHint を使っているのは、チェックリストの並び順を
 ]
 ```
 
-## チェックリストの並び順
+## チェックリストの並べ替え
 「タスクの詳細を取得する(GetTaskDetails_V2)」で取得したチェックリストは、Planner で見た時の並び順と違う順番に並んでいることがある。
 並び順の情報は [orderHint](https://docs.microsoft.com/en-us/graph/api/resources/planner-order-hint-format?view=graph-rest-1.0) で分かるが、「タスクの詳細の更新 (UpdateTaskDetails_V2)」に orderHint を渡すことができない。
 
@@ -135,7 +136,7 @@ id に orderHint を使っているのは、チェックリストの並び順を
 並べ直す部分を Power Automate で作るのは難しいので、Azure Functions や Office スクリプトなど、スクリプトが書けるほうに任せた方がいい。
 
 ### Office スクリプトのサンプル
-orderHint で並び替えるサンプル。
+下記に、orderHint で並び替えるサンプルを記載する。
 Office スクリプトは Excel のブックを指定しつつ実行するが、このサンプルは Excel を使わない。
 そのため、Power Automate から実行するときは、何かダミー用の Excel ファイルを指定すると良い。
 
@@ -245,3 +246,84 @@ function main(workbook: ExcelScript.Workbook
         "isChecked": "false"
       }
     ]
+
+### Office スクリプトのサンプル2
+下記に、orderHint で並べ替えつつ、id を1からふり直しつつ orderHint のキーを削除するサンプルを記載する。
+チェックリストをコピーするときに使える。
+
+```ts
+/**
+ * Planner のチェックリストを受け取り、orderHint で並べ替えつつ id を採番しなおす。
+ * このスクリプトではExcelブックを使用しない。
+ * 
+ * inputJson: キーに id, title, isChecked, orderHint を持つJsonの連続データ
+ * 戻り値：キーに id, title, isChecked を持つJsonの連続データ
+ */
+function main(workbook: ExcelScript.Workbook
+  , inputJson : string)
+{
+  let parsedJson: Array<object> = JSON.parse(inputJson);
+  let sortedJson = sort(parsedJson);
+
+  let mappedJson = sortedJson.map((a, index) => {
+    return {
+      "id": index + 1
+      ,"title": a["title"]
+      ,"isChecked": a["isChecked"]
+    };
+  });
+
+  return JSON.stringify(mappedJson);
+}
+
+/**
+ * orderHint で並べ替え
+ */
+function sort(parsedJson: Array<object>) {
+  return parsedJson.sort((a, b) => {
+    let orderHintA = a["orderHint"] as string;
+    let orderHintB = b["orderHint"] as string;
+
+    if (orderHintA == null && orderHintB == null) {
+      return 0;
+
+    } else if (orderHintA == null) {
+      return -1;
+
+    } else if (orderHintB == null) {
+      return 1;
+    }
+
+    let lengthA = orderHintA.length;
+    let lengthB = orderHintB.length;
+    let idx = 0;
+
+    while (true) {
+      if (idx >= lengthA && idx >= lengthB) {
+        return 0;
+
+      } else if (idx >= lengthA) {
+        return -1;
+
+      } else if (idx >= lengthB) {
+        return 1;
+      }
+
+      let charA = orderHintA.charAt(idx);
+      let charB = orderHintB.charAt(idx);
+
+      if (charA < charB) {
+        return -1;
+
+      } else if (charA > charB) {
+        return 1;
+      }
+
+      idx++;
+    }
+
+    return 0;
+  });
+
+}
+```
