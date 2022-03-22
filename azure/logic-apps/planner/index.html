@@ -1,16 +1,17 @@
 <!doctype html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-143399608-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="Planner の操作"><meta property="og:description" content="MS のドキュメント チェックリスト付きのタスクを作成する 「タスクを作成する (CreateTask_V3)」アクションを使う。ただ、このアクションで指定できるのは下記の項目だけで、チェックリストやコメントは"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/azure/logic-apps/planner/"><meta property="article:published_time" content="2022-03-17T16:18:55+09:00"><meta property="article:modified_time" content="2022-03-17T16:18:55+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Planner の操作"><meta name=twitter:description content="MS のドキュメント チェックリスト付きのタスクを作成する 「タスクを作成する (CreateTask_V3)」アクションを使う。ただ、このアクションで指定できるのは下記の項目だけで、チェックリストやコメントは"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Planner の操作 - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Logic Apps (Power Automateも含む)</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#チェックリスト付きのタスクを作成する>チェックリスト付きのタスクを作成する</a></li><li><a href=#タスクをコピーする>タスクをコピーする</a><ul><li><a href=#コピー元のタスクidを取得する>コピー元のタスクIDを取得する</a></li><li><a href=#チェックリストをコピーする>チェックリストをコピーする</a><ul><li><a href=#なぜ変換するか>なぜ変換するか</a></li></ul></li></ul></li><li><a href=#チェックリストの並び順>チェックリストの並び順</a><ul><li><a href=#office-スクリプトのサンプル>Office スクリプトのサンプル</a></li></ul></li></ul></nav></aside></div><div class=main><article><h1>Planner の操作</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
-<time datetime="2022-03-17 16:18:55 +0900 +0900" itemprop=datePublished>2022-03-17</time></div><div></div></div><p><a href=https://docs.microsoft.com/en-us/connectors/planner/ target=_blank rel=noopener>MS のドキュメント</a></p><h2 id=チェックリスト付きのタスクを作成する>チェックリスト付きのタスクを作成する</h2><p>「タスクを作成する (CreateTask_V3)」アクションを使う。ただ、このアクションで指定できるのは下記の項目だけで、チェックリストやコメントは付けられない。</p><ul><li>タイトル</li><li>バケットID (どのバケットに作るか)</li><li>開始日時</li><li>期限日時</li><li>担当者</li><li>ラベル</li></ul><p>チェックリストを付けたい場合は、タスクを作成した後に「タスクの詳細の更新 (UpdateTaskDetails_V2)」アクションを使う。
+gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="og:title" content="Planner の操作"><meta property="og:description" content="MS のドキュメント チェックリスト付きのタスクを作成する 「タスクを作成する (CreateTask_V3)」アクションを使う。ただ、このアクションで指定できるのは下記の項目だけで、チェックリストやコメントは"><meta property="og:type" content="article"><meta property="og:url" content="https://vicugna-pacos.github.io/azure/logic-apps/planner/"><meta property="article:published_time" content="2022-03-17T16:18:55+09:00"><meta property="article:modified_time" content="2022-03-21T14:21:44+09:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Planner の操作"><meta name=twitter:description content="MS のドキュメント チェックリスト付きのタスクを作成する 「タスクを作成する (CreateTask_V3)」アクションを使う。ただ、このアクションで指定できるのは下記の項目だけで、チェックリストやコメントは"><meta name=generator content="Hugo 0.74.1"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=stylesheet href="https://fonts.googleapis.com/icon?family=Material+Icons"><link rel=stylesheet href=https://vicugna-pacos.github.io/css/normalize.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/main.css><link rel=stylesheet href=https://vicugna-pacos.github.io/css/pagination.css><title>Planner の操作 - アルパカのメモ</title></head><body><header class=header-area><div class=content-container><span class=logo-text><a href=/>アルパカのメモ</a></span></div></header><div class=content-container><nav><ol class=breadcrumbnav><li>Home</li><li>Azure</li><li>Azure Logic Apps (Power Automateも含む)</li></ol></nav></div><main class=main-area><div class="content-container single"><div class=side><aside class=toc><p>目次</p><nav id=TableOfContents><ul><li><a href=#チェックリスト付きのタスクを作成する>チェックリスト付きのタスクを作成する</a></li><li><a href=#タスクをコピーする>タスクをコピーする</a><ul><li><a href=#コピー元のタスクidを取得する>コピー元のタスクIDを取得する</a></li><li><a href=#チェックリストのコピー-順不同ver>チェックリストのコピー (順不同ver)</a><ul><li><a href=#なぜ変換するか>なぜ変換するか</a></li></ul></li><li><a href=#チェックリストのコピー-順番揃えるver>チェックリストのコピー (順番揃えるver)</a></li></ul></li></ul></nav></aside></div><div class=main><article><h1>Planner の操作</h1><div class=article-info><div><i class=material-icons>calendar_today</i>
+<time datetime="2022-03-17 16:18:55 +0900 +0900" itemprop=datePublished>2022-03-17</time>
+(最終更新：<time datetime="2022-03-21 14:21:44 +0900 +0900" itemprop=dateModified>2022-03-21</time>)</div><div></div></div><p><a href=https://docs.microsoft.com/en-us/connectors/planner/ target=_blank rel=noopener>MS のドキュメント</a></p><h2 id=チェックリスト付きのタスクを作成する>チェックリスト付きのタスクを作成する</h2><p>「タスクを作成する (CreateTask_V3)」アクションを使う。ただ、このアクションで指定できるのは下記の項目だけで、チェックリストやコメントは付けられない。</p><ul><li>タイトル</li><li>バケットID (どのバケットに作るか)</li><li>開始日時</li><li>期限日時</li><li>担当者</li><li>ラベル</li></ul><p>チェックリストを付けたい場合は、タスクを作成した後に「タスクの詳細の更新 (UpdateTaskDetails_V2)」アクションを使う。
 チェックリストの数が動的に変化する場合は、アレイ型の変数に、id、title、isChecked の3つをキーに持つオブジェクトを追加していくと良い。</p><p>下記は、サンプルのフローの全体。</p><p><img src=2022-03-17-16-29-03.png alt></p><p>ここからは、上記フローの詳細を1つずつ解説する。</p><p>まず初めに、アレイ型の変数を初期化する。</p><p><img src=2022-03-17-16-29-27.png alt></p><p>次に「変数」コネクタにある「配列変数に追加」を使う。値には id、title、isChecked の3つのキーを持つオブジェクトをJSON形式で指定する。</p><p><img src=2022-03-17-16-30-13.png alt></p><p>これを追加したい項目の数だけ繰り返す。</p><p>そして最後にタスクを作成し、その作成した直後のタスクに対して「タスクの詳細を更新」する。</p><p><img src=2022-03-17-16-32-41.png alt></p><p>更新対象の「タスクID」はリストから選択するのではなく、「カスタム項目の追加」をクリック → 動的な値を追加 → 「タスクを作成する」の「ID」を指定する。</p><p><img src=2022-03-17-16-35-11.png alt></p><p>そしてチェックリストは、「アレイ全体の入力へ切り替える」をクリックしてから、先ほど作ったアレイ変数を指定する。</p><p><img src=2022-03-17-16-40-55.png alt></p><p>フローの説明は以上。このフローを実行すると、新しいタスクが作成され、チェックリストも付いている。</p><p><img src=2022-03-17-16-46-41.png alt></p><h2 id=タスクをコピーする>タスクをコピーする</h2><p>タスクをコピーするアクションはないので、下記の手順でコピーを実現する。</p><ol><li>「タスクを取得する(GetTask_V2)」と「タスクの詳細を取得する(GetTaskDetails_V2)」を使い、コピー元タスクを取得。<ul><li>どちらのアクションを使うかは、コピーしたい項目による。両方使う可能性もある。</li></ul></li><li>「タスクを作成する (CreateTask_V3)」で、コピー先タスクを作成。</li><li>「タスクの詳細の更新 (UpdateTaskDetails_V2)」で、前の手順で指定できなかった項目をコピー先へ反映する。</li></ol><h3 id=コピー元のタスクidを取得する>コピー元のタスクIDを取得する</h3><p>「タスクの詳細を取得する」アクションには、取得したいタスクの ID が必要。
 しかし、コピー元にしたいタスクが「タスクID」のリストに載っていない場合がある。そういうときは、Planner のページを開き、自分で ID を取ってくる必要がある。
-手順は下記の通り。</p><ol><li>Web ブラウザで <a href=https://tasks.office.com/ target=_blank rel=noopener>Planner のページ</a> を開く。Teams から見た Planner のページではなく、Planner を直接開く。</li><li>コピー元タスクの「…」をクリック → 「タスクへのリンクをコピー」をクリック。<br><img src=2022-03-18-10-41-14.png alt></li><li>URLをテキストエディタ等へ貼り付ける。URL のうち、図で示した部分がタスクIDなので、この部分をコピーする。<br><img src=2022-03-18-10-46-31.png alt></li></ol><p>(今のところこれしか方法が分からず、もっといい方法があるなら知りたい…)</p><p>取ってきたIDは、「カスタム項目の追加」で追加する。</p><h3 id=チェックリストをコピーする>チェックリストをコピーする</h3><p>チェックリストをコピーする場合、「タスクの詳細を取得する」で取得したチェックリストを所定の形へ変換してから、更新アクションへ渡す必要がある。
-下図がその加工のサンプル。</p><p><img src=2022-03-18-16-51-35.png alt></p><p>連続データの構造を変えるには、<a href=https://docs.microsoft.com/en-us/power-automate/data-operations#use-the-select-action target=_blank rel=noopener>データ操作 の 選択</a> を使う。
+手順は下記の通り。</p><ol><li>Web ブラウザで <a href=https://tasks.office.com/ target=_blank rel=noopener>Planner のページ</a> を開く。Teams から見た Planner のページではなく、Planner を直接開く。</li><li>コピー元タスクの「…」をクリック → 「タスクへのリンクをコピー」をクリック。<br><img src=2022-03-18-10-41-14.png alt></li><li>URLをテキストエディタ等へ貼り付ける。URL のうち、図で示した部分がタスクIDなので、この部分をコピーする。<br><img src=2022-03-18-10-46-31.png alt></li></ol><p>(今のところこれしか方法が分からず、もっといい方法があるなら知りたい…)</p><p>取ってきたIDは、「カスタム項目の追加」で追加する。</p><h3 id=チェックリストのコピー-順不同ver>チェックリストのコピー (順不同ver)</h3><p>チェックリストをコピーする場合、「タスクの詳細を取得する」で取得したチェックリストを所定の形へ変換してから更新アクションへ渡す。
+下図がその加工のサンプル。</p><p><img src=2022-03-21-16-59-55.png alt></p><p>連続データの構造を変えるには、<a href=https://docs.microsoft.com/en-us/power-automate/data-operations#use-the-select-action target=_blank rel=noopener>データ操作 の 選択</a> を使う。
 「開始」に「タスクの詳細を取得する」で取得したチェックリストを指定し、「マップ」をテキストモードへ切り替え、下記を直接入力する。</p><pre><code>{
-  &quot;id&quot;: @{item()?['value/orderHint']},
-  &quot;title&quot;: @{item()?['value/title']},
+  &quot;id&quot;: &quot;@{item()?['id']}&quot;,
+  &quot;title&quot;: &quot;@{item()?['value/title']}&quot;,
   &quot;isChecked&quot;: &quot;false&quot;
 }
-</code></pre><p>id に orderHint を使っているのは、チェックリストの並び順をコピー元と一緒にする方法がこれしかなかったためである。</p><h4 id=なぜ変換するか>なぜ変換するか</h4><p>「タスクの詳細を取得する」で取得したチェックリストをそのまま更新アクションで使っても上手くいかない。</p><p><img src=2022-03-18-11-22-56.png alt></p><p>これを実行すると、下記のエラーになる。</p><pre><code>種類 'OpenApiConnection' のワークフロー操作 'タスクの詳細の更新' の 'inputs.parameters' が無効です。
+</code></pre><p>ただし、この方法ではコピー先のチェックリストの並び順が、コピー元と同じになるとは限らない。</p><h4 id=なぜ変換するか>なぜ変換するか</h4><p>「タスクの詳細を取得する」で取得したチェックリストをそのまま更新アクションで使っても上手くいかない。</p><p><img src=2022-03-18-11-22-56.png alt></p><p>これを実行すると、下記のエラーになる。</p><pre><code>種類 'OpenApiConnection' のワークフロー操作 'タスクの詳細の更新' の 'inputs.parameters' が無効です。
 エラーの詳細: API 操作 'UpdateTaskDetails_V2' に、必要なプロパティ 'body/checklist/0/title' がありません。
 </code></pre><p>これは、更新のアクションでは id、title、isChecked の3つのキーを持つオブジェクトの配列を想定しているのに対し、「詳細を取得」するアクションで取得できるチェックリストの構造が違うため。
 下図は、詳細を取得アクションで取得したチェックリストの例。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#111>[</span>
@@ -31,52 +32,40 @@ gtag('js',new Date());gtag('config','UA-143399608-2');</script><meta property="o
     <span style=color:#111>}</span>
   <span style=color:#111>}</span>
 <span style=color:#111>]</span>
-</code></pre></div><h2 id=チェックリストの並び順>チェックリストの並び順</h2><p>「タスクの詳細を取得する(GetTaskDetails_V2)」で取得したチェックリストは、Planner で見た時の並び順と違う順番に並んでいることがある。
-並び順の情報は <a href="https://docs.microsoft.com/en-us/graph/api/resources/planner-order-hint-format?view=graph-rest-1.0" target=_blank rel=noopener>orderHint</a> で分かるが、「タスクの詳細の更新 (UpdateTaskDetails_V2)」に orderHint を渡すことができない。</p><p>ただ、新しく追加する分のチェックリストは、id の順番で orderHint も振られるようにみえる。なので、タスクをコピーするときに限っては、id に orderHint を入れるというのも手ではある。</p><p>他には、取得したチェックリストを orderHint で並べ直してから、id を改めて振っていく方法が考えられる。
-並べ直す部分を Power Automate で作るのは難しいので、Azure Functions や Office スクリプトなど、スクリプトが書けるほうに任せた方がいい。</p><h3 id=office-スクリプトのサンプル>Office スクリプトのサンプル</h3><p>orderHint で並び替えるサンプル。
-Office スクリプトは Excel のブックを指定しつつ実行するが、このサンプルは Excel を使わない。
-そのため、Power Automate から実行するときは、何かダミー用の Excel ファイルを指定すると良い。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ts data-lang=ts><span style=color:#75715e>/**
-</span><span style=color:#75715e> * orderHint で a と b を比較する。
-</span><span style=color:#75715e> * 1. 先頭から1文字ずつ比較し、小さい方が前になる。
-</span><span style=color:#75715e> * 2. 同じ文字が続く場合、文字数が短い方が前になる。
+</code></pre></div><h3 id=チェックリストのコピー-順番揃えるver>チェックリストのコピー (順番揃えるver)</h3><p>「タスクの詳細を取得する(GetTaskDetails_V2)」で取得したチェックリストの並び順は <a href="https://docs.microsoft.com/en-us/graph/api/resources/planner-order-hint-format?view=graph-rest-1.0" target=_blank rel=noopener>orderHint</a> で分かる。Planner の UI から見るとチェックリストは orderHint の降順に並んでいる。</p><p><img src=2022-03-21-15-50-57.png alt></p><p>しかし、「タスクの詳細の更新 (UpdateTaskDetails_V2)」には orderHint を渡すことができない。
+ただ、新しく追加する分のチェックリストは、id の昇順で UI 上も並ぶようなので、以下の手順でコピー元と並び順を揃えられる。</p><ol><li>「タスクの詳細を取得する」で取得したチェックリストを orderHint の降順で並べ替える。</li><li>先頭から id を 1 から振る。</li></ol><p>並べ直したりする部分を Power Automate で作るのは難しいので、Azure Functions や Office スクリプトなど、スクリプトが書けるほうに任せた方がいい。</p><p>下記は、Office スクリプトで並べ替え＆idの振り直しをするサンプル。</p><div class=highlight><pre style=color:#272822;background-color:#fafafa;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ts data-lang=ts><span style=color:#75715e>/**
+</span><span style=color:#75715e> * Plannerのチェックリストを受け取り、orderHint の降順で並べ替えつつ
+</span><span style=color:#75715e> * id を1から振りなおす。
+</span><span style=color:#75715e> * このスクリプトではExcelブックを使用しない。
 </span><span style=color:#75715e> * 
-</span><span style=color:#75715e> * inputJson: キーに orderHint を持つJsonの連続データ
+</span><span style=color:#75715e> * inputJson: 「タスクの詳細を取得」で取得したチェックリスト
+</span><span style=color:#75715e> * 戻り値：キーに id, title, isChecked を持つJsonの連続データ
 </span><span style=color:#75715e> */</span>
 <span style=color:#00a8c8>function</span> <span style=color:#75af00>main</span><span style=color:#111>(</span><span style=color:#75af00>workbook</span>: <span style=color:#00a8c8>ExcelScript.Workbook</span>
   <span style=color:#111>,</span> <span style=color:#75af00>inputJson</span> : <span style=color:#00a8c8>string</span><span style=color:#111>)</span>
 <span style=color:#111>{</span>
   <span style=color:#00a8c8>let</span> <span style=color:#75af00>parsedJson</span>: <span style=color:#00a8c8>Array</span><span style=color:#111>&lt;</span><span style=color:#f92672>object</span><span style=color:#111>&gt;</span> <span style=color:#f92672>=</span> <span style=color:#75af00>JSON</span><span style=color:#111>.</span><span style=color:#75af00>parse</span><span style=color:#111>(</span><span style=color:#75af00>inputJson</span><span style=color:#111>);</span>
-  <span style=color:#00a8c8>let</span> <span style=color:#75af00>sortedJson</span> <span style=color:#f92672>=</span> <span style=color:#75af00>parsedJson</span><span style=color:#111>.</span><span style=color:#75af00>sort</span><span style=color:#111>((</span><span style=color:#75af00>a</span><span style=color:#111>,</span> <span style=color:#75af00>b</span><span style=color:#111>)</span> <span style=color:#f92672>=&gt;</span> <span style=color:#111>{</span>
-    <span style=color:#00a8c8>let</span> <span style=color:#75af00>orderHintA</span> <span style=color:#f92672>=</span> <span style=color:#75af00>a</span><span style=color:#111>[</span><span style=color:#d88200>&#34;orderHint&#34;</span><span style=color:#111>]</span> <span style=color:#00a8c8>as</span> <span style=color:#00a8c8>string</span><span style=color:#111>;</span>
-    <span style=color:#00a8c8>let</span> <span style=color:#75af00>orderHintB</span> <span style=color:#f92672>=</span> <span style=color:#75af00>b</span><span style=color:#111>[</span><span style=color:#d88200>&#34;orderHint&#34;</span><span style=color:#111>]</span> <span style=color:#00a8c8>as</span> <span style=color:#00a8c8>string</span><span style=color:#111>;</span>
 
-    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>orderHintA</span> <span style=color:#f92672>==</span> <span style=color:#00a8c8>null</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#75af00>orderHintB</span> <span style=color:#f92672>==</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-      <span style=color:#00a8c8>return</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span>
+  <span style=color:#75715e>// ソート始まり
+</span><span style=color:#75715e></span>  <span style=color:#75af00>parsedJson</span><span style=color:#111>.</span><span style=color:#75af00>sort</span><span style=color:#111>((</span><span style=color:#75af00>a</span><span style=color:#111>,</span> <span style=color:#75af00>b</span><span style=color:#111>)</span> <span style=color:#f92672>=&gt;</span> <span style=color:#111>{</span>
+    <span style=color:#00a8c8>let</span> <span style=color:#75af00>orderHintA</span> <span style=color:#f92672>=</span> <span style=color:#75af00>a</span><span style=color:#111>[</span><span style=color:#d88200>&#34;value&#34;</span><span style=color:#111>][</span><span style=color:#d88200>&#34;orderHint&#34;</span><span style=color:#111>]</span> <span style=color:#00a8c8>as</span> <span style=color:#00a8c8>string</span><span style=color:#111>;</span>
+    <span style=color:#00a8c8>let</span> <span style=color:#75af00>orderHintB</span> <span style=color:#f92672>=</span> <span style=color:#75af00>b</span><span style=color:#111>[</span><span style=color:#d88200>&#34;value&#34;</span><span style=color:#111>][</span><span style=color:#d88200>&#34;orderHint&#34;</span><span style=color:#111>]</span> <span style=color:#00a8c8>as</span> <span style=color:#00a8c8>string</span><span style=color:#111>;</span>
 
-    <span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>orderHintA</span> <span style=color:#f92672>==</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-      <span style=color:#00a8c8>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#111>;</span>
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>orderHintA</span> <span style=color:#f92672>==</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+      <span style=color:#75af00>orderHintA</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span><span style=color:#111>;</span>
+    <span style=color:#111>}</span>
 
-    <span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>orderHintB</span> <span style=color:#f92672>==</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-      <span style=color:#00a8c8>return</span> <span style=color:#ae81ff>1</span><span style=color:#111>;</span>
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>orderHintB</span> <span style=color:#f92672>==</span> <span style=color:#00a8c8>null</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+      <span style=color:#75af00>orderHintB</span> <span style=color:#f92672>=</span> <span style=color:#d88200>&#34;&#34;</span><span style=color:#111>;</span>
     <span style=color:#111>}</span>
 
     <span style=color:#00a8c8>let</span> <span style=color:#75af00>lengthA</span> <span style=color:#f92672>=</span> <span style=color:#75af00>orderHintA</span><span style=color:#111>.</span><span style=color:#75af00>length</span><span style=color:#111>;</span>
     <span style=color:#00a8c8>let</span> <span style=color:#75af00>lengthB</span> <span style=color:#f92672>=</span> <span style=color:#75af00>orderHintB</span><span style=color:#111>.</span><span style=color:#75af00>length</span><span style=color:#111>;</span>
     <span style=color:#00a8c8>let</span> <span style=color:#75af00>idx</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span>
 
-    <span style=color:#00a8c8>while</span> <span style=color:#111>(</span><span style=color:#00a8c8>true</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-      <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>idx</span> <span style=color:#f92672>&gt;=</span> <span style=color:#75af00>lengthA</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#75af00>idx</span> <span style=color:#f92672>&gt;=</span> <span style=color:#75af00>lengthB</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-        <span style=color:#00a8c8>return</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span>
-
-      <span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>idx</span> <span style=color:#f92672>&gt;=</span> <span style=color:#75af00>lengthA</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-        <span style=color:#00a8c8>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#111>;</span>
-
-      <span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>idx</span> <span style=color:#f92672>&gt;=</span> <span style=color:#75af00>lengthB</span><span style=color:#111>)</span> <span style=color:#111>{</span>
-        <span style=color:#00a8c8>return</span> <span style=color:#ae81ff>1</span><span style=color:#111>;</span>
-      <span style=color:#111>}</span>
-
-      <span style=color:#00a8c8>let</span> <span style=color:#75af00>charA</span> <span style=color:#f92672>=</span> <span style=color:#75af00>orderHintA</span><span style=color:#111>.</span><span style=color:#75af00>charAt</span><span style=color:#111>(</span><span style=color:#75af00>idx</span><span style=color:#111>);</span>
-      <span style=color:#00a8c8>let</span> <span style=color:#75af00>charB</span> <span style=color:#f92672>=</span> <span style=color:#75af00>orderHintB</span><span style=color:#111>.</span><span style=color:#75af00>charAt</span><span style=color:#111>(</span><span style=color:#75af00>idx</span><span style=color:#111>);</span>
+    <span style=color:#00a8c8>while</span> <span style=color:#111>(</span><span style=color:#75af00>idx</span> <span style=color:#f92672>&lt;</span> <span style=color:#75af00>lengthA</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#75af00>idx</span> <span style=color:#f92672>&lt;</span> <span style=color:#75af00>lengthB</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+      <span style=color:#00a8c8>let</span> <span style=color:#75af00>charA</span> <span style=color:#f92672>=</span> <span style=color:#75af00>orderHintA</span><span style=color:#111>.</span><span style=color:#75af00>charCodeAt</span><span style=color:#111>(</span><span style=color:#75af00>idx</span><span style=color:#111>);</span>
+      <span style=color:#00a8c8>let</span> <span style=color:#75af00>charB</span> <span style=color:#f92672>=</span> <span style=color:#75af00>orderHintB</span><span style=color:#111>.</span><span style=color:#75af00>charCodeAt</span><span style=color:#111>(</span><span style=color:#75af00>idx</span><span style=color:#111>);</span>
 
       <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>charA</span> <span style=color:#f92672>&lt;</span> <span style=color:#75af00>charB</span><span style=color:#111>)</span> <span style=color:#111>{</span>
         <span style=color:#00a8c8>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#111>;</span>
@@ -88,48 +77,52 @@ Office スクリプトは Excel のブックを指定しつつ実行するが、
       <span style=color:#75af00>idx</span><span style=color:#f92672>++</span><span style=color:#111>;</span>
     <span style=color:#111>}</span>
 
+    <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>lengthA</span> <span style=color:#f92672>==</span> <span style=color:#75af00>lengthB</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+      <span style=color:#00a8c8>return</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span>
+
+    <span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>lengthA</span> <span style=color:#f92672>&lt;</span> <span style=color:#75af00>lengthB</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+      <span style=color:#00a8c8>return</span> <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#111>;</span>
+
+    <span style=color:#111>}</span> <span style=color:#00a8c8>else</span> <span style=color:#00a8c8>if</span> <span style=color:#111>(</span><span style=color:#75af00>lengthA</span> <span style=color:#f92672>&gt;</span> <span style=color:#75af00>lengthB</span><span style=color:#111>)</span> <span style=color:#111>{</span>
+      <span style=color:#00a8c8>return</span> <span style=color:#ae81ff>1</span><span style=color:#111>;</span>
+    <span style=color:#111>}</span>
+
     <span style=color:#00a8c8>return</span> <span style=color:#ae81ff>0</span><span style=color:#111>;</span>
   <span style=color:#111>});</span>
+  <span style=color:#75715e>// ソート終わり
+</span><span style=color:#75715e></span>
+  <span style=color:#75af00>parsedJson</span><span style=color:#111>.</span><span style=color:#75af00>reverse</span><span style=color:#111>();</span>
 
-  <span style=color:#00a8c8>return</span> <span style=color:#75af00>JSON</span><span style=color:#111>.</span><span style=color:#75af00>stringify</span><span style=color:#111>(</span><span style=color:#75af00>sortedJson</span><span style=color:#111>);</span>
+  <span style=color:#00a8c8>let</span> <span style=color:#75af00>mappedJson</span> <span style=color:#f92672>=</span> <span style=color:#75af00>parsedJson</span><span style=color:#111>.</span><span style=color:#75af00>map</span><span style=color:#111>((</span><span style=color:#75af00>a</span><span style=color:#111>,</span> <span style=color:#75af00>index</span><span style=color:#111>)</span> <span style=color:#f92672>=&gt;</span> <span style=color:#111>{</span>
+    <span style=color:#00a8c8>return</span> <span style=color:#111>{</span>
+      <span style=color:#d88200>&#34;id&#34;</span><span style=color:#f92672>:</span> <span style=color:#75af00>index</span> <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>
+      <span style=color:#111>,</span> <span style=color:#d88200>&#34;title&#34;</span><span style=color:#f92672>:</span> <span style=color:#75af00>a</span><span style=color:#111>[</span><span style=color:#d88200>&#34;value&#34;</span><span style=color:#111>][</span><span style=color:#d88200>&#34;title&#34;</span><span style=color:#111>]</span>
+      <span style=color:#111>,</span> <span style=color:#d88200>&#34;isChecked&#34;</span><span style=color:#f92672>:</span> <span style=color:#75af00>a</span><span style=color:#111>[</span><span style=color:#d88200>&#34;value&#34;</span><span style=color:#111>][</span><span style=color:#d88200>&#34;isChecked&#34;</span><span style=color:#111>]</span>
+    <span style=color:#111>};</span>
+  <span style=color:#111>});</span>
+
+  <span style=color:#00a8c8>return</span> <span style=color:#75af00>JSON</span><span style=color:#111>.</span><span style=color:#75af00>stringify</span><span style=color:#111>(</span><span style=color:#75af00>mappedJson</span><span style=color:#111>);</span>
 <span style=color:#111>}</span>
-</code></pre></div><p>↓ パラメータの例</p><pre><code>[
-  {
-    &quot;id&quot;: &quot;1&quot;,
-    &quot;orderHint&quot;: &quot;8585541056016538046&quot;,
-    &quot;title&quot;: &quot;title1&quot;,
-    &quot;isChecked&quot;: &quot;false&quot;
-  },
-  {
-    &quot;id&quot;: &quot;2&quot;,
-    &quot;orderHint&quot;: &quot;[8&quot;,
-    &quot;title&quot;: &quot;title2&quot;,
-    &quot;isChecked&quot;: &quot;false&quot;
-  },
-  {
-    &quot;id&quot;: &quot;3&quot;,
-    &quot;orderHint&quot;: &quot;8585540Ei&quot;,
-    &quot;title&quot;: &quot;title3&quot;,
-    &quot;isChecked&quot;: &quot;false&quot;
-  }
-]
-</code></pre><p>↓実行結果の例 (orderHint の順番になっている)</p><pre><code>[
-  {
-    &quot;id&quot;: &quot;3&quot;,
-    &quot;orderHint&quot;: &quot;8585540Ei&quot;,
-    &quot;title&quot;: &quot;title3&quot;,
-    &quot;isChecked&quot;: &quot;false&quot;
-  },
-  {
-    &quot;id&quot;: &quot;1&quot;,
-    &quot;orderHint&quot;: &quot;8585541056016538046&quot;,
-    &quot;title&quot;: &quot;title1&quot;,
-    &quot;isChecked&quot;: &quot;false&quot;
-  },
-  {
-    &quot;id&quot;: &quot;2&quot;,
-    &quot;orderHint&quot;: &quot;[8&quot;,
-    &quot;title&quot;: &quot;title2&quot;,
-    &quot;isChecked&quot;: &quot;false&quot;
-  }
-]</code></pre></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
+</code></pre></div><p>そして、このスクリプトをフローから呼び出す。下記がそのフローのサンプル。</p><p><img src=2022-03-22-14-45-06.png alt></p><p>タスクの詳細を取得した後、「スクリプトの実行」で先ほどのスクリプトを呼び出す。</p><ul><li>ファイル ： 何でもいい。</li><li>スクリプト ： 先ほどのサンプルスクリプトの名前。</li><li>inputJson ： 「タスクの詳細を取得する」で取得したチェックリストを文字列へ変換する。<ul><li><code>string(outputs('タスクの詳細を取得する')?['body/checklist'])</code></li></ul></li></ul><p>次に、「JSON の解析」でスクリプトの実行結果を JSON へパースする。これをしないと、「タスクの詳細の更新」の引数に指定できない。</p><ul><li>コンテンツ ： 「スクリプトの実行」の出力結果。</li><li>スキーマ ： 下記記載。</li></ul><pre><code>{
+    &quot;type&quot;: &quot;array&quot;,
+    &quot;items&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+            &quot;id&quot;: {
+                &quot;type&quot;: &quot;integer&quot;
+            },
+            &quot;title&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+            },
+            &quot;isChecked&quot;: {
+                &quot;type&quot;: &quot;boolean&quot;
+            }
+        },
+        &quot;required&quot;: [
+            &quot;id&quot;,
+            &quot;title&quot;,
+            &quot;isChecked&quot;
+        ]
+    }
+}
+</code></pre><p>最後に「タスクの詳細の更新」のチェックリストに「JSON の解析」の実行結果を指定する。</p></article></div></div></main><footer class=footer-area><div class=content-container><hr><div class=author-container><div class=avatar><img src=/images/avatar.jpg></div><div class=author><p class=author-name>alpaca</p><p>おおむねSIerにいますが、他業種の社内SEだったこともあります。</p><p><a href=https://github.com/vicugna-pacos><img src=/images/GitHub-Mark-32px.png style=width:2rem></a></p></div></div></div></footer></body></html>
