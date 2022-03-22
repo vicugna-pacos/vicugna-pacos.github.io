@@ -72,24 +72,24 @@ lastMod: 2022-03-21T14:21:44+09:00
 
 取ってきたIDは、「カスタム項目の追加」で追加する。
 
-### チェックリストをコピーする
-チェックリストをコピーする場合、「タスクの詳細を取得する」で取得したチェックリストを所定の形へ変換してから、更新アクションへ渡す必要がある。
+### チェックリストのコピー (順不同ver)
+チェックリストをコピーする場合、「タスクの詳細を取得する」で取得したチェックリストを所定の形へ変換してから更新アクションへ渡す。
 下図がその加工のサンプル。
 
-![](2022-03-18-16-51-35.png)
+![](2022-03-21-16-59-55.png)
 
 連続データの構造を変えるには、[データ操作 の 選択](https://docs.microsoft.com/en-us/power-automate/data-operations#use-the-select-action) を使う。
 「開始」に「タスクの詳細を取得する」で取得したチェックリストを指定し、「マップ」をテキストモードへ切り替え、下記を直接入力する。
 
 ```
 {
-  "id": @{item()?['value/orderHint']},
-  "title": @{item()?['value/title']},
+  "id": "@{item()?['id']}",
+  "title": "@{item()?['value/title']}",
   "isChecked": "false"
 }
 ```
 
-id に orderHint を使っているのは、チェックリストの並び順をコピー元と一緒にする方法がこれしかなかったためである。
+ただし、この方法ではコピー先のチェックリストの並び順が、コピー元と同じになるとは限らない。
 
 #### なぜ変換するか
 
@@ -126,191 +126,55 @@ id に orderHint を使っているのは、チェックリストの並び順を
 ]
 ```
 
-## チェックリストの並べ替え
-「タスクの詳細を取得する(GetTaskDetails_V2)」で取得したチェックリストは、Planner で見た時の並び順と違う順番に並んでいることがある。
-並び順の情報は [orderHint](https://docs.microsoft.com/en-us/graph/api/resources/planner-order-hint-format?view=graph-rest-1.0) で分かるが、「タスクの詳細の更新 (UpdateTaskDetails_V2)」に orderHint を渡すことができない。
+### チェックリストのコピー (順番揃えるver)
+「タスクの詳細を取得する(GetTaskDetails_V2)」で取得したチェックリストの並び順は [orderHint](https://docs.microsoft.com/en-us/graph/api/resources/planner-order-hint-format?view=graph-rest-1.0) で分かる。Planner の UI から見るとチェックリストは orderHint の降順に並んでいる。
 
-ただ、新しく追加する分のチェックリストは、id の順番で orderHint も振られるようにみえる。なので、タスクをコピーするときに限っては、id に orderHint を入れるというのも手ではある。
+![](2022-03-21-15-50-57.png)
 
-他には、取得したチェックリストを orderHint で並べ直してから、id を改めて振っていく方法が考えられる。
-並べ直す部分を Power Automate で作るのは難しいので、Azure Functions や Office スクリプトなど、スクリプトが書けるほうに任せた方がいい。
+しかし、「タスクの詳細の更新 (UpdateTaskDetails_V2)」には orderHint を渡すことができない。
+ただ、新しく追加する分のチェックリストは、id の昇順で UI 上も並ぶようなので、以下の手順でコピー元と並び順を揃えられる。
 
-### Office スクリプトのサンプル
-下記に、orderHint で並び替えるサンプルを記載する。
-Office スクリプトは Excel のブックを指定しつつ実行するが、このサンプルは Excel を使わない。
-そのため、Power Automate から実行するときは、何かダミー用の Excel ファイルを指定すると良い。
+1. 「タスクの詳細を取得する」で取得したチェックリストを orderHint の降順で並べ替える。
+1. 先頭から id を 1 から振る。
 
-```ts
-/**
- * orderHint で a と b を比較する。
- * 1. 先頭から1文字ずつ比較し、小さい方が前になる。
- * 2. 同じ文字が続く場合、文字数が短い方が前になる。
- * 
- * inputJson: キーに orderHint を持つJsonの連続データ
- */
-function main(workbook: ExcelScript.Workbook
-  , inputJson : string)
-{
-  let parsedJson: Array<object> = JSON.parse(inputJson);
-  let sortedJson = parsedJson.sort((a, b) => {
-    let orderHintA = a["orderHint"] as string;
-    let orderHintB = b["orderHint"] as string;
+並べ直したりする部分を Power Automate で作るのは難しいので、Azure Functions や Office スクリプトなど、スクリプトが書けるほうに任せた方がいい。
 
-    if (orderHintA == null && orderHintB == null) {
-      return 0;
-
-    } else if (orderHintA == null) {
-      return -1;
-
-    } else if (orderHintB == null) {
-      return 1;
-    }
-
-    let lengthA = orderHintA.length;
-    let lengthB = orderHintB.length;
-    let idx = 0;
-
-    while (true) {
-      if (idx >= lengthA && idx >= lengthB) {
-        return 0;
-
-      } else if (idx >= lengthA) {
-        return -1;
-
-      } else if (idx >= lengthB) {
-        return 1;
-      }
-
-      let charA = orderHintA.charAt(idx);
-      let charB = orderHintB.charAt(idx);
-
-      if (charA < charB) {
-        return -1;
-
-      } else if (charA > charB) {
-        return 1;
-      }
-
-      idx++;
-    }
-
-    return 0;
-  });
-
-  return JSON.stringify(sortedJson);
-}
-```
-
-↓ パラメータの例
-
-    [
-      {
-        "id": "1",
-        "orderHint": "8585541056016538046",
-        "title": "title1",
-        "isChecked": "false"
-      },
-      {
-        "id": "2",
-        "orderHint": "[8",
-        "title": "title2",
-        "isChecked": "false"
-      },
-      {
-        "id": "3",
-        "orderHint": "8585540Ei",
-        "title": "title3",
-        "isChecked": "false"
-      }
-    ]
-
-↓実行結果の例 (orderHint の順番になっている)
-
-    [
-      {
-        "id": "3",
-        "orderHint": "8585540Ei",
-        "title": "title3",
-        "isChecked": "false"
-      },
-      {
-        "id": "1",
-        "orderHint": "8585541056016538046",
-        "title": "title1",
-        "isChecked": "false"
-      },
-      {
-        "id": "2",
-        "orderHint": "[8",
-        "title": "title2",
-        "isChecked": "false"
-      }
-    ]
-
-### Office スクリプトのサンプル2
-下記に、orderHint で並べ替えつつ、id を1からふり直しつつ orderHint のキーを削除するサンプルを記載する。
-チェックリストをコピーするときに使える。
+下記は、Office スクリプトで並べ替え＆idの振り直しをするサンプル。
 
 ```ts
 /**
- * Planner のチェックリストを受け取り、orderHint で並べ替えつつ id を採番しなおす。
+ * Plannerのチェックリストを受け取り、orderHint の降順で並べ替えつつ
+ * id を1から振りなおす。
  * このスクリプトではExcelブックを使用しない。
  * 
- * inputJson: キーに id, title, isChecked, orderHint を持つJsonの連続データ
+ * inputJson: 「タスクの詳細を取得」で取得したチェックリスト
  * 戻り値：キーに id, title, isChecked を持つJsonの連続データ
  */
 function main(workbook: ExcelScript.Workbook
   , inputJson : string)
 {
   let parsedJson: Array<object> = JSON.parse(inputJson);
-  let sortedJson = sort(parsedJson);
 
-  let mappedJson = sortedJson.map((a, index) => {
-    return {
-      "id": index + 1
-      ,"title": a["title"]
-      ,"isChecked": a["isChecked"]
-    };
-  });
+  // ソート始まり
+  parsedJson.sort((a, b) => {
+    let orderHintA = a["value"]["orderHint"] as string;
+    let orderHintB = b["value"]["orderHint"] as string;
 
-  return JSON.stringify(mappedJson);
-}
+    if (orderHintA == null) {
+      orderHintA = "";
+    }
 
-/**
- * orderHint で並べ替え
- */
-function sort(parsedJson: Array<object>) {
-  return parsedJson.sort((a, b) => {
-    let orderHintA = a["orderHint"] as string;
-    let orderHintB = b["orderHint"] as string;
-
-    if (orderHintA == null && orderHintB == null) {
-      return 0;
-
-    } else if (orderHintA == null) {
-      return -1;
-
-    } else if (orderHintB == null) {
-      return 1;
+    if (orderHintB == null) {
+      orderHintB = "";
     }
 
     let lengthA = orderHintA.length;
     let lengthB = orderHintB.length;
     let idx = 0;
 
-    while (true) {
-      if (idx >= lengthA && idx >= lengthB) {
-        return 0;
-
-      } else if (idx >= lengthA) {
-        return -1;
-
-      } else if (idx >= lengthB) {
-        return 1;
-      }
-
-      let charA = orderHintA.charAt(idx);
-      let charB = orderHintB.charAt(idx);
+    while (idx < lengthA && idx < lengthB) {
+      let charA = orderHintA.charCodeAt(idx);
+      let charB = orderHintB.charCodeAt(idx);
 
       if (charA < charB) {
         return -1;
@@ -322,8 +186,73 @@ function sort(parsedJson: Array<object>) {
       idx++;
     }
 
+    if (lengthA == lengthB) {
+      return 0;
+
+    } else if (lengthA < lengthB) {
+      return -1;
+
+    } else if (lengthA > lengthB) {
+      return 1;
+    }
+
     return 0;
   });
+  // ソート終わり
 
+  parsedJson.reverse();
+
+  let mappedJson = parsedJson.map((a, index) => {
+    return {
+      "id": index + 1
+      , "title": a["value"]["title"]
+      , "isChecked": a["value"]["isChecked"]
+    };
+  });
+
+  return JSON.stringify(mappedJson);
 }
 ```
+
+そして、このスクリプトをフローから呼び出す。下記がそのフローのサンプル。
+
+![](2022-03-22-14-45-06.png)
+
+タスクの詳細を取得した後、「スクリプトの実行」で先ほどのスクリプトを呼び出す。
+
+* ファイル ： 何でもいい。
+* スクリプト ： 先ほどのサンプルスクリプトの名前。
+* inputJson ： 「タスクの詳細を取得する」で取得したチェックリストを文字列へ変換する。
+   * ```string(outputs('タスクの詳細を取得する')?['body/checklist'])```
+
+次に、「JSON の解析」でスクリプトの実行結果を JSON へパースする。これをしないと、「タスクの詳細の更新」の引数に指定できない。
+
+* コンテンツ ： 「スクリプトの実行」の出力結果。
+* スキーマ ：  下記記載。
+
+```
+{
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "title": {
+                "type": "string"
+            },
+            "isChecked": {
+                "type": "boolean"
+            }
+        },
+        "required": [
+            "id",
+            "title",
+            "isChecked"
+        ]
+    }
+}
+```
+
+最後に「タスクの詳細の更新」のチェックリストに「JSON の解析」の実行結果を指定する。
