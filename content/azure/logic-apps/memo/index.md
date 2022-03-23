@@ -55,9 +55,14 @@ SharePoint の A フォルダにあるファイルを B フォルダにコピー
 詳細不明。
 
 回避策：  
-「ファイルの作成」の代わりに「ファイルの更新」を使う。
+「ファイルコンテンツの取得」  
+↓  
+「ファイルの作成」  
+↓  
+「ファイルの更新」
 
-更新のアクションでも、ファイルが無い場合は新しく作成してくれる。
+とアクションを並べ、「ファイルの作成」でファイルコンテンツが空のファイルを作る (ファイルコンテンツの指定は必須なので、実際はスペースか何かを1文字入れておく)。
+そのあと「ファイルの更新」を実行し、実際のファイルの内容を書き込む。
 
 参考：[Solved: When I create a file in a SharePoint library - Bad... - Power Platform Community](https://powerusers.microsoft.com/t5/Building-Flows/When-I-create-a-file-in-a-SharePoint-library-Bad-Request-error/td-p/683512)
 
