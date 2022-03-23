@@ -1,7 +1,7 @@
 ---
 title: "色々メモ"
 date: 2021-05-18T16:05:53+09:00
-lastMod: 2021-06-15T11:10:59+09:00
+lastMod: 2022-03-23T19:42:05+09:00
 ---
 
 ## Excel
@@ -36,6 +36,29 @@ Logic App でシリアル値を求めるのが面倒くさい場合は、全デ�
 「タイムゾーンの変換」を使うと、ついでに書式の変換もできる。
 
 ![](2021-06-15-11-09-24.png)
+
+## SharePoint
+
+### 「ファイルの作成」がエラーになる
+エラーの内容：
+
+    Bad Request - Invalid URL
+    HTTP Error 400. The request URL is invalid.
+
+現象：  
+SharePoint の A フォルダにあるファイルを B フォルダにコピーしようとして、「ファイルコンテンツの取得」→「ファイルの作成」をしてエラーになった。
+
+原因：  
+コピー先のフォルダパス ＋ ファイル名 ＋ ファイルコンテンツの容量が一定以上だとエラーになるっぽい？
+詳細不明。
+
+回避策：  
+「ファイルの作成」の代わりに「ファイルの更新」を使う。
+
+更新のアクションでも、ファイルが無い場合は新しく作成してくれる。
+
+参考：[Solved: When I create a file in a SharePoint library - Bad... - Power Platform Community](https://powerusers.microsoft.com/t5/Building-Flows/When-I-create-a-file-in-a-SharePoint-library-Bad-Request-error/td-p/683512)
+
 
 ## トラブルシューティング
 
