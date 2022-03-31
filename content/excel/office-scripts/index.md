@@ -267,6 +267,8 @@ function convertDateToSerial(dt: Date) {
 ```
 
 ### テーブルにフィルタを設定し結果を取得する
+Excel のフィルタを使用し、テーブルから特定の値を持つ行を検索するサンプル。
+ただ、データ量によると思うが、スクリプトで [Array.filter()](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) を使って検索したほうが実行速度が速い。
 
 ```typescript
 function main(workbook: ExcelScript.Workbook)
@@ -327,6 +329,38 @@ function convertDateFormat(dt: Date) {
   }
   result += dt.getDate();
   return result;
+}
+```
+
+#### Array.filter() を使う
+日付を検索する場合、シリアル値を使う点に注意。
+
+```typescript
+/**
+ * 1列目を検索し、2列目の値を返す
+ */
+function main(workbook: ExcelScript.Workbook) {
+  let sheet = workbook.getWorksheet("Sheet1");
+  let table = sheet.getTable("テーブル1");
+  let param1 = "検索したい値";
+
+  let values = table.getRange().getValues();
+
+  let filtered = values.filter((element, index) => {
+    if (index == 0) {  // ヘッダー行は無視
+      return false;
+    }
+    if (element[0] == param1) {
+      return true;
+    }
+    return false;
+  });
+
+  if (filtered.length == 0) {
+    return null as string;
+  }
+
+  return filtered[0][1] as string;
 }
 ```
 
