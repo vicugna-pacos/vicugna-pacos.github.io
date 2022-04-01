@@ -34,8 +34,6 @@ Public Sub キャンセル済みの会議を予定から削除()
             oAppo.Delete
         End If
         
-        oItem.UnRead = False
-        
     Next
     
 End Sub
