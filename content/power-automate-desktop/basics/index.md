@@ -67,6 +67,9 @@ Excel を終了する際にファイルパスを指定して保存している�
 * `%NewVar + ['value3', 'value4']%` ： 既存のデータテーブルに行追加
 * `%NewVar[1]['header1']%` ： 特定の位置にある値を参照。値の設定先にも指定できる。
 
+上記のように新しいデータテーブルを定義したり行を追加したりはできるが、定義済みのデータテーブルに対して、列の追加、列の削除、行の削除はできない。
+その場合は、別のデータテーブルを作ってデータを移すか、[Excelに一時的に書き込んでExcel上で編集する](https://docs.microsoft.com/en-us/power-automate/desktop-flows/how-to/delete-row-column-datatable)といい。
+
 ### カスタムオブジェクト
 JSONの記法で任意のキーと値を持ったオブジェクトを作れる。
 
