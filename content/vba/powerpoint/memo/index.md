@@ -1,7 +1,6 @@
 ---
-title: "Memo"
-date: 2022-04-08T15:13:57+09:00
-draft: true
+title: "メモ"
+date: 2022-04-13T14:34:00+09:00
 ---
 
 ## 参照設定
@@ -73,23 +72,25 @@ Presentation.SlideMaster.[CustomLayouts](https://docs.microsoft.com/en-us/office
 ![](2022-04-12-14-48-23.png)
 
 ## スライドに書き込む
+PowerPoint では、タイトルも本文もまず四角い枠 (プレースホルダー) があって、そこに文字を書き込む。
 
+![](2022-04-12-15-09-50.png)
 
+その四角い枠たちは [Presentation.Shapes](https://docs.microsoft.com/en-us/office/vba/api/powerpoint.slide.shapes) で取得できる。
+Shapes には、図形、画像、OLEオブジェクト、テキストオブジェクト、タイトル、ヘッダー＆フッター、スライドNoなどが含まれる。
 
+Shapes は Shape オブジェクトのコレクションで、それぞれどの種類のオブジェクトかは [Shape.Type プロパティ](https://docs.microsoft.com/en-us/office/vba/api/powerpoint.shape.type) で分かる。Type プロパティは [MsoShapeType 列挙体](https://docs.microsoft.com/en-us/office/vba/api/office.msoshapetype) で定義する。
+主な値は下記の通り：
 
+* msoPlaceholder (14) ： プレースホルダー。タイトル、サブタイトル、コンテンツなどを入力するところ。
+* msoPicture (13) ： 画像。
+* msoTextBox (17) ： テキストボックス。
+* msoChart (3) ： グラフ。
 
+### プレースホルダー
+![](2022-04-13-14-12-54.png)
 
+[Shapes.Placeholders](https://docs.microsoft.com/en-us/office/vba/api/powerpoint.shapes.placeholders) で、スライドにあるプレースホルダーだけ取得できる。
+プレースホルダーが、タイトル、コンテンツなどの内どれなのかは、[Shape.PlaceHolderFormat.Type](https://docs.microsoft.com/en-us/office/vba/api/powerpoint.placeholderformat.type) で分かる。
 
-
-https://docs.microsoft.com/en-us/office/vba/api/office.msoshapetype
-
-shapeのtypeがplaceholderだと、タイトルとか本文とかになる。
-そのタイトルとか本文のどれなのかは、placeholderformat.type で分かる。
-https://docs.microsoft.com/en-us/office/vba/api/powerpoint.shape.placeholderformat
-https://docs.microsoft.com/en-us/office/vba/api/powerpoint.placeholderformat.type
-
-slide の追加は Slides.Add と Slides.AddSlide の2種類がある。
-前者は以下にサンプルがあるけど、Addメソッドのドキュメントがない。
-https://docs.microsoft.com/en-us/office/vba/api/powerpoint.slides
-後者
 
