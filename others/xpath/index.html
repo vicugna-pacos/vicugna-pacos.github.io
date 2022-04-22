@@ -27,7 +27,7 @@ gtag('js',new Date());gtag('config','G-0L8LJXJEKX');</script><meta property="og:
 置換対象となる abc の1文字目が見つかると、 XYZ の1文字目へ置き換える。</p><p>例1：</p><pre><code>translate('The quick brown fox.', 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 ↓ 出力
 THE QUICK BROWN FOX.
-</code></pre><p>例2：</p><pre><code>translate('The quick brown fox.', 'brown', 'red'
+</code></pre><p>例2：</p><pre><code>translate('The quick brown fox.', 'brown', 'red')
 ↓ 出力
 The quick red fdx.
 </code></pre><p>XYZ が abc より短い場合、abcで見つかった部分の文字は削除される。そのため、空白削除に使える。</p><h2 id=chrome-で-xpath-を取得する>Chrome で XPath を取得する</h2><ol><li>開発者ツールを起動する。</li><li>Elements タブを開く。</li><li>HTML ソースから任意の要素を右クリック。</li><li>「Copy XPath」をクリック。</li></ol><p><img src=2021-05-21-09-20-08.png alt></p><p>この方法で XPath を取得した場合、要素自身や親要素に id 属性があれば <code>//*[@id="xxxx"]</code> など短めの XPath になるが、id 属性がない場合などは、
