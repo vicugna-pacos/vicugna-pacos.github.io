@@ -159,7 +159,7 @@ param1 が param2 で始まっていればが含まれていれば true を返�
 
 例2：
 
-    translate('The quick brown fox.', 'brown', 'red'
+    translate('The quick brown fox.', 'brown', 'red')
     ↓ 出力
     The quick red fdx.
 
