@@ -8,8 +8,14 @@
                 {{ end }}
             </div>
             <div class="author">
-                <p class="author-name">{{ .Site.Params.author }}</p>
-                <p>{{ .Site.Params.bio }}</p>
+                <p>このサイトは、IT 関連で得た知識を備忘録代わりに記録したサイトです。</p>
+                <p>当サイトの注意事項：</p>
+                <ul>
+                    <li>当サイトの内容は、現在所属する組織および過去に所属していた組織を代表するものではありません。</li>
+                    <li>当サイトに記載する内容はできる限り正確になるよう努めていますが、その正確性や安全性を保障するものではありません。また、内容が古くなっている可能性もあります。</li>
+                    <li>当サイトを利用することで発生した損害等について、一切の責任を追いません。サンプルコードなどはご自身で十分検証したうえでご活用ください。</li>
+                    <li>当サイトでは Google アナリティクスを使用しています。Google アナリティクスでどんな情報が収集されるかは、次のリンクをご参照ください。<a href="https://www.google.com/intl/ja/policies/privacy/partners/" target="_blank">https://www.google.com/intl/ja/policies/privacy/partners/</a></li>
+                </ul>
                 <p>
                     {{ if .Site.Params.github }}
                     <a href="https://github.com/{{ .Site.Params.github }}"><img src="{{ "images/GitHub-Mark-32px.png" | relURL }}" style="width:2rem;"></a>
